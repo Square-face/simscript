@@ -1,4 +1,5 @@
 use bevy::prelude::PluginGroup;
+use bevy::transform::components::Transform;
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
@@ -20,14 +21,19 @@ fn main() {
             custom_layer: |_| None,
         }))
         .add_plugins(CameraPlugin)
-        .add_systems(Startup, (spawn_cube,))
+        .add_systems(Startup, (spawn_cubes,))
         .run();
 }
 
-fn spawn_cube(mut commands: Commands, ass: Res<AssetServer>) {
+fn spawn_cubes(mut commands: Commands, ass: Res<AssetServer>) {
     let cube = ass.load("cube.glb#Scene0");
     commands.spawn(SceneBundle {
-        scene: cube,
+        scene: cube.clone(),
+        ..default()
+    });
+    commands.spawn(SceneBundle {
+        scene: cube.clone(),
+        transform: Transform::from_xyz(0.0, 3.0, 0.0),
         ..default()
     });
 }

@@ -1,21 +1,18 @@
-use std::f32::consts::{PI, TAU};
+use std::f32::consts::PI;
 
 use bevy::{
-    a11y::accesskit::Point,
-    app::{App, Plugin, Startup, Update},
-    core_pipeline::core_3d::Camera3dBundle,
-    ecs::{
+    app::{App, Plugin, Startup, Update}, core_pipeline::core_3d::Camera3dBundle, ecs::{
         bundle::Bundle,
         component::Component,
         entity::Entity,
         event::EventReader,
         query::With,
         system::{Commands, Query, Res},
-    },
-    input::mouse::MouseMotion,
-    log::debug,
-    math::{EulerRot, Quat, Vec2, Vec3},
-    transform::components::Transform,
+    }, input::{
+        keyboard::KeyCode,
+        mouse::{MouseButton, MouseMotion, MouseScrollUnit, MouseWheel},
+        ButtonInput,
+    }, log::debug, math::{EulerRot, Quat, Vec2, Vec2Swizzles, Vec3}, transform::components::Transform
 };
 
 /// A Camera bundle that orbits around a point
@@ -23,6 +20,17 @@ use bevy::{
 pub struct OrbitCam {
     pub camera: Camera3dBundle,
     pub state: OrbitState,
+    pub settings: OrbitSettings,
+}
+
+/// Settings used by Orbit Camera
+#[derive(Component, Debug, Default)]
+struct OrbitSettings {
+    pub orbit_sensitivity: f32,
+    pub scroll_wheel_action: ScrollAction,
+    pub scroll_sensitivity_line: f32,
+    pub scroll_sensitivity_pixel: f32,
+    pub orbit_key: Option<KeyCode>,
 }
 
 /// Current state of a orbiting camera
@@ -44,6 +52,12 @@ pub enum OrbitTarget {
     Point(Vec3),
 }
 
+#[derive(Debug)]
+pub enum ScrollAction {
+    Zoom,
+    VerticalPan,
+}
+
 /// Marks the primary camera
 #[derive(Component)]
 struct PrimaryCameraMarker;
@@ -51,66 +65,68 @@ struct PrimaryCameraMarker;
 pub struct CameraPlugin;
 
 fn spawn(mut cmds: Commands) {
-    cmds.spawn((OrbitCam::default(), PrimaryCameraMarker));
+    cmds.spawn((
+        OrbitCam {
+            settings: OrbitSettings {
+                orbit_sensitivity: 0.01,
+                orbit_key: Some(KeyCode::ShiftLeft),
+                scroll_sensitivity_line: 0.1,
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        PrimaryCameraMarker,
+    ));
 }
 
 fn update_camera(
+    kbd: Res<ButtonInput<KeyCode>>,
+    mos: Res<ButtonInput<MouseButton>>,
     mut mouse_motion_event: EventReader<MouseMotion>,
-    mut query: Query<(&mut OrbitState, &mut Transform), With<PrimaryCameraMarker>>,
+    mouse_scroll_event: EventReader<MouseWheel>,
+    mut query: Query<(&mut OrbitState, &mut Transform, &OrbitSettings), With<PrimaryCameraMarker>>,
 ) {
     // Get the state and transform for the camera
-    let (mut state, mut transform) = query
+    let (mut state, mut transform, settings) = query
         .get_single_mut()
         .expect("Multiple or no primary camera");
 
     // Convert movement event to a Vec2
-    let mut motion: Vec2 = mouse_motion_event.read().map(|ev| ev.delta).sum();
+    let mut mouse_motion: Vec2 = mouse_motion_event.read().map(|ev| ev.delta).sum();
+    let scroll = parse_scroll(mouse_scroll_event, settings);
 
     // Invert movement axis
-    motion.y = -motion.y;
-    motion.x = -motion.x;
+    mouse_motion.y = -mouse_motion.y;
+    mouse_motion.x = -mouse_motion.x;
 
     // Apply to Pitch/Yaw
-    state.yaw = normalize(state.yaw + motion.x * 0.01);
-    state.pitch = normalize(state.pitch + motion.y * 0.01);
+    state.orbit(settings, mouse_motion);
+    state.zoom(scroll.y);
 
     // Apply transformation
     *transform = state.to_transform();
 }
 
-fn normalize(v: f32) -> f32 {
-    if v < -PI {
-        return v + TAU;
-    }
-    if v > PI {
-        return v - TAU;
-    }
-    v
+/// Normalize a euler angle so it loops around
+fn zero_mod(v: f32, lim: f32) -> f32 {
+    ((v + lim) % (lim * 2.0)) - lim
 }
 
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn);
-        app.add_systems(Update, update_camera);
-    }
-}
+fn parse_scroll(mut input: EventReader<MouseWheel>, settings: &OrbitSettings) -> Vec2 {
+    let mut result = Vec2::ZERO;
 
-impl Default for OrbitTarget {
-    fn default() -> Self {
-        Self::Point(Vec3::ZERO)
-    }
-}
+    for ev in input.read() {
+        debug!("{:?}", ev);
+        let motion = Vec2{x: ev.x, y:ev.y};
+        let sensitivity = match ev.unit {
+            MouseScrollUnit::Line => settings.scroll_sensitivity_line,
+            MouseScrollUnit::Pixel => settings.scroll_sensitivity_pixel,
+        };
 
-impl Default for OrbitState {
-    fn default() -> Self {
-        Self {
-            target: OrbitTarget::default(),
-            radius: 10.0,
-            upside_down: false,
-            pitch: 0.0,
-            yaw: 0.0,
-        }
+        result += motion * sensitivity;
     }
+
+    result.exp()
 }
 
 impl OrbitState {
@@ -126,5 +142,51 @@ impl OrbitState {
         transform.translation = center + transform.back() * self.radius;
 
         transform
+    }
+
+    fn orbit(&mut self, settings: &OrbitSettings, motion: Vec2) {
+        let mut motion = motion * settings.orbit_sensitivity;
+        if self.upside_down {
+            motion.x = -motion.x;
+        }
+
+        self.yaw = zero_mod(self.yaw + motion.x, PI);
+        self.pitch = zero_mod(self.pitch + motion.y, PI);
+    }
+
+    fn zoom(&mut self, scroll: f32) {
+        if scroll == 0.0 {return}
+        self.radius *= scroll;
+    }
+}
+
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn);
+        app.add_systems(Update, update_camera);
+    }
+}
+
+impl Default for OrbitTarget {
+    fn default() -> Self {
+        Self::Point(Vec3::ZERO)
+    }
+}
+
+impl Default for ScrollAction {
+    fn default() -> Self {
+        Self::Zoom
+    }
+}
+
+impl Default for OrbitState {
+    fn default() -> Self {
+        Self {
+            target: OrbitTarget::default(),
+            radius: 10.0,
+            upside_down: false,
+            pitch: 0.0,
+            yaw: 0.0,
+        }
     }
 }
