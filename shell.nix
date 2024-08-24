@@ -3,6 +3,7 @@ let
     buildInputs = with pkgs; [
         # >1.79 to build bevy
         rust-bin.stable."1.80.0".default
+        rust-analyzer
 
         # From Bevy docs
         udev alsa-lib vulkan-loader
