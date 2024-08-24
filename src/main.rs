@@ -1,36 +1,27 @@
+use bevy::prelude::PluginGroup;
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
-    core_pipeline::core_3d::Camera3dBundle,
-    ecs::{
-        component::Component,
-        system::{Commands, Res},
-    },
-    math::Vec3,
+    ecs::system::{Commands, Res},
+    log::LogPlugin,
     scene::SceneBundle,
-    transform::components::Transform,
     utils::default,
     DefaultPlugins,
 };
+use camera::CameraPlugin;
 
-#[derive(Component)]
-struct PrimaryCameraMarker;
+mod camera;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (setup_camera, spawn_cube))
+        .add_plugins(DefaultPlugins.set(LogPlugin {
+            filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
+            level: bevy::log::Level::DEBUG,
+            custom_layer: |_| None,
+        }))
+        .add_plugins(CameraPlugin)
+        .add_systems(Startup, (spawn_cube,))
         .run();
-}
-
-fn setup_camera(mut commands: Commands) {
-    commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(10.0, 10.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
-        PrimaryCameraMarker,
-    ));
 }
 
 fn spawn_cube(mut commands: Commands, ass: Res<AssetServer>) {
