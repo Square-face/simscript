@@ -9,7 +9,7 @@ use bevy::{
     utils::default,
     DefaultPlugins,
 };
-use camera::CameraPlugin;
+use camera::{CameraPlugin, CameraTarget};
 
 mod camera;
 
@@ -27,13 +27,18 @@ fn main() {
 
 fn spawn_cubes(mut commands: Commands, ass: Res<AssetServer>) {
     let cube = ass.load("cube.glb#Scene0");
-    commands.spawn(SceneBundle {
+    commands.spawn((SceneBundle {
         scene: cube.clone(),
         ..default()
-    });
-    commands.spawn(SceneBundle {
+    },));
+    commands.spawn((SceneBundle {
         scene: cube.clone(),
         transform: Transform::from_xyz(0.0, 3.0, 0.0),
         ..default()
-    });
+    },));
+    commands.spawn((SceneBundle {
+        scene: cube.clone(),
+        transform: Transform::from_xyz(3.0, 3.0, 0.0),
+        ..default()
+    }, CameraTarget));
 }
