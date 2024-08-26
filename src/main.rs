@@ -1,5 +1,7 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::PluginGroup;
 use bevy::transform::components::Transform;
+use bevy::window::{PresentMode, Window, WindowPlugin};
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
@@ -18,8 +20,18 @@ fn main() {
         .add_plugins(DefaultPlugins.set(LogPlugin {
             filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
             level: bevy::log::Level::DEBUG,
-            custom_layer: |_| None,
+            ..Default::default()
+        }).set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "SimScript".to_string(),
+                name: Some("sq8".to_string()),
+                present_mode: PresentMode::AutoVsync,
+                ..Default::default()
+            }),
+            ..Default::default()
         }))
+        .add_plugins(LogDiagnosticsPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
         .add_systems(Startup, (spawn_cubes,))
         .run();
