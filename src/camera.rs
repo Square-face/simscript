@@ -86,16 +86,17 @@ fn update_camera(
     target: Query<&Transform, (With<CameraTarget>, Without<PrimaryCameraMarker>)>,
 ) {
     // Get the state and transform for the camera
-    let (mut state, mut transform, settings) = cam
-        .get_single_mut()
-        .expect("Multiple or no primary camera");
+    let (mut state, mut transform, settings) =
+        cam.get_single_mut().expect("Multiple or no primary camera");
 
     // In case of no entity with target marker, allow user to pan camera
     // In case there is a single target marker, set the camera origin to be on that entity
     // In case of multiple target markers, panic
     match target.get_single() {
-        Err(QuerySingleError::MultipleEntities(_)) => panic!("There are multiple targets for the primary camera"),
-        Err(QuerySingleError::NoEntities(_)) => {},
+        Err(QuerySingleError::MultipleEntities(_)) => {
+            panic!("There are multiple targets for the primary camera")
+        }
+        Err(QuerySingleError::NoEntities(_)) => {}
         Ok(t) => state.target = t.translation,
     };
 
