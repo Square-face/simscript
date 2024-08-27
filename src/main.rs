@@ -1,4 +1,7 @@
+use std::f32::consts::PI;
+
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::math::{Quat, Vec3};
 use bevy::prelude::PluginGroup;
 use bevy::transform::components::Transform;
 use bevy::window::{PresentMode, Window, WindowPlugin};
@@ -12,6 +15,8 @@ use bevy::{
     DefaultPlugins,
 };
 use camera::{CameraPlugin, CameraTarget};
+use sim::simulation::{Simulated, Velocity};
+use sim::SimulatiorPlugin;
 
 mod camera;
 mod keybinds;
@@ -39,27 +44,25 @@ fn main() {
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
-        .add_systems(Startup, (spawn_cubes,))
+        .add_plugins(SimulatiorPlugin)
+        .add_systems(Startup, (spawn_tests,))
         .run();
 }
 
-fn spawn_cubes(mut commands: Commands, ass: Res<AssetServer>) {
+fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let cube = ass.load("cube.glb#Scene0");
+    let arrow = ass.load("arrow.glb#Scene0");
+
     commands.spawn((SceneBundle {
         scene: cube.clone(),
         ..default()
     },));
+
     commands.spawn((SceneBundle {
-        scene: cube.clone(),
-        transform: Transform::from_xyz(0.0, 3.0, 0.0),
+        scene: arrow.clone(),
+        transform: Transform::from_rotation(Quat::from_rotation_z(PI)),
         ..default()
-    },));
-    commands.spawn((
-        SceneBundle {
-            scene: cube.clone(),
-            transform: Transform::from_xyz(3.0, 3.0, 0.0),
-            ..default()
-        },
-        CameraTarget,
-    ));
+    },Simulated{
+        vel: Velocity(Vec3::X)
+    },CameraTarget));
 }

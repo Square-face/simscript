@@ -1,11 +1,11 @@
-use bevy::app::Plugin;
+use bevy::app::{Plugin, Update};
 
-mod simulation;
+pub mod simulation;
 
 pub struct SimulatiorPlugin;
 
 impl Plugin for SimulatiorPlugin {
-    fn build(&self, _app: &mut bevy::prelude::App) {
-        todo!();
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_systems(Update, simulation::update);
     }
 }
