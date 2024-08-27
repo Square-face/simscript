@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f32::consts::{PI, TAU};
 
 use bevy::{
     app::{App, Plugin, Startup, Update},
@@ -15,7 +15,6 @@ use bevy::{
         mouse::{MouseButton, MouseMotion, MouseScrollUnit, MouseWheel},
         ButtonInput,
     },
-    log::debug,
     math::{EulerRot, Quat, Vec2, Vec3},
     transform::components::Transform,
 };
@@ -43,7 +42,6 @@ pub struct OrbitSettings {
 pub struct OrbitState {
     pub target: Vec3,
     pub radius: f32,
-    pub upside_down: bool,
     pub pitch: f32,
     pub yaw: f32,
 }
@@ -118,15 +116,14 @@ fn update_camera(
 }
 
 /// Normalize a euler angle so it loops around
-fn zero_mod(v: f32, lim: f32) -> f32 {
-    ((v + lim) % (lim * 2.0)) - lim
+fn norm_euler(v: f32) -> f32 {
+    ((v + PI) % TAU) - PI
 }
 
 fn parse_scroll(mut input: EventReader<MouseWheel>, settings: &OrbitSettings) -> Vec2 {
     let mut result = Vec2::ZERO;
 
     for ev in input.read() {
-        debug!("{:?}", ev);
         let motion = Vec2 { x: ev.x, y: ev.y };
         let sensitivity = match ev.unit {
             MouseScrollUnit::Line => settings.scroll_sensitivity_line,
@@ -150,13 +147,10 @@ impl OrbitState {
     }
 
     fn orbit(&mut self, settings: &OrbitSettings, motion: Vec2) {
-        let mut motion = motion * settings.orbit_sensitivity;
-        if self.upside_down {
-            motion.x = -motion.x;
-        }
+        let motion = motion * settings.orbit_sensitivity;
 
-        self.yaw = zero_mod(self.yaw + motion.x, PI);
-        self.pitch = zero_mod(self.pitch + motion.y, PI);
+        self.yaw = norm_euler(self.yaw + motion.x);
+        self.pitch = norm_euler(self.pitch + motion.y);
     }
 
     fn zoom(&mut self, scroll: f32) {
@@ -185,7 +179,6 @@ impl Default for OrbitState {
         Self {
             target: Vec3::ZERO,
             radius: 10.0,
-            upside_down: false,
             pitch: 0.0,
             yaw: 0.0,
         }
