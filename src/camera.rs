@@ -137,13 +137,14 @@ fn parse_scroll(mut input: EventReader<MouseWheel>, settings: &OrbitSettings) ->
 }
 
 impl OrbitState {
-    /// Creates a transform for the camera
+    /// Converts [OrbitState] into a [Transform] the describes the actual camera position
     fn to_transform(&self) -> Transform {
-        let mut transform =
-            Transform::from_rotation(Quat::from_euler(EulerRot::YXZ, self.yaw, self.pitch, 0.0));
-        transform.translation = self.target + transform.back() * self.radius;
+        // Create a Quat and a Dir3 from the yaw and pitch
+        let rot = Quat::from_euler(EulerRot::YXZ, self.yaw, self.pitch, 0.0);
+        let dir = Transform::from_rotation(rot).forward();
 
-        transform
+        // Construct Transform
+        Transform::from_rotation(rot).with_translation(self.target + dir * -self.radius)
     }
 
     fn orbit(&mut self, settings: &OrbitSettings, motion: Vec2) {
