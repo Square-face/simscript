@@ -57,6 +57,10 @@ pub struct CameraTarget;
 
 pub struct CameraPlugin;
 
+/// Spawns an isntance of a [OrbitCam] with the [PrimaryCameraMarker]
+///
+/// ONLY RUN THIS FUNCTION ONCE
+/// Multiple primary cameras will cause a panic
 fn spawn(mut cmds: Commands) {
     cmds.spawn((
         OrbitCam {
@@ -72,6 +76,12 @@ fn spawn(mut cmds: Commands) {
     ));
 }
 
+/// Updates the camera position
+///
+/// # Panics
+/// This function will panic if:
+/// - there is more than one camera with [PrimaryCameraMarker]
+/// - there is more than one entity with [CameraTarget]
 fn update_camera(
     kbd: Res<ButtonInput<KeyCode>>,
     mos: Res<ButtonInput<MouseButton>>,
@@ -116,6 +126,11 @@ fn norm_euler(v: f32) -> f32 {
     ((v + PI) % TAU) - PI
 }
 
+/// Parses the [EventReader] for [MouseWheel] and produces a [Vec2] with the total scroll movement
+///
+/// If this function unexpectedly returns a 0,0 vector, the most likley reason is that
+/// [OrbitSettings::scroll_sensitivity_line] and/or [OrbitSettings::scroll_sensitivity_pixel] is
+/// set to 0
 fn parse_scroll(mut input: EventReader<MouseWheel>, settings: &OrbitSettings) -> Vec2 {
     let mut result = Vec2::ZERO;
 

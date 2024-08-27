@@ -4,6 +4,7 @@ use bevy::input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput};
 pub struct Keybind(pub Option<KeybindOptions>);
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum KeybindOptions {
     Keyboard(KeyCode),
     MouseButton(MouseButton),
