@@ -4,6 +4,7 @@ let
         # >1.79 to build bevy
         rust-bin.stable."1.80.0".default
         rust-analyzer
+        cargo-watch
 
         # From Bevy docs
         udev alsa-lib vulkan-loader
