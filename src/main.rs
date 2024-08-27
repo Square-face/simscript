@@ -15,6 +15,7 @@ use camera::{CameraPlugin, CameraTarget};
 
 mod camera;
 mod keybinds;
+mod sim;
 
 fn main() {
     App::new()
