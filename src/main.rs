@@ -17,19 +17,23 @@ mod camera;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(LogPlugin {
-            filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
-            level: bevy::log::Level::DEBUG,
-            ..Default::default()
-        }).set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "SimScript".to_string(),
-                name: Some("sq8".to_string()),
-                present_mode: PresentMode::AutoVsync,
-                ..Default::default()
-            }),
-            ..Default::default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(LogPlugin {
+                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
+                    level: bevy::log::Level::DEBUG,
+                    ..Default::default()
+                })
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "SimScript".to_string(),
+                        name: Some("sq8".to_string()),
+                        present_mode: PresentMode::AutoVsync,
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
+        )
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
@@ -48,9 +52,12 @@ fn spawn_cubes(mut commands: Commands, ass: Res<AssetServer>) {
         transform: Transform::from_xyz(0.0, 3.0, 0.0),
         ..default()
     },));
-    commands.spawn((SceneBundle {
-        scene: cube.clone(),
-        transform: Transform::from_xyz(3.0, 3.0, 0.0),
-        ..default()
-    }, CameraTarget));
+    commands.spawn((
+        SceneBundle {
+            scene: cube.clone(),
+            transform: Transform::from_xyz(3.0, 3.0, 0.0),
+            ..default()
+        },
+        CameraTarget,
+    ));
 }
