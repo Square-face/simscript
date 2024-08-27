@@ -31,7 +31,6 @@ pub struct OrbitCam {
 #[derive(Component, Debug, Default)]
 pub struct OrbitSettings {
     pub orbit_sensitivity: f32,
-    pub scroll_wheel_action: ScrollAction,
     pub scroll_sensitivity_line: f32,
     pub scroll_sensitivity_pixel: f32,
     pub orbit_key: Option<KeyCode>,
@@ -44,12 +43,6 @@ pub struct OrbitState {
     pub radius: f32,
     pub pitch: f32,
     pub yaw: f32,
-}
-
-#[derive(Debug)]
-pub enum ScrollAction {
-    Zoom,
-    VerticalPan,
 }
 
 /// Marks the primary camera
@@ -108,9 +101,7 @@ fn update_camera(
     state.orbit(settings, -motion);
 
     // Apply scroll
-    if let ScrollAction::Zoom = settings.scroll_wheel_action {
-        state.zoom(scroll.y)
-    }
+    state.zoom(scroll.y);
 
     // Apply transformation
     *transform = state.to_transform();
@@ -167,12 +158,6 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
         app.add_systems(Update, update_camera);
-    }
-}
-
-impl Default for ScrollAction {
-    fn default() -> Self {
-        Self::Zoom
     }
 }
 
