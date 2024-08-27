@@ -19,6 +19,8 @@ use bevy::{
     transform::components::Transform,
 };
 
+use crate::keybinds::{Keybind, KeybindOptions};
+
 /// A Camera bundle that orbits around a point
 #[derive(Bundle, Default)]
 pub struct OrbitCam {
@@ -33,7 +35,7 @@ pub struct OrbitSettings {
     pub orbit_sensitivity: f32,
     pub scroll_sensitivity_line: f32,
     pub scroll_sensitivity_pixel: f32,
-    pub orbit_key: Option<KeyCode>,
+    pub orbit_key: Keybind,
 }
 
 /// Current state of a orbiting camera
@@ -60,7 +62,7 @@ fn spawn(mut cmds: Commands) {
         OrbitCam {
             settings: OrbitSettings {
                 orbit_sensitivity: 0.01,
-                orbit_key: Some(KeyCode::ShiftLeft),
+                orbit_key: Keybind(Some(KeybindOptions::MouseButton(MouseButton::Right))),
                 scroll_sensitivity_line: 0.1,
                 ..Default::default()
             },
@@ -94,13 +96,15 @@ fn update_camera(
     };
 
     // Convert mouse movement and scroll events to Vec2s
-    let motion: Vec2 = mouse_motion_event.read().map(|ev| ev.delta).sum();
-    let scroll = parse_scroll(mouse_scroll_event, settings);
 
     // Apply to Pitch/Yaw
-    state.orbit(settings, -motion);
+    if settings.orbit_key.pressed(&kbd, &mos) {
+        let motion: Vec2 = mouse_motion_event.read().map(|ev| ev.delta).sum();
+        state.orbit(settings, -motion);
+    }
 
     // Apply scroll
+    let scroll = parse_scroll(mouse_scroll_event, settings);
     state.zoom(scroll.y);
 
     // Apply transformation

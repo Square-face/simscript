@@ -14,6 +14,7 @@ use bevy::{
 use camera::{CameraPlugin, CameraTarget};
 
 mod camera;
+mod keybinds;
 
 fn main() {
     App::new()
