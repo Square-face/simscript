@@ -68,6 +68,7 @@ fn spawn(mut cmds: Commands) {
                 orbit_sensitivity: 0.01,
                 orbit_key: Keybind(Some(KeybindOptions::MouseButton(MouseButton::Right))),
                 scroll_sensitivity_line: 0.1,
+                scroll_sensitivity_pixel: 0.01,
                 ..Default::default()
             },
             ..Default::default()
