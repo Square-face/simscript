@@ -1,19 +1,20 @@
 use std::f32::consts::PI;
 
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::math::{Quat, Vec3};
-use bevy::prelude::PluginGroup;
-use bevy::transform::components::Transform;
-use bevy::window::{PresentMode, Window, WindowPlugin};
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     ecs::system::{Commands, Res},
     log::LogPlugin,
+    math::{Quat, Vec3},
+    prelude::PluginGroup,
     scene::SceneBundle,
+    transform::components::Transform,
     utils::default,
+    window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
+
 use camera::{CameraPlugin, CameraTarget};
 use sim::simulation::{Simulated, Velocity};
 use sim::SimulatiorPlugin;
@@ -58,11 +59,15 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         ..default()
     },));
 
-    commands.spawn((SceneBundle {
-        scene: arrow.clone(),
-        transform: Transform::from_rotation(Quat::from_rotation_z(PI)),
-        ..default()
-    },Simulated{
-        vel: Velocity(Vec3::X)
-    },CameraTarget));
+    commands.spawn((
+        SceneBundle {
+            scene: arrow.clone(),
+            transform: Transform::from_rotation(Quat::from_rotation_z(PI)),
+            ..default()
+        },
+        Simulated {
+            vel: Velocity(Vec3::X),
+        },
+        CameraTarget,
+    ));
 }
