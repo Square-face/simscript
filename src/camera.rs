@@ -8,18 +8,24 @@ use bevy::{
         component::Component,
         event::EventReader,
         query::{QuerySingleError, With, Without},
+        schedule::IntoSystemConfigs,
         system::{Commands, Query, Res},
     },
     input::{
+        gestures::PanGesture,
         keyboard::KeyCode,
         mouse::{MouseButton, MouseMotion, MouseScrollUnit, MouseWheel},
         ButtonInput,
     },
-    math::{EulerRot, Quat, Vec2, Vec3},
+    log::debug,
+    math::{EulerRot, Quat, Vec2, Vec3, VectorSpace},
     transform::components::Transform,
 };
 
-use crate::keybinds::{Keybind, KeybindOptions};
+use crate::{
+    keybinds::{Keybind, KeybindOptions},
+    sim::simulation::update,
+};
 
 /// A Camera bundle that orbits around a point
 #[derive(Bundle, Default)]
@@ -87,6 +93,7 @@ fn update_camera(
     kbd: Res<ButtonInput<KeyCode>>,
     mos: Res<ButtonInput<MouseButton>>,
     mut mouse_motion_event: EventReader<MouseMotion>,
+    mut pan_motion_event: EventReader<PanGesture>,
     mouse_scroll_event: EventReader<MouseWheel>,
     mut cam: Query<(&mut OrbitState, &mut Transform, &OrbitSettings), With<PrimaryCameraMarker>>,
     target: Query<&Transform, (With<CameraTarget>, Without<PrimaryCameraMarker>)>,
@@ -109,10 +116,11 @@ fn update_camera(
     // Convert mouse movement and scroll events to Vec2s
 
     // Apply to Pitch/Yaw
+    let mut motion: Vec2 = pan_motion_event.read().map(|ev| ev.0).sum();
     if settings.orbit_key.pressed(&kbd, &mos) {
-        let motion: Vec2 = mouse_motion_event.read().map(|ev| ev.delta).sum();
-        state.orbit(settings, -motion);
+        motion += mouse_motion_event.read().map(|ev| ev.delta).sum::<Vec2>();
     }
+    state.orbit(settings, -motion);
 
     // Apply scroll
     let scroll = parse_scroll(mouse_scroll_event, settings);
@@ -177,7 +185,7 @@ impl OrbitState {
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
-        app.add_systems(Update, update_camera);
+        app.add_systems(Update, update_camera.after(update));
     }
 }
 

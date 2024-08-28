@@ -65,9 +65,8 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
             transform: Transform::from_rotation(Quat::from_rotation_z(PI)),
             ..default()
         },
-        Simulated {
-            vel: Velocity(Vec3::X),
-        },
+        Simulated,
+        Velocity(Vec3::X * 100.0),
         CameraTarget,
     ));
 }
