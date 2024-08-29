@@ -15,6 +15,7 @@ use bevy::{
     DefaultPlugins,
 };
 
+use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin};
 use camera::{CameraPlugin, CameraTarget};
 use sim::simulation::{Accelerator, Simulated, Velocity};
 use sim::SimulatiorPlugin;
@@ -44,6 +45,7 @@ fn main() {
         )
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
+        .add_plugins(InfiniteGridPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(SimulatiorPlugin)
         .add_systems(Startup, (spawn_tests,))
@@ -67,7 +69,9 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         },
         Simulated,
         Accelerator(Vec3::NEG_Y * 9.82),
-        Velocity(Vec3::ZERO),
+        Velocity(Vec3{z: 0.0, x:100.0, y:100.0}),
         CameraTarget,
     ));
+
+    commands.spawn(InfiniteGridBundle::default());
 }
