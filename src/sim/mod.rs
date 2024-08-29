@@ -6,6 +6,6 @@ pub struct SimulatiorPlugin;
 
 impl Plugin for SimulatiorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(Update, simulation::update);
+        app.add_systems(Update, simulation::update_simulated);
     }
 }

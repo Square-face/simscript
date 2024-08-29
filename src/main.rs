@@ -16,7 +16,7 @@ use bevy::{
 };
 
 use camera::{CameraPlugin, CameraTarget};
-use sim::simulation::{Simulated, Velocity};
+use sim::simulation::{Accelerator, Simulated, Velocity};
 use sim::SimulatiorPlugin;
 
 mod camera;
@@ -62,11 +62,12 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     commands.spawn((
         SceneBundle {
             scene: arrow.clone(),
-            transform: Transform::from_rotation(Quat::from_rotation_z(PI)),
+            transform: Transform::from_rotation(Quat::from_rotation_z(PI/2.0)),
             ..default()
         },
         Simulated,
-        Velocity(Vec3::X * 100.0),
+        Accelerator(Vec3::NEG_Y * 9.82),
+        Velocity(Vec3::ZERO),
         CameraTarget,
     ));
 }
