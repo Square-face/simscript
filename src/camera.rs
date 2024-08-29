@@ -17,8 +17,7 @@ use bevy::{
         mouse::{MouseButton, MouseMotion, MouseScrollUnit, MouseWheel},
         ButtonInput,
     },
-    log::debug,
-    math::{EulerRot, Quat, Vec2, Vec3, VectorSpace},
+    math::{EulerRot, Quat, Vec2, Vec3},
     transform::components::Transform,
 };
 
