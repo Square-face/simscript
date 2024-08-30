@@ -3,6 +3,9 @@ name = "simscript"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [ "physics" ]
+
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]
