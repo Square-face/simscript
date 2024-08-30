@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::app::{Plugin, Update};
+use bevy::math::Mat3;
 use bevy::{
     ecs::{
         component::Component,
@@ -11,6 +12,7 @@ use bevy::{
     time::Time,
     transform::components::Transform,
 };
+use float_cmp::ApproxEq;
 
 pub struct SimulatiorPlugin;
 
@@ -23,34 +25,26 @@ impl Plugin for SimulatiorPlugin {
 #[derive(Component)]
 pub struct Simulated;
 
+/// Stores the current translational Velocity
 #[derive(Component)]
 pub struct Velocity(pub Vec3);
+
+/// Stores the current angular velocity
+#[derive(Component)]
+pub struct AngVel(pub Mat3);
 
 /// Applies a constant acceleration
 #[derive(Component)]
 pub struct Accelerator(pub Vec3);
 
-/// Makes the entity rotate into the direction of travel
-#[derive(Component)]
-pub struct AlignToForward;
-
 /// Updates objects with acceleration
 #[allow(clippy::type_complexity)]
 pub fn update_simulated(
     time: Res<Time>,
-    mut accelerators: Query<
-        (
-            &mut Transform,
-            &mut Velocity,
-            Option<&Accelerator>,
-            Option<&AlignToForward>,
-        ),
-        With<Simulated>,
-    >,
+    mut accelerators: Query<(&mut Transform, &mut Velocity, Option<&Accelerator>), With<Simulated>>,
 ) {
-    for (mut trans, mut vel, acc, align) in accelerators.iter_mut() {
+    for (mut trans, mut vel, acc) in accelerators.iter_mut() {
         let acc = acc.map_or(Vec3::ZERO, |a| a.0);
-        let _align = align.is_some();
 
         // Rotate object into the direction of travel
         let vel_dir = Quat::from_vec4(vel.0.xyz().normalize_or(Vec3::Y).extend(0.0))
@@ -62,5 +56,76 @@ pub fn update_simulated(
         vel.0 += acc * time.delta_seconds() * 0.5;
         trans.translation += vel.0 * time.delta_seconds();
         vel.0 += acc * time.delta_seconds() * 0.5;
+    }
+}
+
+impl Velocity {
+    /// Computes the angle from the horizontal plane to the velocity vector
+    pub fn pitch(&self) -> f32 {
+        let vec = self.0;
+        let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
+        (vec.y / fdist).atan()
+    }
+
+    /// Computes the horizontal angle from the x axis to the velocity vector
+    pub fn yaw(&self) -> f32 {
+        let vec = self.0;
+        vec.z.atan2(vec.x)
+    }
+
+    /// Returns a Quat representing the orientation of the vector.
+    pub fn to_direction(&self) -> Quat {
+        Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), self.pitch(), 0.0)
+    }
+}
+
+#[cfg(test)]
+mod velocity {
+    use std::f32::consts::PI;
+
+    use bevy::math::{Quat, Vec3};
+    use float_cmp::assert_approx_eq;
+
+    use crate::Velocity;
+
+    #[test]
+    fn to_direction() {
+        let x = Velocity(Vec3::X).to_direction();
+        let y = Velocity(Vec3::Y).to_direction();
+        let z = Velocity(Vec3::Z).to_direction();
+
+        assert_approx_eq!(&[f32], &x.to_array(), &Quat::default().to_array());
+        assert_approx_eq!(&[f32], &y.to_array(), &Quat::from_rotation_x(PI/2.0).to_array());
+        assert_approx_eq!(&[f32], &z.to_array(), &Quat::from_rotation_y(PI/2.0).to_array());
+    }
+
+    #[test]
+    fn pitch() {
+        let x = Velocity(Vec3::X);
+        let y = Velocity(Vec3::Y);
+        let z = Velocity(Vec3::Z);
+
+        assert_approx_eq!(f32, x.pitch(), 0.0);
+        assert_approx_eq!(f32, y.pitch(), PI / 2.0);
+        assert_approx_eq!(f32, z.pitch(), 0.0);
+    }
+
+    #[test]
+    fn yaw() {
+        let x = Velocity(Vec3::X);
+        let y = Velocity(Vec3::Y);
+        let z = Velocity(Vec3::Z);
+
+        let nx = Velocity(Vec3::NEG_X);
+        let ny = Velocity(Vec3::NEG_Y);
+        let nz = Velocity(Vec3::NEG_Z);
+
+        assert_approx_eq!(f32, x.yaw(), 0.0);
+        assert_approx_eq!(f32, y.yaw(), 0.0);
+        assert_approx_eq!(f32, z.yaw(), PI / 2.0);
+
+        assert_approx_eq!(f32, nx.yaw(), PI);
+        assert_approx_eq!(f32, ny.yaw(), 0.0);
+        assert_approx_eq!(f32, nz.yaw(), -PI / 2.0);
     }
 }
