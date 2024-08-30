@@ -2898,6 +2898,11 @@ dependencies = [
 [[package]]
 name = "physics"
 version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_infinite_grid",
+ "log",
+]
 
 [[package]]
 name = "pin-project"
@@ -3264,6 +3269,7 @@ dependencies = [
  "bevy",
  "bevy_infinite_grid",
  "log",
+ "physics",
 ]
 
 [[package]]
