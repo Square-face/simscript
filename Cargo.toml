@@ -26,4 +26,5 @@ lto = "thin"
 
 [dependencies]
 bevy = { version = "0.14.1", features = ["dynamic_linking"] }
+bevy_infinite_grid = "0.13.0"
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] } # Remove trace logging at compile time
