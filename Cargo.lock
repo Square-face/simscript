@@ -656,6 +656,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_infinite_grid"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52907a3b5085f3adda4c0ec848142402156e7df249eac15ea03473e205218b71"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_input"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3249,6 +3258,7 @@ name = "simscript"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_infinite_grid",
  "log",
 ]
 
