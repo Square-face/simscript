@@ -1,5 +1,6 @@
 use std::f32::consts::PI;
 
+use bevy::app::{Plugin, Update};
 use bevy::{
     ecs::{
         component::Component,
@@ -10,7 +11,6 @@ use bevy::{
     time::Time,
     transform::components::Transform,
 };
-use bevy::app::{Plugin, Update};
 
 pub struct SimulatiorPlugin;
 
