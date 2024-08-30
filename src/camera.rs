@@ -21,10 +21,7 @@ use bevy::{
     transform::components::Transform,
 };
 
-use crate::{
-    keybinds::{Keybind, KeybindOptions},
-    sim::simulation::update_simulated,
-};
+use crate::keybinds::{Keybind, KeybindOptions};
 
 /// A Camera bundle that orbits around a point
 #[derive(Bundle, Default)]
@@ -184,7 +181,7 @@ impl OrbitState {
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
-        app.add_systems(Update, update_camera.after(update_simulated));
+        app.add_systems(Update, update_camera.after(physics::update_simulated));
     }
 }
 

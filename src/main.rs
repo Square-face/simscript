@@ -17,12 +17,10 @@ use bevy::{
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin};
 use camera::{CameraPlugin, CameraTarget};
-use sim::simulation::{Accelerator, Simulated, Velocity};
-use sim::SimulatiorPlugin;
+use physics::{Accelerator, Velocity};
 
 mod camera;
 mod keybinds;
-mod sim;
 
 fn main() {
     App::new()
@@ -47,7 +45,7 @@ fn main() {
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(InfiniteGridPlugin)
         .add_plugins(CameraPlugin)
-        .add_plugins(SimulatiorPlugin)
+        .add_plugins(physics::SimulatiorPlugin)
         .add_systems(Startup, (spawn_tests,))
         .run();
 }
@@ -67,7 +65,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
             transform: Transform::from_rotation(Quat::from_rotation_z(PI / 2.0)),
             ..default()
         },
-        Simulated,
+        physics::Simulated,
         Accelerator(Vec3::NEG_Y * 9.82),
         Velocity(Vec3 {
             z: 0.0,
