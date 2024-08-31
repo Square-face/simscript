@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use bevy::app::{Plugin, Update};
 use bevy::math::Mat3;
 use bevy::{
@@ -8,11 +6,10 @@ use bevy::{
         query::With,
         system::{Query, Res},
     },
-    math::{Quat, Vec3, Vec3Swizzles},
+    math::{Quat, Vec3},
     time::Time,
     transform::components::Transform,
 };
-use float_cmp::ApproxEq;
 
 pub struct SimulatiorPlugin;
 
@@ -46,11 +43,7 @@ pub fn update_simulated(
     for (mut trans, mut vel, acc) in accelerators.iter_mut() {
         let acc = acc.map_or(Vec3::ZERO, |a| a.0);
 
-        // Rotate object into the direction of travel
-        let vel_dir = Quat::from_vec4(vel.0.xyz().normalize_or(Vec3::Y).extend(0.0))
-            .mul_quat(Quat::from_rotation_z(PI / 2.0));
-
-        trans.rotation = vel_dir;
+        trans.rotation = vel.to_direction();
 
         // Accelerate and move
         vel.0 += acc * time.delta_seconds() * 0.5;
@@ -75,7 +68,7 @@ impl Velocity {
 
     /// Returns a Quat representing the orientation of the vector.
     pub fn to_direction(&self) -> Quat {
-        Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), self.pitch(), 0.0)
+        Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
 }
 
@@ -90,13 +83,22 @@ mod velocity {
 
     #[test]
     fn to_direction() {
-        let x = Velocity(Vec3::X).to_direction();
-        let y = Velocity(Vec3::Y).to_direction();
-        let z = Velocity(Vec3::Z).to_direction();
+        let x = Velocity(Vec3::X).to_direction().to_array();
+        let y = Velocity(Vec3::Y).to_direction().to_array();
+        let z = Velocity(Vec3::Z).to_direction().to_array();
 
-        assert_approx_eq!(&[f32], &x.to_array(), &Quat::default().to_array());
-        assert_approx_eq!(&[f32], &y.to_array(), &Quat::from_rotation_x(PI/2.0).to_array());
-        assert_approx_eq!(&[f32], &z.to_array(), &Quat::from_rotation_y(PI/2.0).to_array());
+        let ang45 = Velocity(Vec3 {
+            x: 1.0,
+            y: 1.0,
+            z: 0.0,
+        })
+        .to_direction()
+        .to_array();
+
+        assert_approx_eq!(&[f32], &x, &Quat::default().to_array());
+        assert_approx_eq!(&[f32], &y, &Quat::from_rotation_z(PI / 2.0).to_array());
+        assert_approx_eq!(&[f32], &z, &Quat::from_rotation_y(PI / 2.0).to_array());
+        assert_approx_eq!(&[f32], &ang45, &Quat::from_rotation_z(PI / 4.0).to_array());
     }
 
     #[test]

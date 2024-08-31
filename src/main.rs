@@ -1,12 +1,10 @@
-use std::f32::consts::PI;
-
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     ecs::system::{Commands, Res},
     log::LogPlugin,
-    math::{Quat, Vec3},
+    math::Vec3,
     prelude::PluginGroup,
     scene::SceneBundle,
     transform::components::Transform,
@@ -62,7 +60,11 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     commands.spawn((
         SceneBundle {
             scene: arrow.clone(),
-            transform: Transform::from_rotation(Quat::from_rotation_z(PI / 2.0)),
+            transform: Transform::from_scale(Vec3 {
+                x: -1.0,
+                y: 1.0,
+                z: 1.0,
+            }),
             ..default()
         },
         physics::Simulated,
