@@ -1,7 +1,5 @@
 use bevy::app::{Plugin, Update};
-use bevy::color::Color;
 use bevy::ecs::schedule::IntoSystemConfigs;
-use bevy::gizmos::gizmos::Gizmos;
 use bevy::math::Mat3;
 use bevy::{
     ecs::{
@@ -14,6 +12,8 @@ use bevy::{
     transform::components::Transform,
 };
 
+mod vector_arrows;
+
 pub struct SimulatiorPlugin;
 
 impl Plugin for SimulatiorPlugin {
@@ -21,7 +21,7 @@ impl Plugin for SimulatiorPlugin {
         app.add_systems(Update, update_simulated);
         app.add_systems(
             Update,
-            (draw_velocity_vectors, draw_acceleration_vectors).after(update_simulated),
+            (vector_arrows::velocity, vector_arrows::acceleration).after(update_simulated),
         );
     }
 }
@@ -56,32 +56,6 @@ pub fn update_simulated(
         vel.0 += acc * time.delta_seconds() * 0.5;
         trans.translation += vel.0 * time.delta_seconds();
         vel.0 += acc * time.delta_seconds() * 0.5;
-    }
-}
-
-pub fn draw_velocity_vectors(
-    query: Query<(&Transform, &Velocity), With<Simulated>>,
-    mut gizmos: Gizmos,
-) {
-    for (trans, vel) in query.iter() {
-        gizmos.arrow(
-            trans.translation,
-            trans.translation + vel.0,
-            Color::srgb(0.65, 0.0, 0.0),
-        );
-    }
-}
-
-pub fn draw_acceleration_vectors(
-    query: Query<(&Transform, &Accelerator), With<Simulated>>,
-    mut gizmos: Gizmos,
-) {
-    for (trans, acc) in query.iter() {
-        gizmos.arrow(
-            trans.translation,
-            trans.translation + acc.0,
-            Color::srgb(0.0, 0.0, 0.65),
-        );
     }
 }
 
