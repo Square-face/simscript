@@ -1282,10 +1282,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "camera"
-version = "0.1.0"
-
-[[package]]
 name = "cc"
 version = "1.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3284,6 +3280,7 @@ dependencies = [
  "bevy_infinite_grid",
  "log",
  "physics",
+ "ui",
 ]
 
 [[package]]
@@ -3564,6 +3561,15 @@ name = "typeid"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e13db2e0ccd5e14a544e8a246ba2312cd25223f616442d7f2cb0e3db614236e"
+
+[[package]]
+name = "ui"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_infinite_grid",
+ "log",
+]
 
 [[package]]
 name = "unicode-ident"

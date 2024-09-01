@@ -8,7 +8,6 @@ use bevy::{
         component::Component,
         event::EventReader,
         query::{QuerySingleError, With, Without},
-        schedule::IntoSystemConfigs,
         system::{Commands, Query, Res},
     },
     input::{
@@ -71,7 +70,6 @@ fn spawn(mut cmds: Commands) {
                 orbit_key: Keybind(Some(KeybindOptions::MouseButton(MouseButton::Right))),
                 scroll_sensitivity_line: 0.1,
                 scroll_sensitivity_pixel: 0.01,
-                ..Default::default()
             },
             ..Default::default()
         },
@@ -181,7 +179,7 @@ impl OrbitState {
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
-        app.add_systems(Update, update_camera.after(physics::update_simulated));
+        app.add_systems(Update, update_camera);
     }
 }
 

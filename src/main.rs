@@ -14,11 +14,8 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin};
-use camera::{CameraPlugin, CameraTarget};
+use ui::camera::{CameraPlugin, CameraTarget};
 use physics::{Accelerator, Velocity};
-
-mod camera;
-mod keybinds;
 
 fn main() {
     App::new()
