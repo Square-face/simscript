@@ -30,6 +30,8 @@ impl Plugin for SimulatiorPlugin {
 pub struct Simulated;
 
 /// Stores the current translational Velocity
+///
+/// Velocity is given in m/s
 #[derive(Component)]
 pub struct Velocity(pub Vec3);
 
@@ -38,8 +40,23 @@ pub struct Velocity(pub Vec3);
 pub struct AngVel(pub Mat3);
 
 /// Applies a constant acceleration
+///
+/// Acceleration is given in m/s^2
 #[derive(Component)]
 pub struct Accelerator(pub Vec3);
+
+/// Gives the entity a mass that can be used by other components
+///
+/// Mass is given in KG
+/// Second field is the local offset from the model centerpoint
+#[derive(Component)]
+pub struct Mass(pub f32, pub Vec3);
+
+impl Mass {
+    pub fn at_center(mass: f32) -> Self {
+        Self(mass, Vec3::ZERO)
+    }
+}
 
 /// Updates objects with acceleration
 #[allow(clippy::type_complexity)]

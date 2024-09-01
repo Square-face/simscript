@@ -68,6 +68,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
             ..default()
         },
         physics::Simulated,
+        physics::Mass::at_center(90.0),
         Accelerator(Vec3::NEG_Y * 9.82),
         Velocity(Vec3 {
             z: 0.0,
