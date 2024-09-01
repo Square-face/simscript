@@ -50,11 +50,12 @@ pub fn update_simulated(
     for (mut trans, mut vel, acc) in accelerators.iter_mut() {
         let acc = acc.map_or(Vec3::ZERO, |a| a.0);
 
-        trans.rotation = vel.to_direction();
-
         // Accelerate and move
         vel.0 += acc * time.delta_seconds() * 0.5;
+
         trans.translation += vel.0 * time.delta_seconds();
+        trans.rotation = vel.to_direction();
+
         vel.0 += acc * time.delta_seconds() * 0.5;
     }
 }
