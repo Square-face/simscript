@@ -1,10 +1,12 @@
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
+    color::palettes::css::WHITE,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     ecs::system::{Commands, Res},
     log::LogPlugin,
     math::Vec3,
+    pbr::AmbientLight,
     prelude::PluginGroup,
     scene::SceneBundle,
     transform::components::Transform,
@@ -14,8 +16,8 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin};
-use ui::camera::{CameraPlugin, CameraTarget};
 use physics::{Accelerator, Velocity};
+use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
     App::new()
@@ -73,6 +75,11 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         }),
         CameraTarget,
     ));
+
+    commands.insert_resource(AmbientLight {
+        color: WHITE.into(),
+        brightness: 100.0,
+    });
 
     commands.spawn(InfiniteGridBundle::default());
 }
