@@ -16,7 +16,7 @@ use bevy::{
     DefaultPlugins,
 };
 
-use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin};
+use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
 use physics::{Accelerator, Velocity};
 use ui::camera::{CameraPlugin, CameraTarget};
 
@@ -84,5 +84,11 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
 
     commands.insert_resource(ClearColor(BLACK.into()));
 
-    commands.spawn(InfiniteGridBundle::default());
+    commands.spawn(InfiniteGridBundle {
+        settings: InfiniteGridSettings {
+            fadeout_distance: 1000.0,
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }
