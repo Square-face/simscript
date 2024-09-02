@@ -1,13 +1,14 @@
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
-    color::palettes::css::WHITE,
+    color::palettes::css::{BLACK, WHITE},
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     ecs::system::{Commands, Res},
     log::LogPlugin,
     math::Vec3,
     pbr::AmbientLight,
     prelude::PluginGroup,
+    render::camera::ClearColor,
     scene::SceneBundle,
     transform::components::Transform,
     utils::default,
@@ -80,6 +81,8 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         color: WHITE.into(),
         brightness: 100.0,
     });
+
+    commands.insert_resource(ClearColor(BLACK.into()));
 
     commands.spawn(InfiniteGridBundle::default());
 }
