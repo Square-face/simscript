@@ -1,4 +1,8 @@
-use bevy::{ecs::{bundle::Bundle, component::Component}, math::{Quat, Vec3}, prelude::SpatialBundle};
+use bevy::{
+    ecs::{bundle::Bundle, component::Component},
+    math::{Quat, Vec3},
+    prelude::SpatialBundle,
+};
 
 #[derive(Bundle)]
 pub struct SimulationBundle {
@@ -10,12 +14,25 @@ pub struct SimulationBundle {
 
 impl SimulationBundle {
     pub fn new(vel: Velocity, acc: Accelerator) -> Self {
-        Self { spatial: SpatialBundle::default(), sim: Simulated, vel, acc }
+        Self {
+            spatial: SpatialBundle::default(),
+            sim: Simulated,
+            vel,
+            acc,
+        }
     }
     pub fn new_with_gravity(vel: Velocity) -> Self {
-        Self { spatial: SpatialBundle::default(), sim: Simulated, vel, acc: Accelerator::gravity() }
+        Self {
+            spatial: SpatialBundle::default(),
+            sim: Simulated,
+            vel,
+            acc: Accelerator::gravity(),
+        }
     }
 }
+
+#[derive(Component)]
+pub struct Inertia(pub Vec3);
 
 #[derive(Component)]
 pub struct Simulated;
