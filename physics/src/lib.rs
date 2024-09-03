@@ -26,6 +26,7 @@ impl Plugin for SimulatiorPlugin {
         );
     }
 }
+
 /// Updates objects with acceleration
 #[allow(clippy::type_complexity)]
 pub fn update_simulated(
