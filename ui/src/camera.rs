@@ -67,7 +67,10 @@ fn spawn(mut cmds: Commands) {
         OrbitCam {
             settings: OrbitSettings {
                 orbit_sensitivity: 0.01,
-                orbit_key: Keybind(Some(KeybindOptions::MouseButton(MouseButton::Right))),
+                orbit_key: Keybind(vec![
+                    KeybindOptions::MouseButton(MouseButton::Right),
+                    KeybindOptions::MouseButton(MouseButton::Left),
+                ]),
                 scroll_sensitivity_line: 0.1,
                 scroll_sensitivity_pixel: 0.01,
             },

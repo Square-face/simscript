@@ -1,7 +1,7 @@
 use bevy::input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput};
 
 #[derive(Debug, Default)]
-pub struct Keybind(pub Option<KeybindOptions>);
+pub struct Keybind(pub Vec<KeybindOptions>);
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -49,7 +49,7 @@ impl Keybind {
         keyboard: &ButtonInput<KeyCode>,
         mouse: &ButtonInput<MouseButton>,
     ) -> bool {
-        self.check(keyboard, mouse, KeybindOptions::pressed)
+        self.0.iter().any(|b| b.pressed(keyboard, mouse))
     }
 
     /// Checks if the Keybind was just pressed
@@ -60,7 +60,7 @@ impl Keybind {
         keyboard: &ButtonInput<KeyCode>,
         mouse: &ButtonInput<MouseButton>,
     ) -> bool {
-        self.check(keyboard, mouse, KeybindOptions::just_pressed)
+        self.0.iter().any(|b| b.just_pressed(keyboard, mouse))
     }
 
     /// Checks if the Keybind was just released
@@ -71,18 +71,6 @@ impl Keybind {
         keyboard: &ButtonInput<KeyCode>,
         mouse: &ButtonInput<MouseButton>,
     ) -> bool {
-        self.check(keyboard, mouse, KeybindOptions::just_released)
-    }
-
-    fn check(
-        &self,
-        keyboard: &ButtonInput<KeyCode>,
-        mouse: &ButtonInput<MouseButton>,
-        fun: fn(&KeybindOptions, &ButtonInput<KeyCode>, &ButtonInput<MouseButton>) -> bool,
-    ) -> bool {
-        match &self.0 {
-            None => false,
-            Some(bind) => fun(bind, keyboard, mouse),
-        }
+        self.0.iter().any(|b| b.just_released(keyboard, mouse))
     }
 }
