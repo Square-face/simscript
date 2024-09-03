@@ -1,4 +1,21 @@
-use bevy::{ecs::component::Component, math::{Quat, Vec3}};
+use bevy::{ecs::{bundle::Bundle, component::Component}, math::{Quat, Vec3}, prelude::SpatialBundle};
+
+#[derive(Bundle)]
+pub struct SimulationBundle {
+    pub spatial: SpatialBundle,
+    pub sim: Simulated,
+    pub vel: Velocity,
+    pub acc: Accelerator,
+}
+
+impl SimulationBundle {
+    pub fn new(vel: Velocity, acc: Accelerator) -> Self {
+        Self { spatial: SpatialBundle::default(), sim: Simulated, vel, acc }
+    }
+    pub fn new_with_gravity(vel: Velocity) -> Self {
+        Self { spatial: SpatialBundle::default(), sim: Simulated, vel, acc: Accelerator::gravity() }
+    }
+}
 
 #[derive(Component)]
 pub struct Simulated;
@@ -10,6 +27,12 @@ pub struct Velocity(pub Vec3);
 /// Applies a constant acceleration
 #[derive(Component)]
 pub struct Accelerator(pub Vec3);
+
+impl Accelerator {
+    pub fn gravity() -> Self {
+        Self(Vec3::NEG_Y * 9.82)
+    }
+}
 
 impl Velocity {
     /// Computes the angle from the horizontal plane to the velocity vector

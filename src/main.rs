@@ -8,7 +8,7 @@ use bevy::{
     log::LogPlugin,
     math::Vec3,
     pbr::AmbientLight,
-    prelude::{PluginGroup, SpatialBundle},
+    prelude::PluginGroup,
     render::camera::ClearColor,
     scene::SceneBundle,
     transform::components::Transform,
@@ -18,7 +18,7 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::components::{Accelerator, Simulated, Velocity};
+use physics::components::{SimulationBundle, Velocity};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
@@ -53,17 +53,14 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
 
     commands
-        .spawn(((
-            SpatialBundle::default(),
-            Simulated,
-            CameraTarget,
-            Velocity(Vec3 {
+        .spawn((
+            SimulationBundle::new_with_gravity(Velocity(Vec3 {
                 x: 30.0,
                 y: 30.0,
                 z: 0.0,
-            }),
-            Accelerator(Vec3::NEG_Y * 9.82),
-        ),))
+            })),
+            CameraTarget,
+        ))
         .with_children(|parent| {
             parent.spawn(SceneBundle {
                 scene: arrow.clone(),
@@ -71,7 +68,8 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
                     x: -1.0,
                     y: 1.0,
                     z: 1.0,
-                }).with_translation(Vec3::Y * 0.15),
+                })
+                .with_translation(Vec3::Y * 0.15),
                 ..default()
             });
         });
