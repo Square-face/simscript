@@ -4,6 +4,7 @@ use bevy::{
     color::palettes::css::{BLACK, WHITE},
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     ecs::system::{Commands, Res},
+    hierarchy::BuildChildren,
     log::LogPlugin,
     math::Vec3,
     pbr::AmbientLight,
@@ -17,7 +18,7 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::{Accelerator, Velocity};
+use physics::components::{SimulationBundle, Velocity};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
@@ -49,33 +50,29 @@ fn main() {
 }
 
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
-    let cube = ass.load("cube.glb#Scene0");
     let arrow = ass.load("arrow.glb#Scene0");
 
-    commands.spawn((SceneBundle {
-        scene: cube.clone(),
-        ..default()
-    },));
-
-    commands.spawn((
-        SceneBundle {
-            scene: arrow.clone(),
-            transform: Transform::from_scale(Vec3 {
-                x: -1.0,
-                y: 1.0,
-                z: 1.0,
-            }),
-            ..default()
-        },
-        physics::Simulated,
-        Accelerator(Vec3::NEG_Y * 9.82),
-        Velocity(Vec3 {
-            z: 0.0,
-            x: 100.0,
-            y: 100.0,
-        }),
-        CameraTarget,
-    ));
+    commands
+        .spawn((
+            SimulationBundle::new_with_gravity(Velocity(Vec3 {
+                x: 30.0,
+                y: 30.0,
+                z: 0.0,
+            })),
+            CameraTarget,
+        ))
+        .with_children(|parent| {
+            parent.spawn(SceneBundle {
+                scene: arrow.clone(),
+                transform: Transform::from_scale(Vec3 {
+                    x: -1.0,
+                    y: 1.0,
+                    z: 1.0,
+                })
+                .with_translation(Vec3::Y * 0.15),
+                ..default()
+            });
+        });
 
     commands.insert_resource(AmbientLight {
         color: WHITE.into(),
