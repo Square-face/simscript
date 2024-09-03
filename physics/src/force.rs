@@ -72,7 +72,7 @@ impl Moment {
     ///
     /// let (t, f) = m.get_parts();
     ///
-    /// assert_eq!(t.0, Vec3::ONE.with_z(0.0));
+    /// assert_eq!(t.0, Vec3::new(-1.0, 1.0, 0.0));
     /// assert_eq!(f.0, Vec3::Z);
     /// ```
     #[must_use]
