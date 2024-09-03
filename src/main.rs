@@ -8,7 +8,7 @@ use bevy::{
     log::LogPlugin,
     math::Vec3,
     pbr::AmbientLight,
-    prelude::PluginGroup,
+    prelude::{PluginGroup, SpatialBundle},
     render::camera::ClearColor,
     scene::SceneBundle,
     transform::components::Transform,
@@ -70,8 +70,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
                     x: -1.0,
                     y: 1.0,
                     z: 1.0,
-                })
-                .with_translation(Vec3::Y * 0.15),
+                }).with_translation(Vec3::Y * 0.15),
                 ..default()
             });
         });
