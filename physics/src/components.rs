@@ -31,21 +31,39 @@ impl SimulationBundle {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Inertia(pub Vec3);
 
-#[derive(Component)]
+/// Marker that designates entites to be simulated
+///
+/// Remove to easily stop something from being simulated.
+#[derive(Component, Debug)]
 pub struct Simulated;
 
 /// Stores the current translational Velocity
-#[derive(Component)]
+///
+/// The velocity is represented as a Vec3 in global cordinates
+#[derive(Component, Debug)]
 pub struct Velocity(pub Vec3);
 
 /// Applies a constant acceleration
-#[derive(Component)]
+///
+/// Works similar to [Velocity] in that the acceleration is represented as a Vec3 in global
+/// cordinates
+#[derive(Component, Debug)]
 pub struct Accelerator(pub Vec3);
 
 impl Accelerator {
+    /// Returns a accelerator that simulates gravity.
+    /// i.e a negative Y acceleration of 9.82 m/s^2
+    ///
+    /// ```
+    /// # use bevy::prelude::Vec3;
+    /// # use physics::components::Accelerator;
+    /// let acc = Accelerator::gravity();
+    ///
+    /// assert_eq!(acc.0, Vec3{x:0.0, y:-9.82, z:0.0});
+    /// ```
     pub fn gravity() -> Self {
         Self(Vec3::NEG_Y * 9.82)
     }
@@ -53,6 +71,14 @@ impl Accelerator {
 
 impl Velocity {
     /// Computes the angle from the horizontal plane to the velocity vector
+    ///
+    /// ```
+    /// # use physics::components::Velocity;
+    /// # use bevy::prelude::Vec3;
+    /// let vel = Velocity(Vec3{x:1.0, y:1.0, z:0.0});
+    ///
+    /// assert_eq!(vel.pitch(), 45f32.to_radians());
+    /// ```
     pub fn pitch(&self) -> f32 {
         let vec = self.0;
         let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
@@ -60,12 +86,33 @@ impl Velocity {
     }
 
     /// Computes the horizontal angle from the x axis to the velocity vector
+    ///
+    /// ```
+    /// # use physics::components::Velocity;
+    /// # use bevy::prelude::Vec3;
+    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:1.0});
+    ///
+    /// assert_eq!(vel.yaw(), 45f32.to_radians());
+    /// ```
     pub fn yaw(&self) -> f32 {
         let vec = self.0;
         vec.z.atan2(vec.x)
     }
 
     /// Returns a Quat representing the orientation of the vector.
+    ///
+    /// ```
+    /// # use physics::components::Velocity;
+    /// # use std::f32::consts::PI;
+    /// # use bevy::math::Vec3;
+    /// # use bevy::math::Quat;
+    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:1.0});
+    ///
+    /// assert_eq!(
+    ///     vel.to_direction(),
+    ///     Quat::from_rotation_y(PI/4.0)
+    /// );
+    /// ```
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
