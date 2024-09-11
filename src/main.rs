@@ -18,7 +18,7 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::{Accelerator, Simulated, Velocity};
+use physics::components::{Accelerator, Simulated, Velocity};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
