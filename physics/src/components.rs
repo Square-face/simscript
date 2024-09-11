@@ -90,13 +90,13 @@ impl Velocity {
     /// ```
     /// # use physics::components::Velocity;
     /// # use bevy::prelude::Vec3;
-    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:1.0});
+    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:-1.0});
     ///
     /// assert_eq!(vel.yaw(), 45f32.to_radians());
     /// ```
     pub fn yaw(&self) -> f32 {
         let vec = self.0;
-        vec.z.atan2(vec.x)
+        -vec.z.atan2(vec.x)
     }
 
     /// Returns a Quat representing the orientation of the vector.
@@ -110,7 +110,7 @@ impl Velocity {
     ///
     /// assert_eq!(
     ///     vel.to_direction(),
-    ///     Quat::from_rotation_y(PI/4.0)
+    ///     Quat::from_rotation_y(-PI/4.0)
     /// );
     /// ```
     pub fn to_direction(&self) -> Quat {
@@ -143,7 +143,7 @@ mod velocity {
 
         assert_approx_eq!(&[f32], &x, &Quat::default().to_array());
         assert_approx_eq!(&[f32], &y, &Quat::from_rotation_z(PI / 2.0).to_array());
-        assert_approx_eq!(&[f32], &z, &Quat::from_rotation_y(PI / 2.0).to_array());
+        assert_approx_eq!(&[f32], &z, &Quat::from_rotation_y(-PI / 2.0).to_array());
         assert_approx_eq!(&[f32], &ang45, &Quat::from_rotation_z(PI / 4.0).to_array());
     }
 
@@ -170,10 +170,10 @@ mod velocity {
 
         assert_approx_eq!(f32, x.yaw(), 0.0);
         assert_approx_eq!(f32, y.yaw(), 0.0);
-        assert_approx_eq!(f32, z.yaw(), PI / 2.0);
+        assert_approx_eq!(f32, z.yaw(), -PI / 2.0);
 
-        assert_approx_eq!(f32, nx.yaw(), PI);
+        assert_approx_eq!(f32, nx.yaw(), -PI);
         assert_approx_eq!(f32, ny.yaw(), 0.0);
-        assert_approx_eq!(f32, nz.yaw(), -PI / 2.0);
+        assert_approx_eq!(f32, nz.yaw(), PI / 2.0);
     }
 }

@@ -6,7 +6,7 @@ use bevy::{
     ecs::system::{Commands, Res},
     hierarchy::BuildChildren,
     log::LogPlugin,
-    math::Vec3,
+    math::{Vec3, VectorSpace},
     pbr::AmbientLight,
     prelude::PluginGroup,
     render::camera::ClearColor,
@@ -18,7 +18,7 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::components::{SimulationBundle, Velocity};
+use physics::components::{Accelerator, SimulationBundle, Velocity};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
@@ -54,11 +54,11 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
 
     commands
         .spawn((
-            SimulationBundle::new_with_gravity(Velocity(Vec3 {
-                x: 30.0,
-                y: 30.0,
-                z: 0.0,
-            })),
+            SimulationBundle::new(Velocity(Vec3 {
+                x: 10.0,
+                y: 0.0,
+                z: -10.0,
+            }), Accelerator(Vec3::ZERO)),
             CameraTarget,
         ))
         .with_children(|parent| {
