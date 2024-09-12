@@ -31,9 +31,6 @@ impl SimulationBundle {
     }
 }
 
-#[derive(Component, Debug)]
-pub struct Inertia(pub Vec3);
-
 /// Marker that designates entites to be simulated
 ///
 /// Remove to easily stop something from being simulated.
@@ -45,6 +42,12 @@ pub struct Simulated;
 /// The velocity is represented as a Vec3 in global cordinates
 #[derive(Component, Debug)]
 pub struct Velocity(pub Vec3);
+
+/// Stores the current angular Velocity
+///
+/// The velocity is represented as a Vec3 in global cordinates
+#[derive(Component, Debug)]
+pub struct AngularVelocity(pub Vec3);
 
 /// Applies a constant acceleration
 ///

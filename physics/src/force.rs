@@ -18,7 +18,7 @@ impl Force {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::inertia::Force;
+    /// # use physics::force::Force;
     /// let f = Force::new(Vec3::ZERO, Vec3::X);
     ///
     /// assert_eq!(f.get_residual(), Vec3::X);
@@ -32,7 +32,7 @@ impl Force {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::inertia::Force;
+    /// # use physics::force::Force;
     /// let f = Force::new(Vec3::X, Vec3::Y);
     ///
     /// assert_eq!(f.get_torque(), Vec3::Z);
