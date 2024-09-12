@@ -11,6 +11,7 @@ use bevy::{
 };
 
 pub mod components;
+pub mod force;
 mod vector_arrows;
 
 pub struct SimulatiorPlugin;
