@@ -6,7 +6,7 @@ use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
 use bevy::transform::components::Transform;
 
-use force::Force;
+use force::Moment;
 use inertia::Inertia;
 
 pub mod components;
@@ -46,7 +46,8 @@ pub fn update_simulated(
 
     for (mut trans, mut vel, mut angvel, inertia, acc) in accelerators.iter_mut() {
         let acc = acc.map_or(Vec3::ZERO, |a| a.0);
-        let (torque, _force) = Force::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
+
+        let (torque, _force) = Moment::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
         let angacc = inertia.get_angular_acceleration(torque);
 
         // Accelerate and move

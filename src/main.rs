@@ -6,7 +6,7 @@ use bevy::{
     ecs::system::{Commands, Res},
     hierarchy::BuildChildren,
     log::LogPlugin,
-    math::{Vec3, VectorSpace},
+    math::Vec3,
     pbr::AmbientLight,
     prelude::PluginGroup,
     render::camera::ClearColor,
