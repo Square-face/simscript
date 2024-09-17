@@ -3,6 +3,8 @@ use bevy::{
     math::{Mat3, Vec3},
 };
 
+use crate::force::Torque;
+
 /// An objects mass and inertia tesnsor.
 ///
 /// Used when calculating forces and moments being applied to get a correct rotational and
@@ -60,8 +62,8 @@ impl Inertia {
     }
 
     /// Computes the resulting angular acceleration when applying a certain torque
-    pub fn get_angular_acceleration(&self, torque: Vec3) -> Vec3 {
-        self.0.inverse().mul_vec3(torque)
+    pub fn get_angular_acceleration(&self, torque: Torque) -> Vec3 {
+        self.0.inverse().mul_vec3(torque.0)
     }
 }
 
