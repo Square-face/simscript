@@ -1,7 +1,7 @@
 use std::f32::consts::{PI, TAU};
 
 use bevy::{
-    app::{App, Plugin, Startup, Update},
+    app::{App, Plugin, PostUpdate, Startup},
     core_pipeline::core_3d::Camera3dBundle,
     ecs::{
         bundle::Bundle,
@@ -182,7 +182,7 @@ impl OrbitState {
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
-        app.add_systems(Update, update_camera);
+        app.add_systems(PostUpdate, update_camera);
     }
 }
 
