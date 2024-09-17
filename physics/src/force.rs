@@ -7,7 +7,7 @@ pub struct Moment {
     offset: Vec3,
 
     /// The force being applied
-    magnitude: Vec3,
+    force: Vec3,
 }
 
 /// Represents a force applied at the center of mass
@@ -20,7 +20,7 @@ pub struct Torque(pub Vec3);
 
 impl Moment {
     pub fn new(offset: Vec3, magnitude: Vec3) -> Self {
-        Self { offset, magnitude }
+        Self { offset, force: magnitude }
     }
 
     /// Gets the part of the force not participating in creating torque
@@ -33,6 +33,7 @@ impl Moment {
     /// assert_eq!(f.get_residual(), Force(Vec3::X));
     /// ```
     #[inline]
+    #[must_use]
     pub fn get_force(&self) -> Force {
         self.get_parts().1
     }
@@ -47,16 +48,31 @@ impl Moment {
     /// assert_eq!(f.get_torque(), Torque(Vec3::Z));
     /// ```
     #[inline]
+    #[must_use]
     pub fn get_torque(&self) -> Torque {
         self.get_parts().0
     }
 
+    /// Gets both the torque and force as a tuple
+    ///
+    /// ```rust
+    /// # use bevy::math::Vec3;
+    /// # use physics::force::{Moment, Torque};
+    ///
+    /// let m = Moment::new(Vec3::Z, Vec3::ONE);
+    ///
+    /// let (t, f) = m.get_parts()
+    ///
+    /// assert_eq!(t.0, Vec3::ONE.with_z(0.0));
+    /// assert_eq!(f.0, Vec3::Z);
+    /// ```
+    #[must_use]
     pub fn get_parts(&self) -> (Torque, Force) {
         match self.offset.try_normalize() {
-            None => (Torque(Vec3::ZERO), Force(self.magnitude)),
+            None => (Torque(Vec3::ZERO), Force(self.force)),
             Some(_) => {
-                let res = self.magnitude.project_onto(self.offset);
-                let torq = self.offset.cross(self.magnitude - res);
+                let res = self.force.project_onto(self.offset);
+                let torq = self.offset.cross(self.force - res);
 
                 (Torque(torq), Force(res))
             }
