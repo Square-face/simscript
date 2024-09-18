@@ -1,6 +1,5 @@
-use bevy::app::{Plugin, Update};
+use bevy::app::{Plugin, PostUpdate, Update};
 use bevy::ecs::query::With;
-use bevy::ecs::schedule::IntoSystemConfigs;
 use bevy::ecs::system::{Query, Res};
 use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
@@ -20,9 +19,10 @@ pub struct SimulatiorPlugin;
 impl Plugin for SimulatiorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Update, update_simulated);
+        app.add_systems(Update, update_simulated);
         app.add_systems(
-            Update,
-            (vector_arrows::velocity, vector_arrows::acceleration).after(update_simulated),
+            PostUpdate,
+            (vector_arrows::velocity, vector_arrows::acceleration),
         );
     }
 }

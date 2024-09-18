@@ -4,30 +4,31 @@ use bevy::{
     prelude::SpatialBundle,
 };
 
+use crate::inertia::Inertia;
+
 #[derive(Bundle)]
 pub struct SimulationBundle {
     pub spatial: SpatialBundle,
     pub sim: Simulated,
     pub vel: Velocity,
+    pub angvel: AngularVelocity,
+    pub inertia: Inertia,
     pub acc: Accelerator,
 }
 
 impl SimulationBundle {
-    pub fn new(vel: Velocity, acc: Accelerator) -> Self {
+    pub fn new(vel: Velocity, acc: Accelerator, inertia: Inertia) -> Self {
         Self {
             spatial: SpatialBundle::default(),
             sim: Simulated,
             vel,
+            angvel: AngularVelocity(Vec3::ZERO),
+            inertia,
             acc,
         }
     }
-    pub fn new_with_gravity(vel: Velocity) -> Self {
-        Self {
-            spatial: SpatialBundle::default(),
-            sim: Simulated,
-            vel,
-            acc: Accelerator::gravity(),
-        }
+    pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
+        Self::new(vel, Accelerator::gravity(), inertia)
     }
 }
 

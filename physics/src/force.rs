@@ -79,13 +79,14 @@ impl Moment {
     pub fn get_parts(&self) -> (Torque, Force) {
         // If its not possible to normilize the offset, then it consists of only Zeroes and there
         // is no torque
-        if self.offset == Vec3::ZERO {
-            (Torque(Vec3::ZERO), Force(self.force))
-        } else {
-            let force = self.force.project_onto(self.offset);
-            let torq = self.offset.cross(self.force - force);
+        match self.offset.try_normalize() {
+            None => (Torque(Vec3::ZERO), Force(self.force)),
+            Some(offset) => {
+                    let force = self.force.project_onto_normalized(offset);
+                    let torq = self.offset.cross(self.force - force);
 
-            (Torque(torq), Force(force))
+                    (Torque(torq), Force(force))
+                }
         }
     }
 }
