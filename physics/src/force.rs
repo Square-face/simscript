@@ -19,8 +19,18 @@ pub struct Force(pub Vec3);
 pub struct Torque(pub Vec3);
 
 impl Moment {
-    pub fn new(offset: Vec3, magnitude: Vec3) -> Self {
-        Self { offset, force: magnitude }
+    /// Create a new [Moment] from an offset and a force
+    #[inline]
+    #[must_use]
+    pub fn new(offset: Vec3, force: Vec3) -> Self {
+        Self { offset, force }
+    }
+
+    /// Create a new [Moment] that is just a force and no offset
+    #[inline]
+    #[must_use]
+    pub fn from_force(force: Vec3) -> Self {
+        Self::new(Vec3::ZERO, force)
     }
 
     /// Gets the part of the force not participating in creating torque
@@ -28,9 +38,9 @@ impl Moment {
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::force::{Moment, Force};
-    /// let f = Moment::new(Vec3::ZERO, Vec3::X);
+    /// let m = Moment::new(Vec3::ZERO, Vec3::X);
     ///
-    /// assert_eq!(f.get_residual(), Force(Vec3::X));
+    /// assert_eq!(m.get_force(), Force(Vec3::X));
     /// ```
     #[inline]
     #[must_use]
@@ -43,9 +53,9 @@ impl Moment {
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::force::{Moment, Torque};
-    /// let f = Moment::new(Vec3::X, Vec3::Y);
+    /// let m = Moment::new(Vec3::X, Vec3::Y);
     ///
-    /// assert_eq!(f.get_torque(), Torque(Vec3::Z));
+    /// assert_eq!(m.get_torque(), Torque(Vec3::Z));
     /// ```
     #[inline]
     #[must_use]
@@ -58,25 +68,37 @@ impl Moment {
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::force::{Moment, Torque};
-    ///
     /// let m = Moment::new(Vec3::Z, Vec3::ONE);
     ///
-    /// let (t, f) = m.get_parts()
+    /// let (t, f) = m.get_parts();
     ///
     /// assert_eq!(t.0, Vec3::ONE.with_z(0.0));
     /// assert_eq!(f.0, Vec3::Z);
     /// ```
     #[must_use]
     pub fn get_parts(&self) -> (Torque, Force) {
-        match self.offset.try_normalize() {
-            None => (Torque(Vec3::ZERO), Force(self.force)),
-            Some(_) => {
-                let res = self.force.project_onto(self.offset);
-                let torq = self.offset.cross(self.force - res);
+        // If its not possible to normilize the offset, then it consists of only Zeroes and there
+        // is no torque
+        if self.offset == Vec3::ZERO {
+            (Torque(Vec3::ZERO), Force(self.force))
+        } else {
+            let force = self.force.project_onto(self.offset);
+            let torq = self.offset.cross(self.force - force);
 
-                (Torque(torq), Force(res))
-            }
+            (Torque(torq), Force(force))
         }
+    }
+}
+
+impl From<Moment> for Force {
+    fn from(value: Moment) -> Self {
+        value.get_force()
+    }
+}
+
+impl From<Moment> for Torque {
+    fn from(value: Moment) -> Self {
+        value.get_torque()
     }
 }
 
@@ -96,7 +118,7 @@ mod parts {
             Vec3::NEG_Y,
             Vec3::NEG_Z,
         ] {
-            let f = Moment::new(Vec3::ZERO, v);
+            let f = Moment::from_force(v);
             assert_eq!(f.get_force().0, v, "pure force failed: {f:?}");
 
             let f = Moment::new(v, v);
