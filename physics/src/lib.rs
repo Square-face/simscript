@@ -5,12 +5,10 @@ use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
 use bevy::transform::components::Transform;
 
-use force::Moment;
-use inertia::Inertia;
+use components::force::Moment;
+use components::inertia::Inertia;
 
 pub mod components;
-pub mod force;
-pub mod inertia;
 
 mod vector_arrows;
 
@@ -34,10 +32,10 @@ pub fn update_simulated(
     mut accelerators: Query<
         (
             &mut Transform,
-            &mut components::Velocity,
-            &mut components::AngularVelocity,
+            &mut components::velocity::Velocity,
+            &mut components::velocity::AngularVelocity,
             &Inertia,
-            Option<&components::Accelerator>,
+            Option<&components::acceleration::Accelerator>,
         ),
         With<components::Simulated>,
     >,

@@ -1,45 +1,5 @@
-use bevy::ecs::{bundle::Bundle, component::Component};
-use bevy::math::{Quat, Vec3};
-use bevy::prelude::SpatialBundle;
+use bevy::{ecs::component::Component, math::{Quat, Vec3}};
 
-use crate::inertia::Inertia;
-
-#[derive(Bundle)]
-pub struct SimulationBundle {
-    pub spatial: SpatialBundle,
-    pub sim: Simulated,
-    pub vel: Velocity,
-    pub angvel: AngularVelocity,
-    pub inertia: Inertia,
-    pub acc: Accelerator,
-}
-
-impl SimulationBundle {
-    pub fn new(vel: Velocity, acc: Accelerator, angvel: AngularVelocity, inertia: Inertia) -> Self {
-        Self {
-            spatial: SpatialBundle::default(),
-            sim: Simulated,
-            vel,
-            angvel,
-            inertia,
-            acc,
-        }
-    }
-    pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
-        Self::new(
-            vel,
-            Accelerator::gravity(),
-            AngularVelocity(Vec3::ZERO),
-            inertia,
-        )
-    }
-}
-
-/// Marker that designates entites to be simulated
-///
-/// Remove to easily stop something from being simulated.
-#[derive(Component, Debug)]
-pub struct Simulated;
 
 /// Stores the current translational Velocity
 ///
@@ -53,28 +13,6 @@ pub struct Velocity(pub Vec3);
 #[derive(Component, Debug)]
 pub struct AngularVelocity(pub Vec3);
 
-/// Applies a constant acceleration
-///
-/// Works similar to [Velocity] in that the acceleration is represented as a Vec3 in global
-/// cordinates
-#[derive(Component, Debug)]
-pub struct Accelerator(pub Vec3);
-
-impl Accelerator {
-    /// Returns a accelerator that simulates gravity.
-    /// i.e a negative Y acceleration of 9.82 m/s^2
-    ///
-    /// ```
-    /// # use bevy::prelude::Vec3;
-    /// # use physics::components::Accelerator;
-    /// let acc = Accelerator::gravity();
-    ///
-    /// assert_eq!(acc.0, Vec3{x:0.0, y:-9.82, z:0.0});
-    /// ```
-    pub fn gravity() -> Self {
-        Self(Vec3::NEG_Y * 9.82)
-    }
-}
 
 impl Velocity {
     /// Computes the angle from the horizontal plane to the velocity vector

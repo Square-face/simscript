@@ -3,7 +3,7 @@ use bevy::{
     math::{Mat3, Vec3},
 };
 
-use crate::force::Torque;
+use crate::components::force::Torque;
 
 /// An objects mass and inertia tesnsor.
 ///

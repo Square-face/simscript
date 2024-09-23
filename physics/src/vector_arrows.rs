@@ -6,10 +6,10 @@ use bevy::{
     transform::components::Transform,
 };
 
-use crate::components::{self, Simulated};
+use crate::components::{self, acceleration::Accelerator, velocity::Velocity, Simulated};
 
 pub fn velocity(
-    query: Query<(&Transform, &components::Velocity), With<Simulated>>,
+    query: Query<(&Transform, &Velocity), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, vel) in query.iter() {
@@ -29,7 +29,7 @@ pub fn velocity(
 }
 
 pub fn acceleration(
-    query: Query<(&Transform, &components::Accelerator), With<Simulated>>,
+    query: Query<(&Transform, &Accelerator), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, acc) in query.iter() {
