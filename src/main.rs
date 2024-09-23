@@ -18,7 +18,7 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::components::{Accelerator, SimulationBundle, Velocity};
+use physics::components::{Accelerator, AngularVelocity, SimulationBundle, Velocity};
 use physics::inertia::Inertia;
 use ui::camera::{CameraPlugin, CameraTarget};
 
@@ -58,6 +58,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
             SimulationBundle::new(
                 Velocity(Vec3::new(100.0, 100.0, 0.0)),
                 Accelerator(Vec3::Y * -9.82),
+                AngularVelocity(Vec3::ZERO),
                 Inertia::cylinder_x(20.0, 0.5, 50.0),
             ),
             CameraTarget,

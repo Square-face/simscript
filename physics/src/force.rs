@@ -82,11 +82,11 @@ impl Moment {
         match self.offset.try_normalize() {
             None => (Torque(Vec3::ZERO), Force(self.force)),
             Some(offset) => {
-                    let force = self.force.project_onto_normalized(offset);
-                    let torq = self.offset.cross(self.force - force);
+                let force = self.force.project_onto_normalized(offset);
+                let torq = self.offset.cross(self.force - force);
 
-                    (Torque(torq), Force(force))
-                }
+                (Torque(torq), Force(force))
+            }
         }
     }
 }

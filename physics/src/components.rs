@@ -1,8 +1,6 @@
-use bevy::{
-    ecs::{bundle::Bundle, component::Component},
-    math::{Quat, Vec3},
-    prelude::SpatialBundle,
-};
+use bevy::ecs::{bundle::Bundle, component::Component};
+use bevy::math::{Quat, Vec3};
+use bevy::prelude::SpatialBundle;
 
 use crate::inertia::Inertia;
 
@@ -17,18 +15,23 @@ pub struct SimulationBundle {
 }
 
 impl SimulationBundle {
-    pub fn new(vel: Velocity, acc: Accelerator, inertia: Inertia) -> Self {
+    pub fn new(vel: Velocity, acc: Accelerator, angvel: AngularVelocity, inertia: Inertia) -> Self {
         Self {
             spatial: SpatialBundle::default(),
             sim: Simulated,
             vel,
-            angvel: AngularVelocity(Vec3::ZERO),
+            angvel,
             inertia,
             acc,
         }
     }
     pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
-        Self::new(vel, Accelerator::gravity(), inertia)
+        Self::new(
+            vel,
+            Accelerator::gravity(),
+            AngularVelocity(Vec3::ZERO),
+            inertia,
+        )
     }
 }
 
