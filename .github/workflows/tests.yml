@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v4
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
@@ -22,7 +23,10 @@ jobs:
         path: |
           ${{ github.workspace }}/target
           ~/.cargo/registry
-        key: ${{ runner.os }}-tests
+        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-debug-build-
+          ${{ runner.os }}-
 
     - name: build
       run: cargo build --verbose
