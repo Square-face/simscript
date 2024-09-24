@@ -6,7 +6,7 @@ on: [push, pull_request]
 
 jobs:
   build-debug:
-    name: Test
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
