@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: ./.github/workflows/setup.yml
+    - uses: ./.github/cargo-setup
 
     - name: build
       run: cargo build --verbose
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: ./.github/workflows/setup.yml
+    - uses: ./.github/cargo-setup
 
     - name: Lib tests
       run: cargo test --workspace --verbose --lib
