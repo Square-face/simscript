@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - uses: ./.github/cargo-setup
 
     - name: build
@@ -21,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - uses: ./.github/cargo-setup
 
     - name: Lib tests
@@ -37,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - uses: ./.github/cargo-setup
 
     - name: Lint

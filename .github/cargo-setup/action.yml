@@ -3,10 +3,6 @@ name: Cargo setup
 runs:
   using: 'composite'
   steps:
-    - name: Checkout
-      shell: bash
-      uses: actions/checkout@v4
-
     - name: Use cached apt dependencies
       shell: bash
       uses: awalsh128/cache-apt-pkgs-action@latest
