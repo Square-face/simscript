@@ -1,0 +1,25 @@
+name: Cargo setup
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout
+      shell: bash
+      uses: actions/checkout@v4
+
+    - name: Use cached apt dependencies
+      shell: bash
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libasound2-dev libudev-dev
+        version: 1.0
+                  
+    - name: Use cached build depndencies
+      shell: bash
+      uses: actions/cache@v4.0.2
+      with:
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+        path: |
+          ~/.cargo/
+          target/
+
