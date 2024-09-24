@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 
 jobs:
-  tests:
+  build-debug:
     name: Test
     runs-on: ubuntu-latest
 
@@ -31,5 +31,59 @@ jobs:
     - name: build
       run: cargo build --verbose
 
+  tests:
+    name: Run tests
+    needs: build-debug
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Use cached apt dependencies
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libasound2-dev libudev-dev
+        version: 1.0
+                  
+    - name: Use cached build depndencies
+      uses: actions/cache@v4.0.2
+      with:
+        path: |
+          ${{ github.workspace }}/target
+          ~/.cargo/registry
+        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-debug-build-
+          ${{ runner.os }}-
+
+    - name: Lib tests
+      run: cargo test --workspace --verbose --lib
+
+    - name: Doc tests
+      run: cargo test --workspace --verbose --doc
+
+  clippy:
+    name: Check formatting
+    needs: build-debug
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Use cached apt dependencies
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libasound2-dev libudev-dev
+        version: 1.0
+                  
+    - name: Use cached build depndencies
+      uses: actions/cache@v4.0.2
+      with:
+        path: |
+          ${{ github.workspace }}/target
+          ~/.cargo/registry
+        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-debug-build-
+          ${{ runner.os }}-
+
     - name: tests
-      run: cargo test --workspace --verbose
+      run: cargo clippy -- -D warnings
