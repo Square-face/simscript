@@ -21,7 +21,8 @@ jobs:
       with:
         path: |
           ${{ github.workspace }}/target
-        key: ${{ runner.os }}-tests
+          ~/.cargo/registry
+        key: ${{ runner.os }}-debug-tests
 
     - name: build
       run: cargo build --verbose
