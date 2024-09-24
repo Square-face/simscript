@@ -87,5 +87,5 @@ jobs:
           ${{ runner.os }}-debug-build-
           ${{ runner.os }}-
 
-    - name: tests
+    - name: Lint
       run: cargo clippy -- -D warnings
