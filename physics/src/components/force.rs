@@ -37,7 +37,7 @@ impl Moment {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::force::{Moment, Force};
+    /// # use physics::components::force::{Moment, Force};
     /// let m = Moment::new(Vec3::ZERO, Vec3::X);
     ///
     /// assert_eq!(m.get_force(), Force(Vec3::X));
@@ -52,7 +52,7 @@ impl Moment {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::force::{Moment, Torque};
+    /// # use physics::components::force::{Moment, Torque};
     /// let m = Moment::new(Vec3::X, Vec3::Y);
     ///
     /// assert_eq!(m.get_torque(), Torque(Vec3::Z));
@@ -67,7 +67,7 @@ impl Moment {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::force::{Moment, Torque};
+    /// # use physics::components::force::Moment;
     /// let m = Moment::new(Vec3::Z, Vec3::ONE);
     ///
     /// let (t, f) = m.get_parts();

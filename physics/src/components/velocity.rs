@@ -1,5 +1,7 @@
 use bevy::{ecs::component::Component, math::{Quat, Vec3}};
 
+use super::acceleration::Accelerator;
+
 
 /// Stores the current translational Velocity
 ///
@@ -15,39 +17,31 @@ pub struct AngularVelocity(pub Vec3);
 
 
 impl Velocity {
-    /// Computes the angle from the horizontal plane to the velocity vector
+    /// Accelerates this velocity based on a time duration
+    ///
+    /// Remember to do half the acceleration before applying transformation and half
+    /// after
+    ///
+    /// ```rust
+    /// # use physics::components::acceleration::Accelerator;
+    /// # use physics::components::velocity::Velocity;
+    /// # use bevy::math::Vec3;
+    ///
+    /// let mut v = Velocity(Vec3::ZERO);
+    /// let a = Accelerator(Vec3::ONE);
+    /// v.accelerate(&a, 5.0);
+    ///
+    /// assert_eq!(v.0, Vec3::ONE * 5.0);
     ///
     /// ```
-    /// # use physics::components::Velocity;
-    /// # use bevy::prelude::Vec3;
-    /// let vel = Velocity(Vec3{x:1.0, y:1.0, z:0.0});
-    ///
-    /// assert_eq!(vel.pitch(), 45f32.to_radians());
-    /// ```
-    pub fn pitch(&self) -> f32 {
-        let vec = self.0;
-        let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
-        (vec.y / fdist).atan()
-    }
-
-    /// Computes the horizontal angle from the x axis to the velocity vector
-    ///
-    /// ```
-    /// # use physics::components::Velocity;
-    /// # use bevy::prelude::Vec3;
-    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:-1.0});
-    ///
-    /// assert_eq!(vel.yaw(), 45f32.to_radians());
-    /// ```
-    pub fn yaw(&self) -> f32 {
-        let vec = self.0;
-        -vec.z.atan2(vec.x)
+    pub fn accelerate(&mut self, acc: &Accelerator, delta: f32) {
+        self.0 += acc.0 * delta
     }
 
     /// Returns a Quat representing the orientation of the vector.
     ///
     /// ```
-    /// # use physics::components::Velocity;
+    /// # use physics::components::velocity::Velocity;
     /// # use std::f32::consts::PI;
     /// # use bevy::math::Vec3;
     /// # use bevy::math::Quat;
@@ -63,8 +57,23 @@ impl Velocity {
     }
 }
 
+impl Velocity {
+    /// Computes the angle from the horizontal plane to the velocity vector
+    fn pitch(&self) -> f32 {
+        let vec = self.0;
+        let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
+        (vec.y / fdist).atan()
+    }
+
+    /// Computes the horizontal angle from the x axis to the velocity vector
+    fn yaw(&self) -> f32 {
+        let vec = self.0;
+        -vec.z.atan2(vec.x)
+    }
+}
+
 #[cfg(test)]
-mod velocity {
+mod linear_velocity {
     use std::f32::consts::PI;
 
     use bevy::math::{Quat, Vec3};
