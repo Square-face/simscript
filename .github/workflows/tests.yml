@@ -2,34 +2,18 @@ name: Check
 
 on: [push, pull_request]
 
-
-
 jobs:
   build-debug:
     name: Build
     runs-on: ubuntu-latest
 
     steps:
-
-    - uses: actions/checkout@v4
-
-    - uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: libasound2-dev libudev-dev
-        version: 1.0
-                  
-    - uses: actions/cache@v4.0.2
-      with:
-        path: |
-          ${{ github.workspace }}/target
-          ~/.cargo/registry
-        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-debug-build-
-          ${{ runner.os }}-
+    - uses: ./.github/workflows/setup.yml
 
     - name: build
       run: cargo build --verbose
+
+
 
   tests:
     name: Run tests
@@ -37,24 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Use cached apt dependencies
-      uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: libasound2-dev libudev-dev
-        version: 1.0
-                  
-    - name: Use cached build depndencies
-      uses: actions/cache@v4.0.2
-      with:
-        path: |
-          ${{ github.workspace }}/target
-          ~/.cargo/registry
-        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-debug-build-
-          ${{ runner.os }}-
+    - uses: ./.github/workflows/setup.yml
 
     - name: Lib tests
       run: cargo test --workspace --verbose --lib
@@ -62,30 +29,15 @@ jobs:
     - name: Doc tests
       run: cargo test --workspace --verbose --doc
 
+
+
   clippy:
     name: Check formatting
     needs: build-debug
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Use cached apt dependencies
-      uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: libasound2-dev libudev-dev
-        version: 1.0
-                  
-    - name: Use cached build depndencies
-      uses: actions/cache@v4.0.2
-      with:
-        path: |
-          ${{ github.workspace }}/target
-          ~/.cargo/registry
-        key: ${{ runner.os }}-debug-build-${{ hashFiles('./Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-debug-build-
-          ${{ runner.os }}-
+    - uses: ./.github/cargo-setup
 
     - name: Lint
       run: cargo clippy -- -D warnings
