@@ -16,6 +16,12 @@ jobs:
       with:
         packages: libasound2-dev libudev-dev
         version: 1.0
+                  
+    - uses: actions/cache@v4.0.2
+      with:
+        path: |
+          ${{ github.workspace }}/target
+        key: ${{ runner.os }}-tests
 
     - name: build
       run: cargo build --verbose
