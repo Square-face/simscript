@@ -11,6 +11,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libasound2-dev
+        version: 1.0
 
     - name: build
       run: cargo build --verbose
