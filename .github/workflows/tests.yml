@@ -9,7 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: ./.github/cargo-setup
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
 
     - name: build
       run: cargo build --verbose
@@ -23,7 +25,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: ./.github/cargo-setup
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
 
     - name: Lib tests
       run: cargo test --workspace --verbose --lib
@@ -40,7 +44,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: ./.github/cargo-setup
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
 
     - name: Lint
       run: cargo clippy -- -D warnings
