@@ -9,6 +9,9 @@ runs:
       packages: libasound2-dev libudev-dev
       version: 1.0
 
+  - name: Install nextest
+    run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+
   - name: Use cached build depndencies
     uses: actions/cache@v4.0.2
     with:
