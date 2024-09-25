@@ -29,11 +29,11 @@ jobs:
     - name: Load caches
       uses: ./.github/cargo-setup
 
-    - name: Lib tests
-      run: cargo test --workspace --verbose --lib
+    - name: Install nextest
+      uses: taiki-e/install-action@nextest
 
-    - name: Doc tests
-      run: cargo test --workspace --verbose --doc
+    - name: Execute tests
+      run: cargo nextest --workspace --all
 
 
 
