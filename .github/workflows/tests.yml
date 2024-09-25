@@ -30,7 +30,7 @@ jobs:
       uses: ./.github/cargo-setup
 
     - name: Install nextest
-      run: cargo install cargo-binstall && cargo binstall nextest -y
+      run: cargo install cargo-binstall && cargo binstall cargo-nextest -y
 
     - name: Execute tests
       run: cargo nextest --workspace --all
