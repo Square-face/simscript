@@ -33,7 +33,7 @@ jobs:
       run: cargo install cargo-binstall && cargo binstall cargo-nextest -y
 
     - name: Execute tests
-      run: cargo nextest --workspace --all
+      run: cargo nextest run --workspace --all
 
 
 
