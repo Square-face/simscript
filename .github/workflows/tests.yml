@@ -30,7 +30,7 @@ jobs:
       uses: ./.github/cargo-setup
 
     - name: Install nextest
-      uses: taiki-e/install-action@nextest
+      run: cargo install cargo-binstall && cargo binstall nextest -y
 
     - name: Execute tests
       run: cargo nextest --workspace --all
