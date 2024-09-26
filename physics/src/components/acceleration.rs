@@ -9,18 +9,10 @@ use bevy::{ecs::component::Component, math::Vec3};
 pub struct Accelerator(pub Vec3);
 
 impl Accelerator {
-    /// Returns a accelerator that simulates gravity.
-    /// i.e a negative Y acceleration of 9.82 m/s^2
-    ///
-    /// ```
-    /// # use bevy::prelude::Vec3;
-    /// # use physics::components::acceleration::Accelerator;
-    /// let acc = Accelerator::gravity();
-    ///
-    /// assert_eq!(acc.0, Vec3{x:0.0, y:-9.82, z:0.0});
-    /// ```
-    pub fn gravity() -> Self {
-        Self(Vec3::NEG_Y * 9.82)
-    }
+    /// [Accelerator] that doesn't accelerate in any direction
+    pub const ZERO: Self = Self(Vec3::ZERO);
+
+    /// [Accelerator] that mimics gravity (-9.82 m/s^2 in y velocity)
+    pub const GRAVITY: Self = Self(Vec3::new(0.0, -9.82, 0.0));
 }
 

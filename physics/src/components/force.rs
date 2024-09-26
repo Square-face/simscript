@@ -19,17 +19,20 @@ pub struct Force(pub Vec3);
 pub struct Torque(pub Vec3);
 
 impl Moment {
+    /// [Moment] with no force in any direction
+    pub const ZERO: Self = Self::new(Vec3::ZERO, Vec3::ZERO);
+
     /// Create a new [Moment] from an offset and a force
     #[inline]
     #[must_use]
-    pub fn new(offset: Vec3, force: Vec3) -> Self {
+    pub const fn new(offset: Vec3, force: Vec3) -> Self {
         Self { offset, force }
     }
 
     /// Create a new [Moment] that is just a force and no offset
     #[inline]
     #[must_use]
-    pub fn from_force(force: Vec3) -> Self {
+    pub const fn from_force(force: Vec3) -> Self {
         Self::new(Vec3::ZERO, force)
     }
 

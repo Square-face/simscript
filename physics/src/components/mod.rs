@@ -35,8 +35,8 @@ impl SimulationBundle {
     pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
         Self::new(
             vel,
-            Accelerator::gravity(),
-            AngularVelocity(Vec3::ZERO),
+            Accelerator::GRAVITY,
+            AngularVelocity::ZERO,
             inertia,
         )
     }

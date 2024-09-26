@@ -45,7 +45,7 @@ pub fn update_simulated(
     let half_delta = delta / 2.0;
 
     for (mut trans, mut vel, mut angvel, inertia, acc) in accelerators.iter_mut() {
-        let acc = acc.unwrap_or(&Accelerator(Vec3::ZERO));
+        let acc = acc.unwrap_or(&Accelerator::ZERO);
 
         let (torque, _force) = Moment::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
         let angacc = inertia.get_angular_acceleration(torque);

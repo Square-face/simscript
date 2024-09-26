@@ -1,4 +1,4 @@
-use bevy::{ecs::component::Component, math::{Quat, Vec3}};
+use bevy::{ecs::component::Component, math::{Quat, Vec3, VectorSpace}};
 
 use super::acceleration::Accelerator;
 
@@ -17,6 +17,9 @@ pub struct AngularVelocity(pub Vec3);
 
 
 impl Velocity {
+    /// [Velocity] of zero in every direction
+    pub const ZERO: Self = Self(Vec3::ZERO);
+
     /// Accelerates this velocity based on a time duration
     ///
     /// Remember to do half the acceleration before applying transformation and half
@@ -55,6 +58,11 @@ impl Velocity {
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
+}
+
+impl AngularVelocity {
+    /// [AngularVelocity] of zero in every direction
+    pub const ZERO: Self = Self(Vec3::ZERO);
 }
 
 impl Velocity {
