@@ -1,0 +1,24 @@
+name: Cargo setup
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Use cached apt dependencies
+    uses: awalsh128/cache-apt-pkgs-action@latest
+    with:
+      packages: libasound2-dev libudev-dev
+      version: 1.0
+
+  - name: Use cached build depndencies
+    uses: actions/cache/restore@v4
+    with:
+      key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+      restore-key: ${{ runner.os }}-cargo-
+      path: |
+        ~/.cargo/
+        target/
+
+  - name: Install nextest
+    shell: bash
+    run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+

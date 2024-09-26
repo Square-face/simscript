@@ -1,0 +1,60 @@
+name: Check
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-debug:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
+
+    - name: build
+      run: cargo build --verbose
+
+    - name: Upload cache
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+        path: |
+          ~/.cargo/
+          target/
+
+
+
+  tests:
+    name: Run tests
+    needs: build-debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
+
+    - name: Execute tests
+      run: cargo nextest run --workspace --all
+
+
+
+  clippy:
+    name: Check formatting
+    needs: build-debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load caches
+      uses: ./.github/cargo-setup
+
+    - name: Lint
+      run: cargo clippy -- -D warnings
