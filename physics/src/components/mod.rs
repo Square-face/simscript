@@ -1,5 +1,4 @@
 use bevy::ecs::{bundle::Bundle, component::Component};
-use bevy::math::Vec3;
 use bevy::prelude::SpatialBundle;
 
 use crate::components::inertia::Inertia;

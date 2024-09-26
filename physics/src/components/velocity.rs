@@ -1,4 +1,4 @@
-use bevy::{ecs::component::Component, math::{Quat, Vec3, VectorSpace}};
+use bevy::{ecs::component::Component, math::{Quat, Vec3}};
 
 use super::acceleration::Accelerator;
 
