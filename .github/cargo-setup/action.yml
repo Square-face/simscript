@@ -10,9 +10,10 @@ runs:
       version: 1.0
 
   - name: Use cached build depndencies
-    uses: actions/cache@v4.0.2
+    uses: actions/cache/restore@v4
     with:
       key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+      restore-key: ${{ runner.os }}-cargo-
       path: |
         ~/.cargo/
         target/
