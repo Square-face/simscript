@@ -19,6 +19,14 @@ jobs:
     - name: build
       run: cargo build --verbose
 
+    - name: Upload cache
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+        path: |
+          ~/.cargo/
+          target/
+
 
 
   tests:
