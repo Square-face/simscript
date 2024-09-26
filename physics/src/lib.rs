@@ -5,6 +5,7 @@ use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
 use bevy::transform::components::Transform;
 
+use components::acceleration::Accelerator;
 use components::force::Moment;
 use components::inertia::Inertia;
 
@@ -35,7 +36,7 @@ pub fn update_simulated(
             &mut components::velocity::Velocity,
             &mut components::velocity::AngularVelocity,
             &Inertia,
-            Option<&components::acceleration::Accelerator>,
+            Option<&Accelerator>,
         ),
         With<components::Simulated>,
     >,
@@ -44,13 +45,13 @@ pub fn update_simulated(
     let half_delta = delta / 2.0;
 
     for (mut trans, mut vel, mut angvel, inertia, acc) in accelerators.iter_mut() {
-        let acc = acc.map_or(Vec3::ZERO, |a| a.0);
+        let acc = acc.unwrap_or(&Accelerator(Vec3::ZERO));
 
         let (torque, _force) = Moment::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
         let angacc = inertia.get_angular_acceleration(torque);
 
         // Accelerate and move
-        vel.0 += acc * half_delta;
+        vel.accelerate(acc, half_delta);
         angvel.0 += angacc * half_delta;
 
         trans.translation += vel.0 * delta;
@@ -63,6 +64,6 @@ pub fn update_simulated(
         }
 
         angvel.0 += angacc * half_delta;
-        vel.0 += acc * half_delta;
+        vel.accelerate(acc, half_delta);
     }
 }
