@@ -10,7 +10,6 @@ use components::force::Moment;
 use components::inertia::Inertia;
 
 pub mod components;
-
 mod vector_arrows;
 
 pub struct SimulatiorPlugin;
