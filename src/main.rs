@@ -18,7 +18,10 @@ use bevy::{
 };
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::components::{SimulationBundle, Velocity};
+use physics::components::{
+    acceleration::Accelerator, inertia::Inertia, velocity::AngularVelocity, SimulationBundle,
+    velocity::Velocity,
+};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
@@ -26,7 +29,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
-                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
+                    filter: "debug,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
                     level: bevy::log::Level::DEBUG,
                     ..Default::default()
                 })
@@ -54,11 +57,12 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
 
     commands
         .spawn((
-            SimulationBundle::new_with_gravity(Velocity(Vec3 {
-                x: 30.0,
-                y: 30.0,
-                z: 0.0,
-            })),
+            SimulationBundle::new(
+                Velocity(Vec3::new(100.0, 100.0, 0.0)),
+                Accelerator(Vec3::Y * -9.82),
+                AngularVelocity(Vec3::ZERO),
+                Inertia::cylinder_x(20.0, 0.5, 50.0),
+            ),
             CameraTarget,
         ))
         .with_children(|parent| {
