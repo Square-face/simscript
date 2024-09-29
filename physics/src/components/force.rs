@@ -36,7 +36,7 @@ impl Moment {
         Self::new(Vec3::ZERO, force)
     }
 
-    /// Gets the part of the force not participating in creating torque
+    /// Gets the part of the moment that affects translation
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
@@ -48,10 +48,10 @@ impl Moment {
     #[inline]
     #[must_use]
     pub fn get_force(&self) -> Force {
-        self.get_parts().1
+        Force(self.force)
     }
 
-    /// Gets the part of the force not participating in creating torque
+    /// Gets the part of the moment affecting rotation
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
@@ -63,7 +63,15 @@ impl Moment {
     #[inline]
     #[must_use]
     pub fn get_torque(&self) -> Torque {
-        self.get_parts().0
+        match self.offset.try_normalize() {
+            None => Torque(Vec3::ZERO),
+            Some(offset) => {
+                let radial = self.force.project_onto_normalized(offset);
+                let torque = self.offset.cross(self.force - radial);
+
+                Torque(torque)
+            }
+        }
     }
 
     /// Gets both the torque and force as a tuple
@@ -76,21 +84,12 @@ impl Moment {
     /// let (t, f) = m.get_parts();
     ///
     /// assert_eq!(t.0, Vec3::new(-1.0, 1.0, 0.0));
-    /// assert_eq!(f.0, Vec3::Z);
+    /// assert_eq!(f.0, Vec3::ONE);
     /// ```
+    #[inline]
     #[must_use]
     pub fn get_parts(&self) -> (Torque, Force) {
-        // If its not possible to normilize the offset, then it consists of only Zeroes and there
-        // is no torque
-        match self.offset.try_normalize() {
-            None => (Torque(Vec3::ZERO), Force(self.force)),
-            Some(offset) => {
-                let force = self.force.project_onto_normalized(offset);
-                let torq = self.offset.cross(self.force - force);
-
-                (Torque(torq), Force(force))
-            }
-        }
+        (self.get_torque(), self.get_force())
     }
 }
 
@@ -112,31 +111,27 @@ mod parts {
     use bevy::math::Vec3;
 
     #[test]
-    fn force() {
-        for v in [
-            Vec3::ZERO,
-            Vec3::X,
-            Vec3::Y,
-            Vec3::Z,
-            Vec3::NEG_X,
-            Vec3::NEG_Y,
-            Vec3::NEG_Z,
-        ] {
-            let f = Moment::from_force(v);
-            assert_eq!(f.get_force().0, v, "pure force failed: {f:?}");
-
-            let f = Moment::new(v, v);
-            assert_eq!(f.get_force().0, v, "double {f:?}");
-        }
-
-        let f = Moment::new(Vec3::X, Vec3::ONE);
-        assert_eq!(f.get_force().0, Vec3::X);
-    }
-
-    #[test]
     fn torque() {
-        assert_eq!(Moment::new(Vec3::Y, Vec3::Z).get_torque().0, Vec3::X);
-        assert_eq!(Moment::new(Vec3::X, Vec3::Y).get_torque().0, Vec3::Z);
-        assert_eq!(Moment::new(Vec3::X, Vec3::Z).get_torque().0, Vec3::NEG_Y);
+        let get_torque = |offset, force| Moment::new(offset, force).get_torque().0;
+
+        assert_eq!(get_torque(Vec3::Z, Vec3::ONE), Vec3::new(-1.0, 1.0, 0.0));
+
+        // no offset or force, always no torque
+        assert_eq!(get_torque(Vec3::Y, Vec3::ZERO), Vec3::ZERO);
+        assert_eq!(get_torque(Vec3::ZERO, Vec3::Y), Vec3::ZERO);
+
+        // radial force, always no torque
+        assert_eq!(get_torque(Vec3::Y, Vec3::Y), Vec3::ZERO);
+        assert_eq!(get_torque(Vec3::X, Vec3::X), Vec3::ZERO);
+        assert_eq!(get_torque(Vec3::Z, Vec3::Z), Vec3::ZERO);
+
+        // simple unit length cross product
+        assert_eq!(get_torque(Vec3::Y, Vec3::Z), Vec3::X);
+        assert_eq!(get_torque(Vec3::X, Vec3::Y), Vec3::Z);
+        assert_eq!(get_torque(Vec3::X, Vec3::Z), Vec3::NEG_Y);
+
+        // double force or offset, double torque
+        assert_eq!(get_torque(Vec3::Y, Vec3::Z * 2.0), Vec3::X * 2.0);
+        assert_eq!(get_torque(Vec3::Y * 2.0, Vec3::Z), Vec3::X * 2.0);
     }
 }
