@@ -1,4 +1,5 @@
 use bevy::math::Vec3;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -87,14 +88,176 @@ impl Moment {
 }
 
 impl From<Moment> for Force {
+    #[inline]
     fn from(value: Moment) -> Self {
         value.get_force()
     }
 }
 
+impl Add for Force {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign for Force {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0
+    }
+}
+
+impl Sub for Force {
+    type Output = Self;
+
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign for Force {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0
+    }
+}
+
+impl Mul for Force {
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self(self.0 * rhs.0)
+    }
+}
+
+impl MulAssign for Force {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Self) {
+        self.0 *= rhs.0
+    }
+}
+
+impl Div for Force {
+    type Output = Self;
+
+    #[inline]
+    fn div(self, rhs: Self) -> Self::Output {
+        Self(self.0 / rhs.0)
+    }
+}
+
+impl DivAssign for Force {
+    #[inline]
+    fn div_assign(&mut self, rhs: Self) {
+        self.0 /= rhs.0
+    }
+}
+
+impl Mul<f32> for Force {
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self(self.0 * rhs)
+    }
+}
+
+impl MulAssign<f32> for Force {
+    #[inline]
+    fn mul_assign(&mut self, rhs: f32) {
+        self.0 *= rhs
+    }
+}
+
 impl From<Moment> for Torque {
+    #[inline]
     fn from(value: Moment) -> Self {
         value.get_torque()
+    }
+}
+
+impl Add for Torque {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign for Torque {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0
+    }
+}
+
+impl Sub for Torque {
+    type Output = Torque;
+
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign for Torque {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0
+    }
+}
+
+impl Mul for Torque {
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self(self.0 * rhs.0)
+    }
+}
+
+impl MulAssign for Torque {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Self) {
+        self.0 *= rhs.0
+    }
+}
+
+impl Div for Torque {
+    type Output = Self;
+
+    #[inline]
+    fn div(self, rhs: Self) -> Self::Output {
+        Self(self.0 / rhs.0)
+    }
+}
+
+impl DivAssign for Torque {
+    #[inline]
+    fn div_assign(&mut self, rhs: Self) {
+        self.0 /= rhs.0
+    }
+}
+
+impl Mul<f32> for Torque {
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self(self.0 * rhs)
+    }
+}
+
+impl MulAssign<f32> for Torque {
+    #[inline]
+    fn mul_assign(&mut self, rhs: f32) {
+        self.0 *= rhs
     }
 }
 
