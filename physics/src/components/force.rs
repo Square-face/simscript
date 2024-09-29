@@ -29,13 +29,6 @@ impl Moment {
         Self { offset, force }
     }
 
-    /// Create a new [Moment] that is just a force and no offset
-    #[inline]
-    #[must_use]
-    pub const fn from_force(force: Vec3) -> Self {
-        Self::new(Vec3::ZERO, force)
-    }
-
     /// Gets the part of the moment that affects translation
     ///
     /// ```rust
