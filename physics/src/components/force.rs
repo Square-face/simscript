@@ -1,7 +1,7 @@
 use bevy::math::Vec3;
 
 /// Represents a force that is not applied at the center of mass
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Moment {
     /// Offset the applied force from the origin
     offset: Vec3,
@@ -11,11 +11,11 @@ pub struct Moment {
 }
 
 /// Represents a force applied at the center of mass
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Force(pub Vec3);
 
 /// Represents a torque being applied on a object
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Torque(pub Vec3);
 
 impl Moment {
