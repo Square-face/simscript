@@ -43,14 +43,14 @@ pub fn update_simulated(
     let delta = time.delta_seconds();
     let half_delta = delta / 2.0;
 
-    for (mut trans, mut vel, mut angvel, inertia, acc) in accelerators.iter_mut() {
-        let acc = acc.unwrap_or(&Accelerator::ZERO);
+    for (mut trans, mut vel, mut angvel, inertia, _acc) in accelerators.iter_mut() {
 
-        let (torque, _force) = Moment::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
-        let angacc = inertia.get_angular_acceleration(torque);
+        let (torque, force) = Moment::new(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
+        let acc = inertia.get_linear_acceleration(&force);
+        let angacc = inertia.get_angular_acceleration(&torque);
 
         // Accelerate and move
-        vel.accelerate(acc, half_delta);
+        vel.accelerate(&acc, half_delta);
         angvel.0 += angacc * half_delta;
 
         trans.translation += vel.0 * delta;
@@ -63,6 +63,6 @@ pub fn update_simulated(
         }
 
         angvel.0 += angacc * half_delta;
-        vel.accelerate(acc, half_delta);
+        vel.accelerate(&acc, half_delta);
     }
 }
