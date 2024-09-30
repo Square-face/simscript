@@ -3,7 +3,8 @@ use bevy::{
     math::{Mat3, Vec3},
 };
 
-use crate::components::force::Torque;
+use super::acceleration::Accelerator;
+use super::force::{Force, Torque};
 
 /// An objects mass and inertia tesnsor.
 ///
@@ -15,6 +16,19 @@ pub struct Inertia {
     pub tensor: Mat3,
 }
 
+impl Inertia {
+    /// Calculate the local acceleration from applying a local force on the object
+    pub fn get_linear_acceleration(&self, force: &Force) -> Accelerator {
+        Accelerator(force.0 / self.mass)
+    }
+
+    /// Calculate the resulting angular acceleration when applying a torque
+    pub fn get_angular_acceleration(&self, torque: &Torque) -> Vec3 {
+        self.tensor.inverse().mul_vec3(torque.0)
+    }
+}
+
+/// Contrsuctors
 impl Inertia {
     /// Returns a cylinder with the height going in the x direction
     pub fn cylinder_x(height: f32, radius: f32, mass: f32) -> Self {
@@ -71,11 +85,6 @@ impl Inertia {
                 [0.0, 0.0, front],
             ]),
         }
-    }
-
-    /// Computes the resulting angular acceleration when applying a certain torque
-    pub fn get_angular_acceleration(&self, torque: Torque) -> Vec3 {
-        self.tensor.inverse().mul_vec3(torque.0)
     }
 }
 
