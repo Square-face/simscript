@@ -1,6 +1,5 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-
 use bevy::{ecs::component::Component, math::Vec3};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 ///
 /// Applies a constant acceleration
@@ -18,82 +17,233 @@ impl Accelerator {
     pub const GRAVITY: Self = Self(Vec3::new(0.0, -9.82, 0.0));
 }
 
-impl Add for Accelerator {
-    type Output = Self;
+// Addition implementations
+impl Add<Accelerator> for Accelerator {
+    type Output = Accelerator;
 
     #[inline]
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
+    fn add(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 + rhs.0)
     }
 }
 
-impl AddAssign for Accelerator {
+impl Add<&Accelerator> for Accelerator {
+    type Output = Accelerator;
+
     #[inline]
-    fn add_assign(&mut self, rhs: Self) {
+    fn add(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 + rhs.0)
+    }
+}
+
+impl Add<Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn add(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 + rhs.0)
+    }
+}
+
+impl Add<&Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn add(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign<Accelerator> for Accelerator {
+    #[inline]
+    fn add_assign(&mut self, rhs: Accelerator) {
         self.0 += rhs.0
     }
 }
 
-impl Sub for Accelerator {
-    type Output = Self;
-
+impl AddAssign<&Accelerator> for Accelerator {
     #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self(self.0 - rhs.0)
+    fn add_assign(&mut self, rhs: &Accelerator) {
+        self.0 += rhs.0
     }
 }
 
-impl SubAssign for Accelerator {
+// Subtraction implementations
+impl Sub<Accelerator> for Accelerator {
+    type Output = Accelerator;
+
     #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
+    fn sub(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 - rhs.0)
+    }
+}
+
+impl Sub<&Accelerator> for Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn sub(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 - rhs.0)
+    }
+}
+
+impl Sub<Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn sub(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 - rhs.0)
+    }
+}
+
+impl Sub<&Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn sub(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign<Accelerator> for Accelerator {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Accelerator) {
         self.0 -= rhs.0
     }
 }
 
-impl Mul for Accelerator {
-    type Output = Self;
-
+impl SubAssign<&Accelerator> for Accelerator {
     #[inline]
-    fn mul(self, rhs: Self) -> Self::Output {
-        Self(self.0 * rhs.0)
+    fn sub_assign(&mut self, rhs: &Accelerator) {
+        self.0 -= rhs.0
     }
 }
 
-impl MulAssign for Accelerator {
+// Multiplication implementations
+impl Mul<Accelerator> for Accelerator {
+    type Output = Accelerator;
+
     #[inline]
-    fn mul_assign(&mut self, rhs: Self) {
+    fn mul(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 * rhs.0)
+    }
+}
+
+impl Mul<&Accelerator> for Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn mul(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 * rhs.0)
+    }
+}
+
+impl Mul<Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn mul(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 * rhs.0)
+    }
+}
+
+impl Mul<&Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn mul(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 * rhs.0)
+    }
+}
+
+impl MulAssign<Accelerator> for Accelerator {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Accelerator) {
         self.0 *= rhs.0
     }
 }
 
-impl Div for Accelerator {
-    type Output = Self;
-
+impl MulAssign<&Accelerator> for Accelerator {
     #[inline]
-    fn div(self, rhs: Self) -> Self::Output {
-        Self(self.0 / rhs.0)
+    fn mul_assign(&mut self, rhs: &Accelerator) {
+        self.0 *= rhs.0
     }
 }
 
-impl DivAssign for Accelerator {
+// Division implementations
+impl Div<Accelerator> for Accelerator {
+    type Output = Accelerator;
+
     #[inline]
-    fn div_assign(&mut self, rhs: Self) {
+    fn div(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 / rhs.0)
+    }
+}
+
+impl Div<&Accelerator> for Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn div(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 / rhs.0)
+    }
+}
+
+impl Div<Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn div(self, rhs: Accelerator) -> Self::Output {
+        Accelerator(self.0 / rhs.0)
+    }
+}
+
+impl Div<&Accelerator> for &Accelerator {
+    type Output = Accelerator;
+
+    #[inline]
+    fn div(self, rhs: &Accelerator) -> Self::Output {
+        Accelerator(self.0 / rhs.0)
+    }
+}
+
+impl DivAssign<Accelerator> for Accelerator {
+    #[inline]
+    fn div_assign(&mut self, rhs: Accelerator) {
         self.0 /= rhs.0
     }
 }
 
-impl Mul<f32> for Accelerator {
-    type Output = Self;
-
+impl DivAssign<&Accelerator> for Accelerator {
     #[inline]
-    fn mul(self, rhs: f32) -> Self::Output {
-        Self(self.0 * rhs)
+    fn div_assign(&mut self, rhs: &Accelerator) {
+        self.0 /= rhs.0
     }
 }
 
-impl MulAssign<f32> for Accelerator {
+// Other
+impl Neg for Accelerator {
+    type Output = Accelerator;
+
     #[inline]
-    fn mul_assign(&mut self, rhs: f32) {
-        self.0 *= rhs
+    fn neg(self) -> Self::Output {
+        Accelerator(-self.0)
+    }
+}
+
+impl PartialEq for Accelerator {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl PartialOrd for Accelerator {
+    #[inline]
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        let this = self.0.element_sum();
+        let other = other.0.element_sum();
+
+        this.partial_cmp(&other)
     }
 }
