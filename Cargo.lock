@@ -2912,6 +2912,7 @@ dependencies = [
  "bevy_infinite_grid",
  "float-cmp",
  "log",
+ "overload",
 ]
 
 [[package]]
