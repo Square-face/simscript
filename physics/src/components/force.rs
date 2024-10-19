@@ -1,5 +1,10 @@
+extern crate overload;
+use overload::overload;
+use std::ops;
+
 use bevy::math::Vec3;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+
+use super::{acceleration::Accelerator, inertia::Inertia};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -94,85 +99,29 @@ impl From<Moment> for Force {
     }
 }
 
-impl Add for Force {
-    type Output = Self;
+// Addition
+overload!((a: ?Force) + (b: ?Force) -> Force {Force(a.0 + b.0)});
+overload!((a: &mut Force) += (b: ?Force) {a.0 += b.0});
 
-    #[inline]
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
-    }
-}
+// Subtraction
+overload!((a: ?Force) - (b: ?Force) -> Force {Force(a.0 - b.0)});
+overload!((a: &mut Force) -= (b: ?Force) {a.0 -= b.0});
 
-impl AddAssign for Force {
-    #[inline]
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0
-    }
-}
+// Multiplication
+overload!((a: ?Force) * (b: ?Force) -> Force {Force(a.0 * b.0)});
+overload!((a: ?Force) * (b: f32) -> Force {Force(a.0 * b)});
+overload!((a: &mut Force) *= (b: ?Force) {a.0 *= b.0});
+overload!((a: &mut Force) *= (b: f32) {a.0 *= b});
 
-impl Sub for Force {
-    type Output = Self;
+// Divivision
+overload!((a: ?Force) / (b: ?Force) -> Force {Force(a.0 / b.0)});
+overload!((a: ?Force) / (b: ?Inertia) -> Accelerator {Accelerator(a.0 / b.mass)});
+overload!((a: ?Force) / (b: f32) -> Force {Force(a.0 / b)});
+overload!((a: &mut Force) /= (b: ?Force) {a.0 /= b.0});
+overload!((a: &mut Force) /= (b: f32) {a.0 /= b});
 
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self(self.0 - rhs.0)
-    }
-}
-
-impl SubAssign for Force {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
-        self.0 -= rhs.0
-    }
-}
-
-impl Mul for Force {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, rhs: Self) -> Self::Output {
-        Self(self.0 * rhs.0)
-    }
-}
-
-impl MulAssign for Force {
-    #[inline]
-    fn mul_assign(&mut self, rhs: Self) {
-        self.0 *= rhs.0
-    }
-}
-
-impl Div for Force {
-    type Output = Self;
-
-    #[inline]
-    fn div(self, rhs: Self) -> Self::Output {
-        Self(self.0 / rhs.0)
-    }
-}
-
-impl DivAssign for Force {
-    #[inline]
-    fn div_assign(&mut self, rhs: Self) {
-        self.0 /= rhs.0
-    }
-}
-
-impl Mul<f32> for Force {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, rhs: f32) -> Self::Output {
-        Self(self.0 * rhs)
-    }
-}
-
-impl MulAssign<f32> for Force {
-    #[inline]
-    fn mul_assign(&mut self, rhs: f32) {
-        self.0 *= rhs
-    }
-}
+// Negate
+overload!(- (a: &mut Force) -> Force {Force(- a.0)});
 
 impl From<Moment> for Torque {
     #[inline]
@@ -181,85 +130,28 @@ impl From<Moment> for Torque {
     }
 }
 
-impl Add for Torque {
-    type Output = Self;
+// Addition
+overload!((a: ?Torque) + (b: ?Torque) -> Torque {Torque(a.0 + b.0)});
+overload!((a: &mut Torque) += (b: ?Torque) {a.0 += b.0});
 
-    #[inline]
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
-    }
-}
+// Subtraction
+overload!((a: ?Torque) - (b: ?Torque) -> Torque {Torque(a.0 - b.0)});
+overload!((a: &mut Torque) -= (b: ?Torque) {a.0 -= b.0});
 
-impl AddAssign for Torque {
-    #[inline]
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0
-    }
-}
+// Multiplication
+overload!((a: ?Torque) * (b: ?Torque) -> Torque {Torque(a.0 * b.0)});
+overload!((a: ?Torque) * (b: f32) -> Torque {Torque(a.0 * b)});
+overload!((a: &mut Torque) *= (b: ?Torque) {a.0 *= b.0});
+overload!((a: &mut Torque) *= (b: f32) {a.0 *= b});
 
-impl Sub for Torque {
-    type Output = Torque;
+// Divivision
+overload!((a: ?Torque) / (b: ?Torque) -> Torque {Torque(a.0 / b.0)});
+overload!((a: ?Torque) / (b: f32) -> Torque {Torque(a.0 / b)});
+overload!((a: &mut Torque) /= (b: ?Torque) {a.0 /= b.0});
+overload!((a: &mut Torque) /= (b: f32) {a.0 /= b});
 
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self(self.0 - rhs.0)
-    }
-}
-
-impl SubAssign for Torque {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
-        self.0 -= rhs.0
-    }
-}
-
-impl Mul for Torque {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, rhs: Self) -> Self::Output {
-        Self(self.0 * rhs.0)
-    }
-}
-
-impl MulAssign for Torque {
-    #[inline]
-    fn mul_assign(&mut self, rhs: Self) {
-        self.0 *= rhs.0
-    }
-}
-
-impl Div for Torque {
-    type Output = Self;
-
-    #[inline]
-    fn div(self, rhs: Self) -> Self::Output {
-        Self(self.0 / rhs.0)
-    }
-}
-
-impl DivAssign for Torque {
-    #[inline]
-    fn div_assign(&mut self, rhs: Self) {
-        self.0 /= rhs.0
-    }
-}
-
-impl Mul<f32> for Torque {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, rhs: f32) -> Self::Output {
-        Self(self.0 * rhs)
-    }
-}
-
-impl MulAssign<f32> for Torque {
-    #[inline]
-    fn mul_assign(&mut self, rhs: f32) {
-        self.0 *= rhs
-    }
-}
+// Negate
+overload!(- (a: &mut Torque) -> Torque {Torque(- a.0)});
 
 #[cfg(test)]
 mod parts {

@@ -8,7 +8,7 @@ use bevy::{ecs::component::Component, math::Vec3};
 ///
 /// Works similar to [Velocity] in that the acceleration is represented as a Vec3 in global
 /// cordinates
-#[derive(Component, Debug)]
+#[derive(Component, Debug, PartialEq)]
 pub struct Accelerator(pub Vec3);
 
 impl Accelerator {
@@ -20,13 +20,6 @@ impl Accelerator {
 }
 
 // Other
-impl PartialEq for Accelerator {
-    #[inline]
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
-
 impl PartialOrd for Accelerator {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {

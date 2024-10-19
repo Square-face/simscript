@@ -1,7 +1,13 @@
-use bevy::{ecs::component::Component, math::{Quat, Vec3}};
+extern crate overload;
+use overload::overload;
+use std::ops;
+
+use bevy::{
+    ecs::component::Component,
+    math::{Quat, Vec3},
+};
 
 use super::acceleration::Accelerator;
-
 
 /// Stores the current translational Velocity
 ///
@@ -14,7 +20,6 @@ pub struct Velocity(pub Vec3);
 /// The velocity is represented as a Vec3 in global cordinates
 #[derive(Component, Debug)]
 pub struct AngularVelocity(pub Vec3);
-
 
 impl Velocity {
     /// [Velocity] of zero in every direction
@@ -79,6 +84,34 @@ impl Velocity {
         -vec.z.atan2(vec.x)
     }
 }
+
+overload!((a: ?Velocity) + (b: ?Velocity) -> Velocity { Velocity(a.0 + b.0) });
+overload!((a: ?Velocity) - (b: ?Velocity) -> Velocity { Velocity(a.0 - b.0) });
+overload!((a: ?Velocity) * (b: ?Velocity) -> Velocity { Velocity(a.0 * b.0) });
+overload!((a: ?Velocity) / (b: ?Velocity) -> Velocity { Velocity(a.0 / b.0) });
+overload!((a: ?Velocity) % (b: ?Velocity) -> Velocity { Velocity(a.0 % b.0) });
+
+overload!((a: &mut Velocity) += (b: ?Velocity) { a.0 += b.0 });
+overload!((a: &mut Velocity) -= (b: ?Velocity) { a.0 -= b.0 });
+overload!((a: &mut Velocity) *= (b: ?Velocity) { a.0 *= b.0 });
+overload!((a: &mut Velocity) /= (b: ?Velocity) { a.0 /= b.0 });
+overload!((a: &mut Velocity) %= (b: ?Velocity) { a.0 %= b.0 });
+
+overload!(-(a: ?Velocity) -> Velocity { Velocity(-a.0) });
+
+overload!((a: ?AngularVelocity) + (b: ?Velocity) -> Velocity { Velocity(a.0 + b.0) });
+overload!((a: ?AngularVelocity) - (b: ?Velocity) -> Velocity { Velocity(a.0 - b.0) });
+overload!((a: ?AngularVelocity) * (b: ?Velocity) -> Velocity { Velocity(a.0 * b.0) });
+overload!((a: ?AngularVelocity) / (b: ?Velocity) -> Velocity { Velocity(a.0 / b.0) });
+overload!((a: ?AngularVelocity) % (b: ?Velocity) -> Velocity { Velocity(a.0 % b.0) });
+
+overload!((a: &mut AngularVelocity) += (b: ?Velocity) { a.0 += b.0 });
+overload!((a: &mut AngularVelocity) -= (b: ?Velocity) { a.0 -= b.0 });
+overload!((a: &mut AngularVelocity) *= (b: ?Velocity) { a.0 *= b.0 });
+overload!((a: &mut AngularVelocity) /= (b: ?Velocity) { a.0 /= b.0 });
+overload!((a: &mut AngularVelocity) %= (b: ?Velocity) { a.0 %= b.0 });
+
+overload!(-(a: ?AngularVelocity) -> Velocity { Velocity(-a.0) });
 
 #[cfg(test)]
 mod linear_velocity {
