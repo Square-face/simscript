@@ -7,7 +7,7 @@ use bevy::{
     math::{Quat, Vec3},
 };
 
-use super::acceleration::Accelerator;
+use super::acceleration::Acceleration;
 
 /// Stores the current translational Velocity
 ///
@@ -42,7 +42,7 @@ impl Velocity {
     /// assert_eq!(v.0, Vec3::ONE * 5.0);
     ///
     /// ```
-    pub fn accelerate(&mut self, acc: &Accelerator, delta: f32) {
+    pub fn accelerate(&mut self, acc: &Acceleration, delta: f32) {
         self.0 += acc.0 * delta
     }
 

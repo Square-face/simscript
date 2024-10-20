@@ -3,7 +3,7 @@ use bevy::{
     math::{Mat3, Vec3},
 };
 
-use super::acceleration::Accelerator;
+use super::acceleration::Acceleration;
 use super::force::{Force, Torque};
 
 /// An objects mass and inertia tesnsor.
@@ -18,8 +18,8 @@ pub struct Inertia {
 
 impl Inertia {
     /// Calculate the local acceleration from applying a local force on the object
-    pub fn get_linear_acceleration(&self, force: &Force) -> Accelerator {
-        Accelerator(force.0 / self.mass)
+    pub fn get_linear_acceleration(&self, force: &Force) -> Acceleration {
+        Acceleration(force.0 / self.mass)
     }
 
     /// Calculate the resulting angular acceleration when applying a torque

@@ -29,7 +29,7 @@ pub fn velocity(
 }
 
 pub fn acceleration(
-    query: Query<(&Transform, &components::acceleration::Accelerator), With<Simulated>>,
+    query: Query<(&Transform, &components::acceleration::Acceleration), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, acc) in query.iter() {

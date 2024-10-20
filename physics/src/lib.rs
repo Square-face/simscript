@@ -5,7 +5,7 @@ use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
 use bevy::transform::components::Transform;
 
-use components::acceleration::Accelerator;
+use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
 
@@ -35,7 +35,7 @@ pub fn update_simulated(
             &mut components::velocity::Velocity,
             &mut components::velocity::AngularVelocity,
             &Inertia,
-            Option<&Accelerator>,
+            Option<&Acceleration>,
         ),
         With<components::Simulated>,
     >,

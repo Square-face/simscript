@@ -3,7 +3,7 @@ use bevy::prelude::SpatialBundle;
 
 use crate::components::inertia::Inertia;
 use crate::components::velocity::{AngularVelocity, Velocity};
-use crate::components::acceleration::Accelerator;
+use crate::components::acceleration::Acceleration;
 
 pub mod acceleration;
 pub mod force;
@@ -17,11 +17,11 @@ pub struct SimulationBundle {
     pub vel: Velocity,
     pub angvel: AngularVelocity,
     pub inertia: Inertia,
-    pub acc: Accelerator,
+    pub acc: Acceleration,
 }
 
 impl SimulationBundle {
-    pub fn new(vel: Velocity, acc: Accelerator, angvel: AngularVelocity, inertia: Inertia) -> Self {
+    pub fn new(vel: Velocity, acc: Acceleration, angvel: AngularVelocity, inertia: Inertia) -> Self {
         Self {
             spatial: SpatialBundle::default(),
             sim: Simulated,
@@ -34,7 +34,7 @@ impl SimulationBundle {
     pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
         Self::new(
             vel,
-            Accelerator::GRAVITY,
+            Acceleration::GRAVITY,
             AngularVelocity::ZERO,
             inertia,
         )

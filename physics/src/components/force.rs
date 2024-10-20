@@ -4,7 +4,7 @@ use std::ops;
 
 use bevy::math::Vec3;
 
-use super::{acceleration::Accelerator, inertia::Inertia};
+use super::{acceleration::Acceleration, inertia::Inertia};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -115,7 +115,7 @@ overload!((a: &mut Force) *= (b: f32) {a.0 *= b});
 
 // Divivision
 overload!((a: ?Force) / (b: ?Force) -> Force {Force(a.0 / b.0)});
-overload!((a: ?Force) / (b: ?Inertia) -> Accelerator {Accelerator(a.0 / b.mass)});
+overload!((a: ?Force) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
 overload!((a: ?Force) / (b: f32) -> Force {Force(a.0 / b)});
 overload!((a: &mut Force) /= (b: ?Force) {a.0 /= b.0});
 overload!((a: &mut Force) /= (b: f32) {a.0 /= b});

@@ -4,14 +4,14 @@ use std::ops;
 
 use bevy::{ecs::component::Component, math::Vec3};
 
-/// Applies a constant acceleration
+/// Represents a linear acceleration
 ///
 /// Works similar to [Velocity] in that the acceleration is represented as a Vec3 in global
 /// cordinates
 #[derive(Component, Debug, PartialEq)]
-pub struct Accelerator(pub Vec3);
+pub struct Acceleration(pub Vec3);
 
-impl Accelerator {
+impl Acceleration {
     /// [Accelerator] that doesn't accelerate in any direction
     pub const ZERO: Self = Self(Vec3::ZERO);
 
@@ -20,7 +20,7 @@ impl Accelerator {
 }
 
 // Other
-impl PartialOrd for Accelerator {
+impl PartialOrd for Acceleration {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         let this = self.0.element_sum();
@@ -30,14 +30,14 @@ impl PartialOrd for Accelerator {
     }
 }
 
-overload!((a: ?Accelerator) + (b: ?Accelerator) -> Accelerator { Accelerator ( a.0 + b.0 )});
-overload!((a: ?Accelerator) - (b: ?Accelerator) -> Accelerator { Accelerator ( a.0 - b.0 )});
-overload!((a: ?Accelerator) * (b: ?Accelerator) -> Accelerator { Accelerator ( a.0 * b.0 )});
-overload!((a: ?Accelerator) / (b: ?Accelerator) -> Accelerator { Accelerator ( a.0 / b.0 )});
+overload!((a: ?Acceleration) + (b: ?Acceleration) -> Acceleration { Acceleration ( a.0 + b.0 )});
+overload!((a: ?Acceleration) - (b: ?Acceleration) -> Acceleration { Acceleration ( a.0 - b.0 )});
+overload!((a: ?Acceleration) * (b: ?Acceleration) -> Acceleration { Acceleration ( a.0 * b.0 )});
+overload!((a: ?Acceleration) / (b: ?Acceleration) -> Acceleration { Acceleration ( a.0 / b.0 )});
 
-overload!((a: &mut Accelerator) += (b: ?Accelerator) { a.0 += b.0; });
-overload!((a: &mut Accelerator) -= (b: ?Accelerator) { a.0 -= b.0; });
-overload!((a: &mut Accelerator) *= (b: ?Accelerator) { a.0 *= b.0; });
-overload!((a: &mut Accelerator) /= (b: ?Accelerator) { a.0 /= b.0; });
+overload!((a: &mut Acceleration) += (b: ?Acceleration) { a.0 += b.0; });
+overload!((a: &mut Acceleration) -= (b: ?Acceleration) { a.0 -= b.0; });
+overload!((a: &mut Acceleration) *= (b: ?Acceleration) { a.0 *= b.0; });
+overload!((a: &mut Acceleration) /= (b: ?Acceleration) { a.0 /= b.0; });
 
-overload!(- (a: ?Accelerator) -> Accelerator { Accelerator ( -a.0 )});
+overload!(- (a: ?Acceleration) -> Acceleration { Acceleration ( -a.0 )});
