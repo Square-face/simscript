@@ -44,14 +44,13 @@ pub fn update_simulated(
     let half_delta = delta / 2.0;
 
     for (mut trans, mut vel, mut angvel, inertia, _acc) in accelerators.iter_mut() {
-
         let (torque, force) = Moment::new(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
         let acc = inertia.get_linear_acceleration(&force);
         let angacc = inertia.get_angular_acceleration(&torque);
 
         // Accelerate and move
-        vel.accelerate(&acc, half_delta);
-        angvel.0 += angacc * half_delta;
+        *vel += &acc * half_delta;
+        *angvel += &angacc * half_delta;
 
         trans.translation += vel.0 * delta;
 
@@ -62,7 +61,7 @@ pub fn update_simulated(
             trans.rotation = (trans.rotation + delta_rot.normalize() * trans.rotation).normalize();
         }
 
-        angvel.0 += angacc * half_delta;
-        vel.accelerate(&acc, half_delta);
+        *vel += &acc * half_delta;
+        *angvel += &angacc * half_delta;
     }
 }

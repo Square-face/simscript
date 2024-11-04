@@ -1,9 +1,6 @@
-use bevy::{
-    ecs::component::Component,
-    math::{Mat3, Vec3},
-};
+use bevy::{ecs::component::Component, math::Mat3};
 
-use super::acceleration::Acceleration;
+use super::acceleration::{Acceleration, AngularAcceleration};
 use super::force::{Force, Torque};
 
 /// An objects mass and inertia tesnsor.
@@ -23,8 +20,8 @@ impl Inertia {
     }
 
     /// Calculate the resulting angular acceleration when applying a torque
-    pub fn get_angular_acceleration(&self, torque: &Torque) -> Vec3 {
-        self.tensor.inverse().mul_vec3(torque.0)
+    pub fn get_angular_acceleration(&self, torque: &Torque) -> AngularAcceleration {
+        AngularAcceleration(self.tensor.inverse().mul_vec3(torque.0))
     }
 }
 
