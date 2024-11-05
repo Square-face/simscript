@@ -19,8 +19,8 @@ use bevy::{
 
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
 use physics::components::{
-    acceleration::Acceleration, inertia::Inertia, velocity::AngularVelocity, SimulationBundle,
-    velocity::Velocity,
+    acceleration::Acceleration, inertia::Inertia, velocity::AngularVelocity, velocity::Velocity,
+    SimulationBundle,
 };
 use ui::camera::{CameraPlugin, CameraTarget};
 
