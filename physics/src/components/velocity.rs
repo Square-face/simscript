@@ -7,8 +7,6 @@ use bevy::{
     math::{Quat, Vec3},
 };
 
-use super::acceleration::{Acceleration, AngularAcceleration};
-
 /// Stores the current translational Velocity
 ///
 /// The velocity is represented as a Vec3 in global cordinates
