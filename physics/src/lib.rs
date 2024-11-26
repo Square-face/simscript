@@ -11,6 +11,7 @@ use components::inertia::Inertia;
 
 pub mod components;
 mod vector_arrows;
+mod cordinate_systems;
 
 pub struct SimulatiorPlugin;
 
@@ -44,7 +45,7 @@ pub fn update_simulated(
     let half_delta = delta / 2.0;
 
     for (mut trans, mut vel, mut angvel, inertia, _acc) in accelerators.iter_mut() {
-        let (torque, force) = Moment::new(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
+        let (torque, force) = Moment::new_local(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
         let acc = inertia.get_linear_acceleration(&force);
         let angacc = inertia.get_angular_acceleration(&torque);
 

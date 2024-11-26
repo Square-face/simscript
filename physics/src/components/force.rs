@@ -1,19 +1,23 @@
 extern crate overload;
 use overload::overload;
-use std::ops;
+use std::{marker::PhantomData, ops};
 
-use bevy::math::Vec3;
+use bevy::math::{Quat, Vec3};
+
+use crate::cordinate_systems::{self, ConvertCordinateSystem, Global, Local};
 
 use super::{acceleration::Acceleration, inertia::Inertia};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Moment {
+pub struct Moment<CordinateSystem: ConvertCordinateSystem> {
     /// Offset the applied force from the origin
     offset: Vec3,
 
     /// The force being applied
     force: Vec3,
+
+    cordinate_system: PhantomData<CordinateSystem>,
 }
 
 /// Represents a force applied at the center of mass
@@ -24,23 +28,46 @@ pub struct Force(pub Vec3);
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Torque(pub Vec3);
 
-impl Moment {
+impl Moment<Local> {
     /// [Moment] with no force in any direction
-    pub const ZERO: Self = Self::new(Vec3::ZERO, Vec3::ZERO);
+    pub const ZERO: Self = Self::new_local(Vec3::ZERO, Vec3::ZERO);
 
     /// Create a new [Moment] from an offset and a force
     #[inline]
     #[must_use]
-    pub const fn new(offset: Vec3, force: Vec3) -> Self {
-        Self { offset, force }
+    pub const fn new_local(offset: Vec3, force: Vec3) -> Self {
+        Self { offset, force, cordinate_system: PhantomData }
     }
 
+    pub fn to_global(self, rot: Quat) -> Moment<Global> {
+        let offset = cordinate_systems::Local::to_global(self.offset, rot);
+        let force = cordinate_systems::Local::to_global(self.force, rot);
+        Moment::new_global(offset, force)
+    }
+}
+
+impl Moment<Global> {
+    /// Create a new [Moment] from an offset and a force
+    #[inline]
+    #[must_use]
+    pub const fn new_global(offset: Vec3, force: Vec3) -> Self {
+        Self { offset, force, cordinate_system: PhantomData }
+    }
+
+    pub fn to_local(self, rot: Quat) -> Moment<Local> {
+        let offset = cordinate_systems::Global::to_local(self.offset, rot);
+        let force = cordinate_systems::Global::to_local(self.force, rot);
+        Moment::new_local(offset, force)
+    }
+}
+
+impl<S: ConvertCordinateSystem> Moment<S> {
     /// Gets the part of the moment that affects translation
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::components::force::{Moment, Force};
-    /// let m = Moment::new(Vec3::ZERO, Vec3::X);
+    /// let m = Moment::new_global(Vec3::ZERO, Vec3::X);
     ///
     /// assert_eq!(m.get_force(), Force(Vec3::X));
     /// ```
@@ -55,7 +82,7 @@ impl Moment {
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::components::force::{Moment, Torque};
-    /// let m = Moment::new(Vec3::X, Vec3::Y);
+    /// let m = Moment::new_global(Vec3::X, Vec3::Y);
     ///
     /// assert_eq!(m.get_torque(), Torque(Vec3::Z));
     /// ```
@@ -78,7 +105,7 @@ impl Moment {
     /// ```rust
     /// # use bevy::math::Vec3;
     /// # use physics::components::force::Moment;
-    /// let m = Moment::new(Vec3::Z, Vec3::ONE);
+    /// let m = Moment::new_global(Vec3::Z, Vec3::ONE);
     ///
     /// let (t, f) = m.get_parts();
     ///
@@ -92,9 +119,9 @@ impl Moment {
     }
 }
 
-impl From<Moment> for Force {
+impl<S: ConvertCordinateSystem> From<Moment<S>> for Force {
     #[inline]
-    fn from(value: Moment) -> Self {
+    fn from(value: Moment<S>) -> Self {
         value.get_force()
     }
 }
@@ -123,9 +150,9 @@ overload!((a: &mut Force) /= (b: f32) {a.0 /= b});
 // Negate
 overload!(- (a: &mut Force) -> Force {Force(- a.0)});
 
-impl From<Moment> for Torque {
+impl<S: ConvertCordinateSystem> From<Moment<S>> for Torque {
     #[inline]
-    fn from(value: Moment) -> Self {
+    fn from(value: Moment<S>) -> Self {
         value.get_torque()
     }
 }
@@ -160,7 +187,7 @@ mod parts {
 
     #[test]
     fn torque() {
-        let get_torque = |offset, force| Moment::new(offset, force).get_torque().0;
+        let get_torque = |offset, force| Moment::new_local(offset, force).get_torque().0;
 
         assert_eq!(get_torque(Vec3::Z, Vec3::ONE), Vec3::new(-1.0, 1.0, 0.0));
 
