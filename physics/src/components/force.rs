@@ -22,11 +22,11 @@ pub struct Moment<CordinateSystem: ConvertCordinateSystem> {
 
 /// Represents a force applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Force(pub Vec3);
+pub struct Force<CordinateSystem: ConvertCordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 /// Represents a torque being applied on a object
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Torque(pub Vec3);
+pub struct Torque<CordinateSystem: ConvertCordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 impl Moment<Local> {
     /// [Moment] with no force in any direction
@@ -73,8 +73,8 @@ impl<S: ConvertCordinateSystem> Moment<S> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn get_force(&self) -> Force {
-        Force(self.force)
+    pub fn get_force(&self) -> Force<S> {
+        Force(self.force, PhantomData)
     }
 
     /// Gets the part of the moment affecting rotation
@@ -88,14 +88,14 @@ impl<S: ConvertCordinateSystem> Moment<S> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn get_torque(&self) -> Torque {
+    pub fn get_torque(&self) -> Torque<S> {
         match self.offset.try_normalize() {
-            None => Torque(Vec3::ZERO),
+            None => Torque(Vec3::ZERO, PhantomData),
             Some(offset) => {
                 let radial = self.force.project_onto_normalized(offset);
                 let torque = self.offset.cross(self.force - radial);
 
-                Torque(torque)
+                Torque(torque, PhantomData)
             }
         }
     }
@@ -114,71 +114,126 @@ impl<S: ConvertCordinateSystem> Moment<S> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn get_parts(&self) -> (Torque, Force) {
+    pub fn get_parts(&self) -> (Torque<S>, Force<S>) {
         (self.get_torque(), self.get_force())
     }
 }
 
-impl<S: ConvertCordinateSystem> From<Moment<S>> for Force {
+impl<S: ConvertCordinateSystem> From<Moment<S>> for Force<S> {
     #[inline]
     fn from(value: Moment<S>) -> Self {
         value.get_force()
     }
 }
 
+// ==== Local Coordinate System ====
+
 // Addition
-overload!((a: ?Force) + (b: ?Force) -> Force {Force(a.0 + b.0)});
-overload!((a: &mut Force) += (b: ?Force) {a.0 += b.0});
+overload!((a: ?Force<Local>) + (b: ?Force<Local>) -> Force<Local> {Force(a.0 + b.0, PhantomData)});
+overload!((a: &mut Force<Local>) += (b: ?Force<Local>) {a.0 += b.0});
 
 // Subtraction
-overload!((a: ?Force) - (b: ?Force) -> Force {Force(a.0 - b.0)});
-overload!((a: &mut Force) -= (b: ?Force) {a.0 -= b.0});
+overload!((a: ?Force<Local>) - (b: ?Force<Local>) -> Force<Local> {Force(a.0 - b.0, PhantomData)});
+overload!((a: &mut Force<Local>) -= (b: ?Force<Local>) {a.0 -= b.0});
 
 // Multiplication
-overload!((a: ?Force) * (b: ?Force) -> Force {Force(a.0 * b.0)});
-overload!((a: ?Force) * (b: f32) -> Force {Force(a.0 * b)});
-overload!((a: &mut Force) *= (b: ?Force) {a.0 *= b.0});
-overload!((a: &mut Force) *= (b: f32) {a.0 *= b});
+overload!((a: ?Force<Local>) * (b: ?Force<Local>) -> Force<Local> {Force(a.0 * b.0, PhantomData)});
+overload!((a: ?Force<Local>) * (b: f32) -> Force<Local> {Force(a.0 * b, PhantomData)});
+overload!((a: &mut Force<Local>) *= (b: ?Force<Local>) {a.0 *= b.0});
+overload!((a: &mut Force<Local>) *= (b: f32) {a.0 *= b});
 
 // Divivision
-overload!((a: ?Force) / (b: ?Force) -> Force {Force(a.0 / b.0)});
-overload!((a: ?Force) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
-overload!((a: ?Force) / (b: f32) -> Force {Force(a.0 / b)});
-overload!((a: &mut Force) /= (b: ?Force) {a.0 /= b.0});
-overload!((a: &mut Force) /= (b: f32) {a.0 /= b});
+overload!((a: ?Force<Local>) / (b: ?Force<Local>) -> Force<Local> {Force(a.0 / b.0, PhantomData)});
+overload!((a: ?Force<Local>) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Local>) / (b: f32) -> Force<Local> {Force(a.0 / b, PhantomData)});
+overload!((a: &mut Force<Local>) /= (b: ?Force<Local>) {a.0 /= b.0});
+overload!((a: &mut Force<Local>) /= (b: f32) {a.0 /= b});
 
 // Negate
-overload!(- (a: &mut Force) -> Force {Force(- a.0)});
+overload!(- (a: &mut Force<Local>) -> Force<Local> {Force(- a.0, PhantomData)});
 
-impl<S: ConvertCordinateSystem> From<Moment<S>> for Torque {
+// ==== Global Coordinate System ====
+
+// Addition
+overload!((a: ?Force<Global>) + (b: ?Force<Global>) -> Force<Global> {Force(a.0 + b.0, PhantomData)});
+overload!((a: &mut Force<Global>) += (b: ?Force<Global>) {a.0 += b.0});
+
+// Subtraction
+overload!((a: ?Force<Global>) - (b: ?Force<Global>) -> Force<Global> {Force(a.0 - b.0, PhantomData)});
+overload!((a: &mut Force<Global>) -= (b: ?Force<Global>) {a.0 -= b.0});
+
+// Multiplication
+overload!((a: ?Force<Global>) * (b: ?Force<Global>) -> Force<Global> {Force(a.0 * b.0, PhantomData)});
+overload!((a: ?Force<Global>) * (b: f32) -> Force<Global> {Force(a.0 * b, PhantomData)});
+overload!((a: &mut Force<Global>) *= (b: ?Force<Global>) {a.0 *= b.0});
+overload!((a: &mut Force<Global>) *= (b: f32) {a.0 *= b});
+
+// Divivision
+overload!((a: ?Force<Global>) / (b: ?Force<Global>) -> Force<Global> {Force(a.0 / b.0, PhantomData)});
+overload!((a: ?Force<Global>) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Global>) / (b: f32) -> Force<Global> {Force(a.0 / b, PhantomData)});
+overload!((a: &mut Force<Global>) /= (b: ?Force<Global>) {a.0 /= b.0});
+overload!((a: &mut Force<Global>) /= (b: f32) {a.0 /= b});
+
+// Negate
+overload!(- (a: &mut Force<Global>) -> Force<Global> {Force(- a.0, PhantomData)});
+
+impl<S: ConvertCordinateSystem> From<Moment<S>> for Torque<S> {
     #[inline]
     fn from(value: Moment<S>) -> Self {
         value.get_torque()
     }
 }
 
+// ==== Local Coordinate System ====
+
 // Addition
-overload!((a: ?Torque) + (b: ?Torque) -> Torque {Torque(a.0 + b.0)});
-overload!((a: &mut Torque) += (b: ?Torque) {a.0 += b.0});
+overload!((a: ?Torque<Local>) + (b: ?Torque<Local>) -> Torque<Local> {Torque(a.0 + b.0, PhantomData)});
+overload!((a: &mut Torque<Local>) += (b: ?Torque<Local>) {a.0 += b.0});
 
 // Subtraction
-overload!((a: ?Torque) - (b: ?Torque) -> Torque {Torque(a.0 - b.0)});
-overload!((a: &mut Torque) -= (b: ?Torque) {a.0 -= b.0});
+overload!((a: ?Torque<Local>) - (b: ?Torque<Local>) -> Torque<Local> {Torque(a.0 - b.0, PhantomData)});
+overload!((a: &mut Torque<Local>) -= (b: ?Torque<Local>) {a.0 -= b.0});
 
 // Multiplication
-overload!((a: ?Torque) * (b: ?Torque) -> Torque {Torque(a.0 * b.0)});
-overload!((a: ?Torque) * (b: f32) -> Torque {Torque(a.0 * b)});
-overload!((a: &mut Torque) *= (b: ?Torque) {a.0 *= b.0});
-overload!((a: &mut Torque) *= (b: f32) {a.0 *= b});
+overload!((a: ?Torque<Local>) * (b: ?Torque<Local>) -> Torque<Local> {Torque(a.0 * b.0, PhantomData)});
+overload!((a: ?Torque<Local>) * (b: f32) -> Torque<Local> {Torque(a.0 * b, PhantomData)});
+overload!((a: &mut Torque<Local>) *= (b: ?Torque<Local>) {a.0 *= b.0});
+overload!((a: &mut Torque<Local>) *= (b: f32) {a.0 *= b});
 
 // Divivision
-overload!((a: ?Torque) / (b: ?Torque) -> Torque {Torque(a.0 / b.0)});
-overload!((a: ?Torque) / (b: f32) -> Torque {Torque(a.0 / b)});
-overload!((a: &mut Torque) /= (b: ?Torque) {a.0 /= b.0});
-overload!((a: &mut Torque) /= (b: f32) {a.0 /= b});
+overload!((a: ?Torque<Local>) / (b: ?Torque<Local>) -> Torque<Local> {Torque(a.0 / b.0, PhantomData)});
+overload!((a: ?Torque<Local>) / (b: f32) -> Torque<Local> {Torque(a.0 / b, PhantomData)});
+overload!((a: &mut Torque<Local>) /= (b: ?Torque<Local>) {a.0 /= b.0});
+overload!((a: &mut Torque<Local>) /= (b: f32) {a.0 /= b});
 
 // Negate
-overload!(- (a: &mut Torque) -> Torque {Torque(- a.0)});
+overload!(- (a: &mut Torque<Local>) -> Torque<Local> {Torque(- a.0, PhantomData)});
+
+// ==== Global Coordinate System ====
+
+// Addition
+overload!((a: ?Torque<Global>) + (b: ?Torque<Global>) -> Torque<Global> {Torque(a.0 + b.0, PhantomData)});
+overload!((a: &mut Torque<Global>) += (b: ?Torque<Global>) {a.0 += b.0});
+
+// Subtraction
+overload!((a: ?Torque<Global>) - (b: ?Torque<Global>) -> Torque<Global> {Torque(a.0 - b.0, PhantomData)});
+overload!((a: &mut Torque<Global>) -= (b: ?Torque<Global>) {a.0 -= b.0});
+
+// Multiplication
+overload!((a: ?Torque<Global>) * (b: ?Torque<Global>) -> Torque<Global> {Torque(a.0 * b.0, PhantomData)});
+overload!((a: ?Torque<Global>) * (b: f32) -> Torque<Global> {Torque(a.0 * b, PhantomData)});
+overload!((a: &mut Torque<Global>) *= (b: ?Torque<Global>) {a.0 *= b.0});
+overload!((a: &mut Torque<Global>) *= (b: f32) {a.0 *= b});
+
+// Divivision
+overload!((a: ?Torque<Global>) / (b: ?Torque<Global>) -> Torque<Global> {Torque(a.0 / b.0, PhantomData)});
+overload!((a: ?Torque<Global>) / (b: f32) -> Torque<Global> {Torque(a.0 / b, PhantomData)});
+overload!((a: &mut Torque<Global>) /= (b: ?Torque<Global>) {a.0 /= b.0});
+overload!((a: &mut Torque<Global>) /= (b: f32) {a.0 /= b});
+
+// Negate
+overload!(- (a: &mut Torque<Global>) -> Torque<Global> {Torque(- a.0, PhantomData)});
 
 #[cfg(test)]
 mod parts {
