@@ -1,16 +1,14 @@
 extern crate overload;
+use bevy::math::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
-use bevy::math::{Quat, Vec3};
-
-use crate::cordinate_systems::{self, ConvertCordinateSystem, Global, Local};
-
 use super::{acceleration::Acceleration, inertia::Inertia};
+use crate::cordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Moment<CordinateSystem: ConvertCordinateSystem> {
+pub struct Moment<CordinateSystem: CoordinateSystem> {
     /// Offset the applied force from the origin
     offset: Vec3,
 
@@ -22,11 +20,11 @@ pub struct Moment<CordinateSystem: ConvertCordinateSystem> {
 
 /// Represents a force applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Force<CordinateSystem: ConvertCordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
+pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 /// Represents a torque being applied on a object
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Torque<CordinateSystem: ConvertCordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
+pub struct Torque<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 impl Moment<Local> {
     /// [Moment] with no force in any direction
@@ -57,7 +55,7 @@ impl Moment<Global> {
     }
 }
 
-impl<S: ConvertCordinateSystem> Moment<S> {
+impl<S: CoordinateSystem> Moment<S> {
     /// Gets the part of the moment that affects translation
     ///
     /// ```rust
@@ -114,25 +112,57 @@ impl<S: ConvertCordinateSystem> Moment<S> {
         (self.get_torque(), self.get_force())
     }
 
-    pub fn to_global(self, rot: Quat) -> Moment<Global> {
+}
+
+impl<S: CoordinateSystem> From<Moment<S>> for Force<S> {
+    #[inline]
+    fn from(value: Moment<S>) -> Self {
+        value.get_force()
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for Force<S> {
+    type Global = Force<Global>;
+    type Local = Force<Local>;
+
+    fn to_global(self, rot: Quat) -> Self::Global {
+        Force(S::vec3_to_global(self.0, rot), PhantomData)
+    }
+
+    fn to_local(self, rot: Quat) -> Self::Local {
+        Force(S::vec3_to_local(self.0, rot), PhantomData)
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for Torque<S> {
+    type Global = Torque<Global>;
+    type Local = Torque<Local>;
+
+    fn to_global(self, rot: Quat) -> Self::Global {
+        Torque(S::vec3_to_global(self.0, rot), PhantomData)
+    }
+
+    fn to_local(self, rot: Quat) -> Self::Local {
+        Torque(S::vec3_to_local(self.0, rot), PhantomData)
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for Moment<S> {
+    type Global = Moment<Global>;
+    type Local = Moment<Local>;
+
+    fn to_global(self, rot: Quat) -> Self::Global {
         Moment::new_global(
             S::vec3_to_global(self.offset, rot),
             S::vec3_to_global(self.force, rot),
         )
     }
 
-    pub fn to_local(self, rot: Quat) -> Moment<Local> {
+    fn to_local(self, rot: Quat) -> Self::Local {
         Moment::new_local(
             S::vec3_to_local(self.offset, rot),
             S::vec3_to_local(self.force, rot),
         )
-    }
-}
-
-impl<S: ConvertCordinateSystem> From<Moment<S>> for Force<S> {
-    #[inline]
-    fn from(value: Moment<S>) -> Self {
-        value.get_force()
     }
 }
 
@@ -188,7 +218,7 @@ overload!((a: &mut Force<Global>) /= (b: f32) {a.0 /= b});
 // Negate
 overload!(- (a: &mut Force<Global>) -> Force<Global> {Force(- a.0, PhantomData)});
 
-impl<S: ConvertCordinateSystem> From<Moment<S>> for Torque<S> {
+impl<S: CoordinateSystem> From<Moment<S>> for Torque<S> {
     #[inline]
     fn from(value: Moment<S>) -> Self {
         value.get_torque()

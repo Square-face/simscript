@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
 
-use crate::cordinate_systems::{ConvertCordinateSystem, Global, Local};
+use crate::cordinate_systems::{CoordinateSystem, Global, Local};
 
 use super::acceleration::{Acceleration, AngularAcceleration};
 use super::force::{Force, Torque};
@@ -13,13 +13,13 @@ use super::force::{Force, Torque};
 /// Used when calculating forces and moments being applied to get a correct rotational and
 /// translational acceleration
 #[derive(Component, Debug)]
-pub struct Inertia<CordinateSystem: ConvertCordinateSystem> {
+pub struct Inertia<CordinateSystem: CoordinateSystem> {
     pub mass: f32,
     pub tensor: Mat3,
     state: PhantomData<CordinateSystem>,
 }
 
-impl<S: ConvertCordinateSystem> Inertia<S> {
+impl<S: CoordinateSystem> Inertia<S> {
     /// Calculate the local acceleration from applying a local force on the object
     pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration {
         Acceleration(force.0 / self.mass)

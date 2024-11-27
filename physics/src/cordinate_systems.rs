@@ -3,7 +3,15 @@ use bevy::math::{Mat3, Quat, Vec3};
 pub struct Global;
 pub struct Local;
 
-pub trait ConvertCordinateSystem {
+pub trait CoordinateConvert {
+    type Global;
+    type Local;
+
+    fn to_global(self, rot: Quat) -> Self::Global;
+    fn to_local(self, rot: Quat) -> Self::Local;
+}
+
+pub trait CoordinateSystem {
     fn vec3_to_global(vec: Vec3, rot: Quat) -> Vec3;
     fn vec3_to_local(vec: Vec3, rot: Quat) -> Vec3;
 
@@ -11,7 +19,7 @@ pub trait ConvertCordinateSystem {
     fn mat3_to_local(mat: Mat3, rot: Quat) -> Mat3;
 }
 
-impl ConvertCordinateSystem for Global {
+impl CoordinateSystem for Global {
     fn vec3_to_global(vec: Vec3, _: Quat) -> Vec3 {
         vec
     }
@@ -30,7 +38,7 @@ impl ConvertCordinateSystem for Global {
     }
 }
 
-impl ConvertCordinateSystem for Local {
+impl CoordinateSystem for Local {
     fn vec3_to_global(mat: Vec3, rot: Quat) -> Vec3 {
         rot.mul_vec3(mat)
     }
