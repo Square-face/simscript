@@ -8,6 +8,7 @@ use bevy::transform::components::Transform;
 use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
+use cordinate_systems::Local;
 
 pub mod components;
 mod vector_arrows;
@@ -35,7 +36,7 @@ pub fn update_simulated(
             &mut Transform,
             &mut components::velocity::Velocity,
             &mut components::velocity::AngularVelocity,
-            &Inertia,
+            &Inertia<Local>,
             Option<&Acceleration>,
         ),
         With<components::Simulated>,

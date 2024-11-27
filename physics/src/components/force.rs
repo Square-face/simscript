@@ -36,13 +36,11 @@ impl Moment<Local> {
     #[inline]
     #[must_use]
     pub const fn new_local(offset: Vec3, force: Vec3) -> Self {
-        Self { offset, force, cordinate_system: PhantomData }
-    }
-
-    pub fn to_global(self, rot: Quat) -> Moment<Global> {
-        let offset = cordinate_systems::Local::to_global(self.offset, rot);
-        let force = cordinate_systems::Local::to_global(self.force, rot);
-        Moment::new_global(offset, force)
+        Self {
+            offset,
+            force,
+            cordinate_system: PhantomData,
+        }
     }
 }
 
@@ -51,13 +49,11 @@ impl Moment<Global> {
     #[inline]
     #[must_use]
     pub const fn new_global(offset: Vec3, force: Vec3) -> Self {
-        Self { offset, force, cordinate_system: PhantomData }
-    }
-
-    pub fn to_local(self, rot: Quat) -> Moment<Local> {
-        let offset = cordinate_systems::Global::to_local(self.offset, rot);
-        let force = cordinate_systems::Global::to_local(self.force, rot);
-        Moment::new_local(offset, force)
+        Self {
+            offset,
+            force,
+            cordinate_system: PhantomData,
+        }
     }
 }
 
@@ -117,6 +113,20 @@ impl<S: ConvertCordinateSystem> Moment<S> {
     pub fn get_parts(&self) -> (Torque<S>, Force<S>) {
         (self.get_torque(), self.get_force())
     }
+
+    pub fn to_global(self, rot: Quat) -> Moment<Global> {
+        Moment::new_global(
+            S::vec3_to_global(self.offset, rot),
+            S::vec3_to_global(self.force, rot),
+        )
+    }
+
+    pub fn to_local(self, rot: Quat) -> Moment<Local> {
+        Moment::new_local(
+            S::vec3_to_local(self.offset, rot),
+            S::vec3_to_local(self.force, rot),
+        )
+    }
 }
 
 impl<S: ConvertCordinateSystem> From<Moment<S>> for Force<S> {
@@ -144,7 +154,7 @@ overload!((a: &mut Force<Local>) *= (b: f32) {a.0 *= b});
 
 // Divivision
 overload!((a: ?Force<Local>) / (b: ?Force<Local>) -> Force<Local> {Force(a.0 / b.0, PhantomData)});
-overload!((a: ?Force<Local>) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Local>) / (b: ?Inertia<Local>) -> Acceleration {Acceleration(a.0 / b.mass)});
 overload!((a: ?Force<Local>) / (b: f32) -> Force<Local> {Force(a.0 / b, PhantomData)});
 overload!((a: &mut Force<Local>) /= (b: ?Force<Local>) {a.0 /= b.0});
 overload!((a: &mut Force<Local>) /= (b: f32) {a.0 /= b});
@@ -170,7 +180,7 @@ overload!((a: &mut Force<Global>) *= (b: f32) {a.0 *= b});
 
 // Divivision
 overload!((a: ?Force<Global>) / (b: ?Force<Global>) -> Force<Global> {Force(a.0 / b.0, PhantomData)});
-overload!((a: ?Force<Global>) / (b: ?Inertia) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Global>) / (b: ?Inertia<Global>) -> Acceleration {Acceleration(a.0 / b.mass)});
 overload!((a: ?Force<Global>) / (b: f32) -> Force<Global> {Force(a.0 / b, PhantomData)});
 overload!((a: &mut Force<Global>) /= (b: ?Force<Global>) {a.0 /= b.0});
 overload!((a: &mut Force<Global>) /= (b: f32) {a.0 /= b});

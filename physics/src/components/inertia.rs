@@ -1,4 +1,9 @@
+use std::marker::PhantomData;
+
+use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
+
+use crate::cordinate_systems::{ConvertCordinateSystem, Global, Local};
 
 use super::acceleration::{Acceleration, AngularAcceleration};
 use super::force::{Force, Torque};
@@ -8,25 +13,42 @@ use super::force::{Force, Torque};
 /// Used when calculating forces and moments being applied to get a correct rotational and
 /// translational acceleration
 #[derive(Component, Debug)]
-pub struct Inertia {
+pub struct Inertia<CordinateSystem: ConvertCordinateSystem> {
     pub mass: f32,
     pub tensor: Mat3,
+    state: PhantomData<CordinateSystem>,
 }
 
-impl Inertia {
+impl<S: ConvertCordinateSystem> Inertia<S> {
     /// Calculate the local acceleration from applying a local force on the object
-    pub fn get_linear_acceleration(&self, force: &Force) -> Acceleration {
+    pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration {
         Acceleration(force.0 / self.mass)
     }
 
     /// Calculate the resulting angular acceleration when applying a torque
-    pub fn get_angular_acceleration(&self, torque: &Torque) -> AngularAcceleration {
+    pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration {
         AngularAcceleration(self.tensor.inverse().mul_vec3(torque.0))
+    }
+
+    pub fn to_global(self, rot: Quat) -> Inertia<Global> {
+        Inertia{
+            mass: self.mass,
+            tensor: S::mat3_to_global(self.tensor, rot),
+            state: PhantomData
+        }
+    }
+
+    pub fn to_local(self, rot: Quat) -> Inertia<Local> {
+        Inertia{
+            mass: self.mass,
+            tensor: S::mat3_to_local(self.tensor, rot),
+            state: PhantomData
+        }
     }
 }
 
 /// Contrsuctors
-impl Inertia {
+impl Inertia<Local> {
     /// Returns a cylinder with the height going in the x direction
     pub fn cylinder_x(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
@@ -43,6 +65,7 @@ impl Inertia {
                 [0.0, side, 0.0],
                 [0.0, 0.0, side],
             ]),
+            state: PhantomData
         }
     }
 
@@ -62,6 +85,7 @@ impl Inertia {
                 [0.0, front, 0.0],
                 [0.0, 0.0, side],
             ]),
+            state: PhantomData
         }
     }
 
@@ -81,6 +105,7 @@ impl Inertia {
                 [0.0, side, 0.0],
                 [0.0, 0.0, front],
             ]),
+            state: PhantomData
         }
     }
 }
