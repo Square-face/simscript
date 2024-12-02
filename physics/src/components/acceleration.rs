@@ -65,7 +65,7 @@ overload!((a: &mut Acceleration) /= (b: ?Acceleration) { a.0 /= b.0; });
 // Acceleration, f32
 
 overload!((a: ?Acceleration) * (b: f32) -> Velocity<Global> { Velocity::new( a.0 * b )});
-overload!((a: ?Acceleration) / (b: f32) -> Velocity<Local> { Velocity::new( a.0 / b )});
+overload!((a: ?Acceleration) / (b: f32) -> Velocity<Global> { Velocity::new( a.0 / b )});
 
 overload!((a: &mut Acceleration) *= (b: f32) { a.0 *= b; });
 overload!((a: &mut Acceleration) /= (b: f32) { a.0 /= b; });
@@ -84,5 +84,5 @@ overload!((a: &mut AngularAcceleration) /= (b: ?AngularAcceleration) { a.0 /= b.
 
 // AngularAcceleration, f32
 
-overload!((a: ?AngularAcceleration) * (b: f32) -> AngularVelocity { AngularVelocity ( a.0 * b )});
-overload!((a: ?AngularAcceleration) / (b: f32) -> AngularVelocity { AngularVelocity ( a.0 / b )});
+overload!((a: ?AngularAcceleration) * (b: f32) -> AngularVelocity<Global> { AngularVelocity::new( a.0 * b )});
+overload!((a: ?AngularAcceleration) / (b: f32) -> AngularVelocity<Global> { AngularVelocity::new( a.0 / b )});

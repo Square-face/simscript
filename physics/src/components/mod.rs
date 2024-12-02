@@ -12,20 +12,20 @@ pub mod inertia;
 pub mod velocity;
 
 #[derive(Bundle)]
-pub struct SimulationBundle<V: CoordinateSystem + Component> {
+pub struct SimulationBundle<V: CoordinateSystem + Component, A: CoordinateSystem + Component> {
     pub spatial: SpatialBundle,
     pub sim: Simulated,
     pub vel: Velocity<V>,
-    pub angvel: AngularVelocity,
+    pub angvel: AngularVelocity<A>,
     pub inertia: Inertia<Local>,
     pub acc: Acceleration,
 }
 
-impl<V: CoordinateSystem + Component> SimulationBundle<V> {
+impl<V: CoordinateSystem + Component, A: CoordinateSystem + Component> SimulationBundle<V, A> {
     pub fn new(
         vel: Velocity<V>,
         acc: Acceleration,
-        angvel: AngularVelocity,
+        angvel: AngularVelocity<A>,
         inertia: Inertia<Local>,
     ) -> Self {
         Self {

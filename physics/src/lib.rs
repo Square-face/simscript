@@ -35,7 +35,7 @@ pub fn update_simulated(
         (
             &mut Transform,
             &mut components::velocity::Velocity<Global>,
-            &mut components::velocity::AngularVelocity,
+            &mut components::velocity::AngularVelocity<Global>,
             &Inertia<Local>,
             Option<&Acceleration>,
         ),
