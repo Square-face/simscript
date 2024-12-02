@@ -58,7 +58,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         .spawn((
             SimulationBundle::new(
                 Velocity::<Global>::new(Vec3::new(100.0, 100.0, 0.0)),
-                Acceleration(Vec3::Y * -9.82),
+                Acceleration::<Global>::new(Vec3::Y * -9.82),
                 AngularVelocity::<Global>::new(Vec3::ZERO),
                 Inertia::cylinder_x(20.0, 0.5, 50.0),
             ),

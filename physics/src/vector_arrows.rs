@@ -24,8 +24,8 @@ pub fn velocity<V: CoordinateSystem + Component>(
     }
 }
 
-pub fn acceleration(
-    query: Query<(&Transform, &components::acceleration::Acceleration), With<Simulated>>,
+pub fn acceleration<A: CoordinateSystem + Component>(
+    query: Query<(&Transform, &components::acceleration::Acceleration<A>), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, acc) in query.iter() {

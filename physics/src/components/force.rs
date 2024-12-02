@@ -114,13 +114,6 @@ impl<S: CoordinateSystem> Moment<S> {
 
 }
 
-impl<S: CoordinateSystem> From<Moment<S>> for Force<S> {
-    #[inline]
-    fn from(value: Moment<S>) -> Self {
-        value.get_force()
-    }
-}
-
 impl<S: CoordinateSystem> CoordinateConvert for Force<S> {
     type Global = Force<Global>;
     type Local = Force<Local>;
@@ -166,6 +159,13 @@ impl<S: CoordinateSystem> CoordinateConvert for Moment<S> {
     }
 }
 
+impl<S: CoordinateSystem> From<Moment<S>> for Force<S> {
+    #[inline]
+    fn from(value: Moment<S>) -> Self {
+        value.get_force()
+    }
+}
+
 // ==== Local Coordinate System ====
 
 // Addition
@@ -184,7 +184,7 @@ overload!((a: &mut Force<Local>) *= (b: f32) {a.0 *= b});
 
 // Divivision
 overload!((a: ?Force<Local>) / (b: ?Force<Local>) -> Force<Local> {Force(a.0 / b.0, PhantomData)});
-overload!((a: ?Force<Local>) / (b: ?Inertia<Local>) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Local>) / (b: ?Inertia<Local>) -> Acceleration<Local> {Acceleration::new(a.0 / b.mass)});
 overload!((a: ?Force<Local>) / (b: f32) -> Force<Local> {Force(a.0 / b, PhantomData)});
 overload!((a: &mut Force<Local>) /= (b: ?Force<Local>) {a.0 /= b.0});
 overload!((a: &mut Force<Local>) /= (b: f32) {a.0 /= b});
@@ -210,7 +210,7 @@ overload!((a: &mut Force<Global>) *= (b: f32) {a.0 *= b});
 
 // Divivision
 overload!((a: ?Force<Global>) / (b: ?Force<Global>) -> Force<Global> {Force(a.0 / b.0, PhantomData)});
-overload!((a: ?Force<Global>) / (b: ?Inertia<Global>) -> Acceleration {Acceleration(a.0 / b.mass)});
+overload!((a: ?Force<Global>) / (b: ?Inertia<Global>) -> Acceleration<Global> {Acceleration::new(a.0 / b.mass)});
 overload!((a: ?Force<Global>) / (b: f32) -> Force<Global> {Force(a.0 / b, PhantomData)});
 overload!((a: &mut Force<Global>) /= (b: ?Force<Global>) {a.0 /= b.0});
 overload!((a: &mut Force<Global>) /= (b: f32) {a.0 /= b});

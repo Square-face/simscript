@@ -21,13 +21,13 @@ pub struct Inertia<CordinateSystem: CoordinateSystem> {
 
 impl<S: CoordinateSystem> Inertia<S> {
     /// Calculate the local acceleration from applying a local force on the object
-    pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration {
-        Acceleration(force.0 / self.mass)
+    pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration<S> {
+        Acceleration::new(force.0 / self.mass)
     }
 
     /// Calculate the resulting angular acceleration when applying a torque
-    pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration {
-        AngularAcceleration(self.tensor.inverse().mul_vec3(torque.0))
+    pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration<S> {
+        AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
     }
 
     pub fn to_global(self, rot: Quat) -> Inertia<Global> {

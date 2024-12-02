@@ -8,7 +8,7 @@ use bevy::transform::components::Transform;
 use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
-use cordinate_systems::{Global, Local};
+use cordinate_systems::Global;
 
 pub mod components;
 mod vector_arrows;
@@ -22,7 +22,7 @@ impl Plugin for SimulatiorPlugin {
         app.add_systems(Update, update_simulated);
         app.add_systems(
             PostUpdate,
-            (vector_arrows::velocity::<Global>, vector_arrows::acceleration),
+            (vector_arrows::velocity::<Global>, vector_arrows::acceleration::<Global>),
         );
     }
 }
@@ -36,8 +36,8 @@ pub fn update_simulated(
             &mut Transform,
             &mut components::velocity::Velocity<Global>,
             &mut components::velocity::AngularVelocity<Global>,
-            &Inertia<Local>,
-            Option<&Acceleration>,
+            &Inertia<Global>,
+            Option<&Acceleration<Global>>,
         ),
         With<components::Simulated>,
     >,
@@ -46,7 +46,7 @@ pub fn update_simulated(
     let half_delta = delta / 2.0;
 
     for (mut trans, mut vel, mut angvel, inertia, _acc) in accelerators.iter_mut() {
-        let (torque, force) = Moment::new_local(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
+        let (torque, force) = Moment::new_global(Vec3::Y, Vec3::new(0.0, -1000.0, 0.0)).get_parts();
         let acc = inertia.get_linear_acceleration(&force);
         let angacc = inertia.get_angular_acceleration(&torque);
 
