@@ -4,6 +4,8 @@ use std::ops;
 
 use bevy::{ecs::component::Component, math::Vec3};
 
+use crate::cordinate_systems::{Global, Local};
+
 use super::velocity::{AngularVelocity, Velocity};
 
 /// Represents a linear acceleration
@@ -62,8 +64,8 @@ overload!((a: &mut Acceleration) /= (b: ?Acceleration) { a.0 /= b.0; });
 
 // Acceleration, f32
 
-overload!((a: ?Acceleration) * (b: f32) -> Velocity { Velocity ( a.0 * b )});
-overload!((a: ?Acceleration) / (b: f32) -> Velocity { Velocity ( a.0 / b )});
+overload!((a: ?Acceleration) * (b: f32) -> Velocity<Global> { Velocity::new( a.0 * b )});
+overload!((a: ?Acceleration) / (b: f32) -> Velocity<Local> { Velocity::new( a.0 / b )});
 
 overload!((a: &mut Acceleration) *= (b: f32) { a.0 *= b; });
 overload!((a: &mut Acceleration) /= (b: f32) { a.0 /= b; });

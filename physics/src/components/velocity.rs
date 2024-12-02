@@ -1,17 +1,19 @@
 extern crate overload;
 use overload::overload;
-use std::ops;
+use std::{marker::PhantomData, ops};
 
 use bevy::{
     ecs::component::Component,
     math::{Quat, Vec3},
 };
 
+use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+
 /// Stores the current translational Velocity
 ///
 /// The velocity is represented as a Vec3 in global cordinates
 #[derive(Component, Debug)]
-pub struct Velocity(pub Vec3);
+pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Stores the current angular Velocity
 ///
@@ -19,9 +21,15 @@ pub struct Velocity(pub Vec3);
 #[derive(Component, Debug)]
 pub struct AngularVelocity(pub Vec3);
 
-impl Velocity {
+impl<S: CoordinateSystem> Velocity<S> {
+    pub fn new(vel: Vec3) -> Velocity<S> {
+        Velocity(vel, PhantomData)
+    }
+}
+
+impl Velocity<Global> {
     /// [Velocity] of zero in every direction
-    pub const ZERO: Self = Self(Vec3::ZERO);
+    pub const ZERO: Self = Self(Vec3::ZERO, PhantomData);
 
     /// Returns a Quat representing the orientation of the vector.
     ///
@@ -47,7 +55,7 @@ impl AngularVelocity {
     pub const ZERO: Self = Self(Vec3::ZERO);
 }
 
-impl Velocity {
+impl Velocity<Global> {
     /// Computes the angle from the horizontal plane to the velocity vector
     fn pitch(&self) -> f32 {
         let vec = self.0;
@@ -62,19 +70,33 @@ impl Velocity {
     }
 }
 
-overload!((a: ?Velocity) + (b: ?Velocity) -> Velocity { Velocity(a.0 + b.0) });
-overload!((a: ?Velocity) - (b: ?Velocity) -> Velocity { Velocity(a.0 - b.0) });
-overload!((a: ?Velocity) * (b: ?Velocity) -> Velocity { Velocity(a.0 * b.0) });
-overload!((a: ?Velocity) / (b: ?Velocity) -> Velocity { Velocity(a.0 / b.0) });
-overload!((a: ?Velocity) % (b: ?Velocity) -> Velocity { Velocity(a.0 % b.0) });
+overload!((a: ?Velocity<Local>) + (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 + b.0, PhantomData) });
+overload!((a: ?Velocity<Local>) - (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 - b.0, PhantomData) });
+overload!((a: ?Velocity<Local>) * (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 * b.0, PhantomData) });
+overload!((a: ?Velocity<Local>) / (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 / b.0, PhantomData) });
+overload!((a: ?Velocity<Local>) % (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 % b.0, PhantomData) });
 
-overload!((a: &mut Velocity) += (b: ?Velocity) { a.0 += b.0 });
-overload!((a: &mut Velocity) -= (b: ?Velocity) { a.0 -= b.0 });
-overload!((a: &mut Velocity) *= (b: ?Velocity) { a.0 *= b.0 });
-overload!((a: &mut Velocity) /= (b: ?Velocity) { a.0 /= b.0 });
-overload!((a: &mut Velocity) %= (b: ?Velocity) { a.0 %= b.0 });
+overload!((a: &mut Velocity<Local>) += (b: ?Velocity<Local>) { a.0 += b.0 });
+overload!((a: &mut Velocity<Local>) -= (b: ?Velocity<Local>) { a.0 -= b.0 });
+overload!((a: &mut Velocity<Local>) *= (b: ?Velocity<Local>) { a.0 *= b.0 });
+overload!((a: &mut Velocity<Local>) /= (b: ?Velocity<Local>) { a.0 /= b.0 });
+overload!((a: &mut Velocity<Local>) %= (b: ?Velocity<Local>) { a.0 %= b.0 });
 
-overload!(-(a: ?Velocity) -> Velocity { Velocity(-a.0) });
+overload!(-(a: ?Velocity<Local>) -> Velocity<Local> { Velocity(-a.0, PhantomData) });
+
+overload!((a: ?Velocity<Global>) + (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 + b.0, PhantomData) });
+overload!((a: ?Velocity<Global>) - (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 - b.0, PhantomData) });
+overload!((a: ?Velocity<Global>) * (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 * b.0, PhantomData) });
+overload!((a: ?Velocity<Global>) / (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 / b.0, PhantomData) });
+overload!((a: ?Velocity<Global>) % (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 % b.0, PhantomData) });
+
+overload!((a: &mut Velocity<Global>) += (b: ?Velocity<Global>) { a.0 += b.0 });
+overload!((a: &mut Velocity<Global>) -= (b: ?Velocity<Global>) { a.0 -= b.0 });
+overload!((a: &mut Velocity<Global>) *= (b: ?Velocity<Global>) { a.0 *= b.0 });
+overload!((a: &mut Velocity<Global>) /= (b: ?Velocity<Global>) { a.0 /= b.0 });
+overload!((a: &mut Velocity<Global>) %= (b: ?Velocity<Global>) { a.0 %= b.0 });
+
+overload!(-(a: ?Velocity<Global>) -> Velocity<Global> { Velocity(-a.0, PhantomData) });
 
 overload!((a: ?AngularVelocity) + (b: ?AngularVelocity) -> AngularVelocity { AngularVelocity(a.0 + b.0) });
 overload!((a: ?AngularVelocity) - (b: ?AngularVelocity) -> AngularVelocity { AngularVelocity(a.0 - b.0) });
@@ -101,11 +123,11 @@ mod linear_velocity {
 
     #[test]
     fn to_direction() {
-        let x = Velocity(Vec3::X).to_direction().to_array();
-        let y = Velocity(Vec3::Y).to_direction().to_array();
-        let z = Velocity(Vec3::Z).to_direction().to_array();
+        let x = Velocity::new(Vec3::X).to_direction().to_array();
+        let y = Velocity::new(Vec3::Y).to_direction().to_array();
+        let z = Velocity::new(Vec3::Z).to_direction().to_array();
 
-        let ang45 = Velocity(Vec3 {
+        let ang45 = Velocity::new(Vec3 {
             x: 1.0,
             y: 1.0,
             z: 0.0,
@@ -121,9 +143,9 @@ mod linear_velocity {
 
     #[test]
     fn pitch() {
-        let x = Velocity(Vec3::X);
-        let y = Velocity(Vec3::Y);
-        let z = Velocity(Vec3::Z);
+        let x = Velocity::new(Vec3::X);
+        let y = Velocity::new(Vec3::Y);
+        let z = Velocity::new(Vec3::Z);
 
         assert_approx_eq!(f32, x.pitch(), 0.0);
         assert_approx_eq!(f32, y.pitch(), PI / 2.0);
@@ -132,13 +154,13 @@ mod linear_velocity {
 
     #[test]
     fn yaw() {
-        let x = Velocity(Vec3::X);
-        let y = Velocity(Vec3::Y);
-        let z = Velocity(Vec3::Z);
+        let x = Velocity::new(Vec3::X);
+        let y = Velocity::new(Vec3::Y);
+        let z = Velocity::new(Vec3::Z);
 
-        let nx = Velocity(Vec3::NEG_X);
-        let ny = Velocity(Vec3::NEG_Y);
-        let nz = Velocity(Vec3::NEG_Z);
+        let nx = Velocity::new(Vec3::NEG_X);
+        let ny = Velocity::new(Vec3::NEG_Y);
+        let nz = Velocity::new(Vec3::NEG_Z);
 
         assert_approx_eq!(f32, x.yaw(), 0.0);
         assert_approx_eq!(f32, y.yaw(), 0.0);

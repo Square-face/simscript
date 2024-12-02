@@ -8,11 +8,11 @@ use bevy::transform::components::Transform;
 use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
-use cordinate_systems::Local;
+use cordinate_systems::{Global, Local};
 
 pub mod components;
 mod vector_arrows;
-mod cordinate_systems;
+pub mod cordinate_systems;
 
 pub struct SimulatiorPlugin;
 
@@ -22,7 +22,7 @@ impl Plugin for SimulatiorPlugin {
         app.add_systems(Update, update_simulated);
         app.add_systems(
             PostUpdate,
-            (vector_arrows::velocity, vector_arrows::acceleration),
+            (vector_arrows::velocity::<Global>, vector_arrows::acceleration),
         );
     }
 }
@@ -34,7 +34,7 @@ pub fn update_simulated(
     mut accelerators: Query<
         (
             &mut Transform,
-            &mut components::velocity::Velocity,
+            &mut components::velocity::Velocity<Global>,
             &mut components::velocity::AngularVelocity,
             &Inertia<Local>,
             Option<&Acceleration>,
