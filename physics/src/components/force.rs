@@ -26,36 +26,20 @@ pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<Cordin
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Torque<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
-impl Moment<Local> {
-    /// [Moment] with no force in any direction
-    pub const ZERO: Self = Self::new_local(Vec3::ZERO, Vec3::ZERO);
-
-    /// Create a new [Moment] from an offset and a force
-    #[inline]
-    #[must_use]
-    pub const fn new_local(offset: Vec3, force: Vec3) -> Self {
-        Self {
-            offset,
-            force,
-            cordinate_system: PhantomData,
-        }
-    }
-}
-
-impl Moment<Global> {
-    /// Create a new [Moment] from an offset and a force
-    #[inline]
-    #[must_use]
-    pub const fn new_global(offset: Vec3, force: Vec3) -> Self {
-        Self {
-            offset,
-            force,
-            cordinate_system: PhantomData,
-        }
-    }
-}
-
 impl<S: CoordinateSystem> Moment<S> {
+    pub const ZERO: Self = Self::new(Vec3::ZERO, Vec3::ZERO);
+
+    #[inline]
+    #[must_use]
+    /// Create a new [Moment] from an offset and a force
+    pub const fn new(offset: Vec3, force: Vec3) -> Self {
+        Self {
+            offset,
+            force,
+            cordinate_system: PhantomData,
+        }
+    }
+
     /// Gets the part of the moment that affects translation
     ///
     /// ```rust
@@ -114,6 +98,24 @@ impl<S: CoordinateSystem> Moment<S> {
 
 }
 
+impl<S: CoordinateSystem> Force<S> {
+    #[inline]
+    #[must_use]
+    /// Create a new force
+    pub const fn new(force: Vec3) -> Self {
+        Force(force, PhantomData)
+    }
+}
+
+impl<S: CoordinateSystem> Torque<S> {
+    #[inline]
+    #[must_use]
+    /// Create a new torque
+    pub const fn new(torque: Vec3) -> Self {
+        Torque(torque, PhantomData)
+    }
+}
+
 impl<S: CoordinateSystem> CoordinateConvert for Force<S> {
     type Global = Force<Global>;
     type Local = Force<Local>;
@@ -145,14 +147,14 @@ impl<S: CoordinateSystem> CoordinateConvert for Moment<S> {
     type Local = Moment<Local>;
 
     fn to_global(self, rot: Quat) -> Self::Global {
-        Moment::new_global(
+        Moment::new(
             S::vec3_to_global(self.offset, rot),
             S::vec3_to_global(self.force, rot),
         )
     }
 
     fn to_local(self, rot: Quat) -> Self::Local {
-        Moment::new_local(
+        Moment::new(
             S::vec3_to_local(self.offset, rot),
             S::vec3_to_local(self.force, rot),
         )
@@ -277,12 +279,14 @@ overload!(- (a: &mut Torque<Global>) -> Torque<Global> {Torque(- a.0, PhantomDat
 
 #[cfg(test)]
 mod parts {
+    use crate::cordinate_systems::Global;
+
     use super::Moment;
     use bevy::math::Vec3;
 
     #[test]
     fn torque() {
-        let get_torque = |offset, force| Moment::new_local(offset, force).get_torque().0;
+        let get_torque = |offset, force| Moment::<Global>::new(offset, force).get_torque().0;
 
         assert_eq!(get_torque(Vec3::Z, Vec3::ONE), Vec3::new(-1.0, 1.0, 0.0));
 
