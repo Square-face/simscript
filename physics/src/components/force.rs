@@ -43,10 +43,11 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
+    /// # use physics::cordinate_systems::Global;
     /// # use physics::components::force::{Moment, Force};
-    /// let m = Moment::new_global(Vec3::ZERO, Vec3::X);
+    /// let m = Moment::<Global>::new(Vec3::ZERO, Vec3::X);
     ///
-    /// assert_eq!(m.get_force(), Force(Vec3::X));
+    /// assert_eq!(m.get_force(), Force::new(Vec3::X));
     /// ```
     #[inline]
     #[must_use]
@@ -58,10 +59,11 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
+    /// # use physics::cordinate_systems::Global;
     /// # use physics::components::force::{Moment, Torque};
-    /// let m = Moment::new_global(Vec3::X, Vec3::Y);
+    /// let m = Moment::<Global>::new(Vec3::X, Vec3::Y);
     ///
-    /// assert_eq!(m.get_torque(), Torque(Vec3::Z));
+    /// assert_eq!(m.get_torque(), Torque::<Global>::new(Vec3::Z));
     /// ```
     #[inline]
     #[must_use]
@@ -81,8 +83,9 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
+    /// # use physics::cordinate_systems::Global;
     /// # use physics::components::force::Moment;
-    /// let m = Moment::new_global(Vec3::Z, Vec3::ONE);
+    /// let m = Moment::<Global>::new(Vec3::Z, Vec3::ONE);
     ///
     /// let (t, f) = m.get_parts();
     ///

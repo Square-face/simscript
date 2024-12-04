@@ -1,8 +1,8 @@
 use bevy::{math::{Mat3, Quat, Vec3}, prelude::Component};
 
-#[derive(Component)]
+#[derive(Component, PartialEq, Debug)]
 pub struct Global;
-#[derive(Component)]
+#[derive(Component, PartialEq, Debug)]
 pub struct Local;
 
 pub trait CoordinateConvert {

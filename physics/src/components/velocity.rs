@@ -38,7 +38,7 @@ impl Velocity<Global> {
     /// # use std::f32::consts::PI;
     /// # use bevy::math::Vec3;
     /// # use bevy::math::Quat;
-    /// let vel = Velocity(Vec3{x:1.0, y:0.0, z:1.0});
+    /// let vel = Velocity::new(Vec3{x:1.0, y:0.0, z:1.0});
     ///
     /// assert_eq!(
     ///     vel.to_direction(),
