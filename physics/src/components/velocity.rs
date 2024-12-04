@@ -74,61 +74,89 @@ impl Velocity<Global> {
     }
 }
 
-overload!((a: ?Velocity<Local>) + (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 + b.0, PhantomData) });
-overload!((a: ?Velocity<Local>) - (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 - b.0, PhantomData) });
-overload!((a: ?Velocity<Local>) * (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 * b.0, PhantomData) });
-overload!((a: ?Velocity<Local>) / (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 / b.0, PhantomData) });
-overload!((a: ?Velocity<Local>) % (b: ?Velocity<Local>) -> Velocity<Local> { Velocity(a.0 % b.0, PhantomData) });
+// ==== Local Coordinate System ====
+// impl x for Velocity<Local>
+overload!((a: ?Velocity<Local>) + (b: ?Velocity<Local>) -> Velocity<Local> { Velocity::new(a.0 + b.0) });
+overload!((a: ?Velocity<Local>) - (b: ?Velocity<Local>) -> Velocity<Local> { Velocity::new(a.0 - b.0) });
+overload!((a: ?Velocity<Local>) * (b: ?Velocity<Local>) -> Velocity<Local> { Velocity::new(a.0 * b.0) });
+overload!((a: ?Velocity<Local>) / (b: ?Velocity<Local>) -> Velocity<Local> { Velocity::new(a.0 / b.0) });
 
+overload!((a: ?Velocity<Local>) * (b: f32) -> Velocity<Local> { Velocity::new(a.0 * b) });
+overload!((a: ?Velocity<Local>) / (b: f32) -> Velocity<Local> { Velocity::new(a.0 / b) });
+
+overload!(- (a: &mut Velocity<Local>) -> Velocity<Local> { Velocity::new(- a.0) });
+
+// impl xAssign for Velocity<Local>
 overload!((a: &mut Velocity<Local>) += (b: ?Velocity<Local>) { a.0 += b.0 });
 overload!((a: &mut Velocity<Local>) -= (b: ?Velocity<Local>) { a.0 -= b.0 });
 overload!((a: &mut Velocity<Local>) *= (b: ?Velocity<Local>) { a.0 *= b.0 });
 overload!((a: &mut Velocity<Local>) /= (b: ?Velocity<Local>) { a.0 /= b.0 });
-overload!((a: &mut Velocity<Local>) %= (b: ?Velocity<Local>) { a.0 %= b.0 });
 
-overload!(-(a: ?Velocity<Local>) -> Velocity<Local> { Velocity(-a.0, PhantomData) });
+overload!((a: &mut Velocity<Local>) *= (b: f32) {a.0 *= b});
+overload!((a: &mut Velocity<Local>) /= (b: f32) {a.0 /= b});
 
-overload!((a: ?Velocity<Global>) + (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 + b.0, PhantomData) });
-overload!((a: ?Velocity<Global>) - (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 - b.0, PhantomData) });
-overload!((a: ?Velocity<Global>) * (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 * b.0, PhantomData) });
-overload!((a: ?Velocity<Global>) / (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 / b.0, PhantomData) });
-overload!((a: ?Velocity<Global>) % (b: ?Velocity<Global>) -> Velocity<Global> { Velocity(a.0 % b.0, PhantomData) });
+// ==== Global Coordinate System ====
+// impl x for Velocity<Global>
+overload!((a: ?Velocity<Global>) + (b: ?Velocity<Global>) -> Velocity<Global> { Velocity::new(a.0 + b.0) });
+overload!((a: ?Velocity<Global>) - (b: ?Velocity<Global>) -> Velocity<Global> { Velocity::new(a.0 - b.0) });
+overload!((a: ?Velocity<Global>) * (b: ?Velocity<Global>) -> Velocity<Global> { Velocity::new(a.0 * b.0) });
+overload!((a: ?Velocity<Global>) / (b: ?Velocity<Global>) -> Velocity<Global> { Velocity::new(a.0 / b.0) });
 
+overload!((a: ?Velocity<Global>) * (b: f32) -> Velocity<Global> { Velocity::new(a.0 * b) });
+overload!((a: ?Velocity<Global>) / (b: f32) -> Velocity<Global> { Velocity::new(a.0 / b) });
+
+overload!(- (a: &mut Velocity<Global>) -> Velocity<Global> { Velocity::new(- a.0) });
+
+// impl xAssign for Velocity<Global>
 overload!((a: &mut Velocity<Global>) += (b: ?Velocity<Global>) { a.0 += b.0 });
 overload!((a: &mut Velocity<Global>) -= (b: ?Velocity<Global>) { a.0 -= b.0 });
 overload!((a: &mut Velocity<Global>) *= (b: ?Velocity<Global>) { a.0 *= b.0 });
 overload!((a: &mut Velocity<Global>) /= (b: ?Velocity<Global>) { a.0 /= b.0 });
-overload!((a: &mut Velocity<Global>) %= (b: ?Velocity<Global>) { a.0 %= b.0 });
 
-overload!(-(a: ?Velocity<Global>) -> Velocity<Global> { Velocity(-a.0, PhantomData) });
+overload!((a: &mut Velocity<Global>) *= (b: f32) {a.0 *= b});
+overload!((a: &mut Velocity<Global>) /= (b: f32) {a.0 /= b});
 
+// ==== Local Coordinate System ====
+// impl x for AngularVelocity<Local>
 overload!((a: ?AngularVelocity<Local>) + (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 + b.0) });
 overload!((a: ?AngularVelocity<Local>) - (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 - b.0) });
 overload!((a: ?AngularVelocity<Local>) * (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b.0) });
 overload!((a: ?AngularVelocity<Local>) / (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 / b.0) });
-overload!((a: ?AngularVelocity<Local>) % (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 % b.0) });
 
+overload!((a: ?AngularVelocity<Local>) * (b: f32) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b) });
+overload!((a: ?AngularVelocity<Local>) / (b: f32) -> AngularVelocity<Local> { AngularVelocity::new(a.0 / b) });
+
+overload!(- (a: &mut AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(- a.0) });
+
+// impl xAssign for AngularVelocity<Local>
 overload!((a: &mut AngularVelocity<Local>) += (b: ?AngularVelocity<Local>) { a.0 += b.0 });
 overload!((a: &mut AngularVelocity<Local>) -= (b: ?AngularVelocity<Local>) { a.0 -= b.0 });
 overload!((a: &mut AngularVelocity<Local>) *= (b: ?AngularVelocity<Local>) { a.0 *= b.0 });
 overload!((a: &mut AngularVelocity<Local>) /= (b: ?AngularVelocity<Local>) { a.0 /= b.0 });
-overload!((a: &mut AngularVelocity<Local>) %= (b: ?AngularVelocity<Local>) { a.0 %= b.0 });
 
-overload!(-(a: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(-a.0) });
+overload!((a: &mut AngularVelocity<Local>) *= (b: f32) {a.0 *= b});
+overload!((a: &mut AngularVelocity<Local>) /= (b: f32) {a.0 /= b});
 
+// ==== Global Coordinate System ====
+// impl x for AngularVelocity<Global>
 overload!((a: ?AngularVelocity<Global>) + (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 + b.0) });
 overload!((a: ?AngularVelocity<Global>) - (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 - b.0) });
 overload!((a: ?AngularVelocity<Global>) * (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b.0) });
 overload!((a: ?AngularVelocity<Global>) / (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 / b.0) });
-overload!((a: ?AngularVelocity<Global>) % (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 % b.0) });
 
+overload!((a: ?AngularVelocity<Global>) * (b: f32) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b) });
+overload!((a: ?AngularVelocity<Global>) / (b: f32) -> AngularVelocity<Global> { AngularVelocity::new(a.0 / b) });
+
+overload!(- (a: &mut AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(- a.0) });
+
+// impl xAssign for AngularVelocity<Global>
 overload!((a: &mut AngularVelocity<Global>) += (b: ?AngularVelocity<Global>) { a.0 += b.0 });
 overload!((a: &mut AngularVelocity<Global>) -= (b: ?AngularVelocity<Global>) { a.0 -= b.0 });
 overload!((a: &mut AngularVelocity<Global>) *= (b: ?AngularVelocity<Global>) { a.0 *= b.0 });
 overload!((a: &mut AngularVelocity<Global>) /= (b: ?AngularVelocity<Global>) { a.0 /= b.0 });
-overload!((a: &mut AngularVelocity<Global>) %= (b: ?AngularVelocity<Global>) { a.0 %= b.0 });
 
-overload!(-(a: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(-a.0) });
+overload!((a: &mut AngularVelocity<Global>) *= (b: f32) {a.0 *= b});
+overload!((a: &mut AngularVelocity<Global>) /= (b: f32) {a.0 /= b});
 
 #[cfg(test)]
 mod linear_velocity {

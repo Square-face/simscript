@@ -8,19 +8,22 @@ use bevy::{
     log::LogPlugin,
     math::Vec3,
     pbr::AmbientLight,
-    prelude::PluginGroup,
+    prelude::{ChildBuild, PluginGroup},
     render::camera::ClearColor,
-    scene::SceneBundle,
-    transform::components::Transform,
-    utils::default,
+    scene::SceneRoot,
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
 
-use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings};
-use physics::{components::{
-    acceleration::Acceleration, inertia::Inertia, velocity::{AngularVelocity, Velocity}, SimulationBundle,
-}, cordinate_systems::Global};
+use physics::{
+    components::{
+        acceleration::Acceleration,
+        inertia::Inertia,
+        velocity::{AngularVelocity, Velocity},
+        SimulationBundle,
+    },
+    cordinate_systems::Global,
+};
 use ui::camera::{CameraPlugin, CameraTarget};
 
 fn main() {
@@ -28,7 +31,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
-                    filter: "debug,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
+                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
                     level: bevy::log::Level::DEBUG,
                     ..Default::default()
                 })
@@ -44,7 +47,6 @@ fn main() {
         )
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
-        .add_plugins(InfiniteGridPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(physics::SimulatiorPlugin)
         .add_systems(Startup, (spawn_tests,))
@@ -65,16 +67,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
             CameraTarget,
         ))
         .with_children(|parent| {
-            parent.spawn(SceneBundle {
-                scene: arrow.clone(),
-                transform: Transform::from_scale(Vec3 {
-                    x: -1.0,
-                    y: 1.0,
-                    z: 1.0,
-                })
-                .with_translation(Vec3::Y * 0.15),
-                ..default()
-            });
+            parent.spawn(SceneRoot(arrow.clone()));
         });
 
     commands.insert_resource(AmbientLight {
@@ -83,12 +76,4 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     });
 
     commands.insert_resource(ClearColor(BLACK.into()));
-
-    commands.spawn(InfiniteGridBundle {
-        settings: InfiniteGridSettings {
-            fadeout_distance: 1000.0,
-            ..Default::default()
-        },
-        ..Default::default()
-    });
 }

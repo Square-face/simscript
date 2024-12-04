@@ -2,7 +2,7 @@ use std::f32::consts::{PI, TAU};
 
 use bevy::{
     app::{App, Plugin, PostUpdate, Startup},
-    core_pipeline::core_3d::Camera3dBundle,
+    core_pipeline::core_3d::Camera3d,
     ecs::{
         bundle::Bundle,
         component::Component,
@@ -25,7 +25,7 @@ use crate::keybinds::{Keybind, KeybindOptions};
 /// A Camera bundle that orbits around a point
 #[derive(Bundle, Default)]
 pub struct OrbitCam {
-    pub camera: Camera3dBundle,
+    pub camera: Camera3d,
     pub state: OrbitState,
     pub settings: OrbitSettings,
 }

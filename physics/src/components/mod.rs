@@ -1,5 +1,5 @@
 use bevy::ecs::{bundle::Bundle, component::Component};
-use bevy::prelude::SpatialBundle;
+use bevy::prelude::Transform;
 
 use crate::components::acceleration::Acceleration;
 use crate::components::inertia::Inertia;
@@ -17,7 +17,7 @@ pub struct SimulationBundle<
     AV: CoordinateSystem + Component,
     LA: CoordinateSystem + Component,
 > {
-    pub spatial: SpatialBundle,
+    pub transform: Transform,
     pub sim: Simulated,
     pub vel: Velocity<LV>,
     pub angvel: AngularVelocity<AV>,
@@ -37,7 +37,7 @@ impl<
         inertia: Inertia<Local>,
     ) -> Self {
         Self {
-            spatial: SpatialBundle::default(),
+            transform: Transform::default(),
             sim: Simulated,
             vel,
             angvel,
