@@ -4,7 +4,7 @@ use bevy::prelude::Transform;
 use crate::components::acceleration::Acceleration;
 use crate::components::inertia::Inertia;
 use crate::components::velocity::{AngularVelocity, Velocity};
-use crate::cordinate_systems::{CoordinateSystem, Local};
+use crate::coordinate_systems::{CoordinateSystem, Local};
 
 pub mod acceleration;
 pub mod force;

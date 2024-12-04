@@ -31,7 +31,7 @@ use std::{marker::PhantomData, ops};
 
 use crate::{
     components::velocity::{AngularVelocity, Velocity},
-    cordinate_systems::{CoordinateSystem, Global, Local},
+    coordinate_systems::{CoordinateSystem, Global, Local},
 };
 
 /// Represents linear acceleration in a specific coordinate system.

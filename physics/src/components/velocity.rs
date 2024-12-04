@@ -7,7 +7,7 @@ use bevy::{
     math::{Quat, Vec3},
 };
 
-use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+use crate::coordinate_systems::{CoordinateSystem, Global, Local};
 
 /// Stores the current translational Velocity
 ///
@@ -148,7 +148,7 @@ mod linear_velocity {
     use bevy::math::{Quat, Vec3};
     use float_cmp::assert_approx_eq;
 
-    use crate::{components::Velocity, cordinate_systems::Global};
+    use crate::{components::Velocity, coordinate_systems::Global};
 
     #[test]
     fn to_direction() {

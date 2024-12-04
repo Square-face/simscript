@@ -3,7 +3,7 @@ use bevy::math::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
-use crate::cordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
+use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Represents a force that is not applied at the center of mass
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -262,7 +262,7 @@ overload!((a: &mut Torque<Global>) /= (b: f32) {a.0 /= b});
 
 #[cfg(test)]
 mod parts {
-    use crate::cordinate_systems::Global;
+    use crate::coordinate_systems::Global;
 
     use super::Moment;
     use bevy::math::Vec3;

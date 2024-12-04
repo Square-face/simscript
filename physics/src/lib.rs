@@ -38,11 +38,11 @@ use bevy::transform::components::Transform;
 use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
-use cordinate_systems::Global;
+use coordinate_systems::Global;
 
 pub mod components;
 mod vector_arrows;
-pub mod cordinate_systems;
+pub mod coordinate_systems;
 
 pub struct SimulatiorPlugin;
 

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
 
-use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+use crate::coordinate_systems::{CoordinateSystem, Global, Local};
 
 use super::acceleration::{Acceleration, AngularAcceleration};
 use super::force::{Force, Torque};
