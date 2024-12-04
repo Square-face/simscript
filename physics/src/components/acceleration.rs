@@ -25,10 +25,10 @@ pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 pub struct AngularAcceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 impl<S: CoordinateSystem> Acceleration<S> {
-    /// [Accelerator] that doesn't accelerate in any direction
+    /// [Acceleration] that doesn't accelerate in any direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
-    /// [Accelerator] that mimics gravity (-9.82 m/s^2 in y velocity)
+    /// [Acceleration] that mimics gravity (-9.82 m/s^2 in y velocity)
     pub const GRAVITY: Self = Self::new(Vec3::new(0.0, -9.82, 0.0));
 
     pub const fn new(acc: Vec3) -> Acceleration<S> {
@@ -37,7 +37,7 @@ impl<S: CoordinateSystem> Acceleration<S> {
 }
 
 impl<S: CoordinateSystem> AngularAcceleration<S> {
-    /// [Accelerator] that doesn't accelerate in any direction
+    /// [Acceleration] that doesn't accelerate in any direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
     pub const fn new(acc: Vec3) -> AngularAcceleration<S> {
