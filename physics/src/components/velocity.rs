@@ -31,27 +31,12 @@ impl<S: CoordinateSystem> Velocity<S> {
 }
 
 impl Velocity<Global> {
-    /// Returns a Quat representing the orientation of the vector.
-    ///
-    /// ```
-    /// # use physics::components::velocity::Velocity;
-    /// # use std::f32::consts::PI;
-    /// # use bevy::math::Vec3;
-    /// # use bevy::math::Quat;
-    /// let vel = Velocity::new(Vec3{x:1.0, y:0.0, z:1.0});
-    ///
-    /// assert_eq!(
-    ///     vel.to_direction(),
-    ///     Quat::from_rotation_y(-PI/4.0)
-    /// );
-    /// ```
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
 }
 
 impl<S: CoordinateSystem> AngularVelocity<S> {
-    /// [AngularVelocity] of zero in every direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
     pub const fn new(vel: Vec3) -> AngularVelocity<S> {
@@ -59,15 +44,13 @@ impl<S: CoordinateSystem> AngularVelocity<S> {
     }
 }
 
-impl Velocity<Global> {
-    /// Computes the angle from the horizontal plane to the velocity vector
+impl<S: CoordinateSystem> Velocity<S> {
     fn pitch(&self) -> f32 {
         let vec = self.0;
         let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
         (vec.y / fdist).atan()
     }
 
-    /// Computes the horizontal angle from the x axis to the velocity vector
     fn yaw(&self) -> f32 {
         let vec = self.0;
         -vec.z.atan2(vec.x)
@@ -165,7 +148,7 @@ mod linear_velocity {
     use bevy::math::{Quat, Vec3};
     use float_cmp::assert_approx_eq;
 
-    use crate::components::Velocity;
+    use crate::{components::Velocity, cordinate_systems::Global};
 
     #[test]
     fn to_direction() {
@@ -189,9 +172,9 @@ mod linear_velocity {
 
     #[test]
     fn pitch() {
-        let x = Velocity::new(Vec3::X);
-        let y = Velocity::new(Vec3::Y);
-        let z = Velocity::new(Vec3::Z);
+        let x = Velocity::<Global>::new(Vec3::X);
+        let y = Velocity::<Global>::new(Vec3::Y);
+        let z = Velocity::<Global>::new(Vec3::Z);
 
         assert_approx_eq!(f32, x.pitch(), 0.0);
         assert_approx_eq!(f32, y.pitch(), PI / 2.0);
@@ -200,13 +183,13 @@ mod linear_velocity {
 
     #[test]
     fn yaw() {
-        let x = Velocity::new(Vec3::X);
-        let y = Velocity::new(Vec3::Y);
-        let z = Velocity::new(Vec3::Z);
+        let x = Velocity::<Global>::new(Vec3::X);
+        let y = Velocity::<Global>::new(Vec3::Y);
+        let z = Velocity::<Global>::new(Vec3::Z);
 
-        let nx = Velocity::new(Vec3::NEG_X);
-        let ny = Velocity::new(Vec3::NEG_Y);
-        let nz = Velocity::new(Vec3::NEG_Z);
+        let nx = Velocity::<Global>::new(Vec3::NEG_X);
+        let ny = Velocity::<Global>::new(Vec3::NEG_Y);
+        let nz = Velocity::<Global>::new(Vec3::NEG_Z);
 
         assert_approx_eq!(f32, x.yaw(), 0.0);
         assert_approx_eq!(f32, y.yaw(), 0.0);
