@@ -1,15 +1,11 @@
 use bevy::{
-    color::Color,
-    ecs::{query::With, system::Query},
-    gizmos::gizmos::Gizmos,
-    math::Vec3,
-    transform::components::Transform,
+    color::Color, ecs::{query::With, system::Query}, gizmos::gizmos::Gizmos, math::Vec3, prelude::Component, transform::components::Transform
 };
 
-use crate::components::{self, Simulated};
+use crate::{components::{self, Simulated}, cordinate_systems::CoordinateSystem};
 
-pub fn velocity(
-    query: Query<(&Transform, &components::velocity::Velocity), With<Simulated>>,
+pub fn velocity<V: CoordinateSystem + Component>(
+    query: Query<(&Transform, &components::velocity::Velocity<V>), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, vel) in query.iter() {
@@ -28,8 +24,8 @@ pub fn velocity(
     }
 }
 
-pub fn acceleration(
-    query: Query<(&Transform, &components::acceleration::Accelerator), With<Simulated>>,
+pub fn acceleration<A: CoordinateSystem + Component>(
+    query: Query<(&Transform, &components::acceleration::Acceleration<A>), With<Simulated>>,
     mut gizmos: Gizmos,
 ) {
     for (trans, acc) in query.iter() {

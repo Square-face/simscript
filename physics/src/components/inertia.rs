@@ -1,18 +1,54 @@
-use bevy::{
-    ecs::component::Component,
-    math::{Mat3, Vec3},
-};
+use std::marker::PhantomData;
 
-use crate::components::force::Torque;
+use bevy::math::Quat;
+use bevy::{ecs::component::Component, math::Mat3};
+
+use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+
+use super::acceleration::{Acceleration, AngularAcceleration};
+use super::force::{Force, Torque};
 
 /// An objects mass and inertia tesnsor.
 ///
 /// Used when calculating forces and moments being applied to get a correct rotational and
 /// translational acceleration
 #[derive(Component, Debug)]
-pub struct Inertia(pub Mat3);
+pub struct Inertia<CordinateSystem: CoordinateSystem> {
+    pub mass: f32,
+    pub tensor: Mat3,
+    state: PhantomData<CordinateSystem>,
+}
 
-impl Inertia {
+impl<S: CoordinateSystem> Inertia<S> {
+    /// Calculate the local acceleration from applying a local force on the object
+    pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration<S> {
+        Acceleration::new(force.0 / self.mass)
+    }
+
+    /// Calculate the resulting angular acceleration when applying a torque
+    pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration<S> {
+        AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
+    }
+
+    pub fn to_global(self, rot: Quat) -> Inertia<Global> {
+        Inertia{
+            mass: self.mass,
+            tensor: S::mat3_to_global(self.tensor, rot),
+            state: PhantomData
+        }
+    }
+
+    pub fn to_local(self, rot: Quat) -> Inertia<Local> {
+        Inertia{
+            mass: self.mass,
+            tensor: S::mat3_to_local(self.tensor, rot),
+            state: PhantomData
+        }
+    }
+}
+
+/// Contrsuctors
+impl Inertia<Local> {
     /// Returns a cylinder with the height going in the x direction
     pub fn cylinder_x(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
@@ -22,11 +58,15 @@ impl Inertia {
         let side = m * h2 / 12.0 + m * r2 / 4.0;
         let front = m * r2 / 2.0;
 
-        Self(Mat3::from_cols_array_2d(&[
-            [front, 0.0, 0.0],
-            [0.0, side, 0.0],
-            [0.0, 0.0, side],
-        ]))
+        Self {
+            mass,
+            tensor: Mat3::from_cols_array_2d(&[
+                [front, 0.0, 0.0],
+                [0.0, side, 0.0],
+                [0.0, 0.0, side],
+            ]),
+            state: PhantomData
+        }
     }
 
     /// Returns a cylinder with the height going in the y direction
@@ -38,11 +78,15 @@ impl Inertia {
         let side = m * h2 / 12.0 + m * r2 / 4.0;
         let front = m * r2 / 2.0;
 
-        Self(Mat3::from_cols_array_2d(&[
-            [side, 0.0, 0.0],
-            [0.0, front, 0.0],
-            [0.0, 0.0, side],
-        ]))
+        Self {
+            mass,
+            tensor: Mat3::from_cols_array_2d(&[
+                [side, 0.0, 0.0],
+                [0.0, front, 0.0],
+                [0.0, 0.0, side],
+            ]),
+            state: PhantomData
+        }
     }
 
     /// Returns a cylinder with the height going in the z direction
@@ -54,16 +98,15 @@ impl Inertia {
         let side = m * h2 / 12.0 + m * r2 / 4.0;
         let front = m * r2 / 2.0;
 
-        Self(Mat3::from_cols_array_2d(&[
-            [side, 0.0, 0.0],
-            [0.0, side, 0.0],
-            [0.0, 0.0, front],
-        ]))
-    }
-
-    /// Computes the resulting angular acceleration when applying a certain torque
-    pub fn get_angular_acceleration(&self, torque: Torque) -> Vec3 {
-        self.0.inverse().mul_vec3(torque.0)
+        Self {
+            mass,
+            tensor: Mat3::from_cols_array_2d(&[
+                [side, 0.0, 0.0],
+                [0.0, side, 0.0],
+                [0.0, 0.0, front],
+            ]),
+            state: PhantomData
+        }
     }
 }
 
@@ -78,7 +121,7 @@ mod constructors {
         #[test]
         fn thin() {
             assert_eq!(
-                Inertia::cylinder_x(4.0, 0.5, 20.0).0,
+                Inertia::cylinder_x(4.0, 0.5, 20.0).tensor,
                 Mat3::from_cols_array_2d(&[
                     [5.0 / 2.0, 0.0, 0.0],
                     [0.0, 335.0 / 12.0, 0.0],
@@ -87,7 +130,7 @@ mod constructors {
             );
 
             assert_eq!(
-                Inertia::cylinder_y(4.0, 0.5, 20.0).0,
+                Inertia::cylinder_y(4.0, 0.5, 20.0).tensor,
                 Mat3::from_cols_array_2d(&[
                     [335.0 / 12.0, 0.0, 0.0],
                     [0.0, 5.0 / 2.0, 0.0],
@@ -96,7 +139,7 @@ mod constructors {
             );
 
             assert_eq!(
-                Inertia::cylinder_z(4.0, 0.5, 20.0).0,
+                Inertia::cylinder_z(4.0, 0.5, 20.0).tensor,
                 Mat3::from_cols_array_2d(&[
                     [335.0 / 12.0, 0.0, 0.0],
                     [0.0, 335.0 / 12.0, 0.0],
@@ -113,9 +156,9 @@ mod constructors {
 
         #[test]
         fn x_cylinder() {
-            let cyl = Inertia::cylinder_x(1.0, 1.0, 1.0);
+            let cyl = Inertia::cylinder_x(1.0, 1.0, 1.0).tensor;
             assert_eq!(
-                cyl.0,
+                cyl,
                 Mat3::from_cols_array_2d(&[
                     [1.0 / 2.0, 0.0, 0.0],
                     [0.0, 1.0 / 3.0, 0.0],
@@ -126,9 +169,9 @@ mod constructors {
 
         #[test]
         fn y_cylinder() {
-            let cyl = Inertia::cylinder_y(1.0, 1.0, 1.0);
+            let cyl = Inertia::cylinder_y(1.0, 1.0, 1.0).tensor;
             assert_eq!(
-                cyl.0,
+                cyl,
                 Mat3::from_cols_array_2d(&[
                     [1.0 / 3.0, 0.0, 0.0],
                     [0.0, 1.0 / 2.0, 0.0],
@@ -139,9 +182,9 @@ mod constructors {
 
         #[test]
         fn z_cylinder() {
-            let cyl = Inertia::cylinder_z(1.0, 1.0, 1.0);
+            let cyl = Inertia::cylinder_z(1.0, 1.0, 1.0).tensor;
             assert_eq!(
-                cyl.0,
+                cyl,
                 Mat3::from_cols_array_2d(&[
                     [1.0 / 3.0, 0.0, 0.0],
                     [0.0, 1.0 / 3.0, 0.0],

@@ -1,9 +1,10 @@
 use bevy::ecs::{bundle::Bundle, component::Component};
-use bevy::prelude::SpatialBundle;
+use bevy::prelude::Transform;
 
+use crate::components::acceleration::Acceleration;
 use crate::components::inertia::Inertia;
 use crate::components::velocity::{AngularVelocity, Velocity};
-use crate::components::acceleration::Accelerator;
+use crate::cordinate_systems::{CoordinateSystem, Local};
 
 pub mod acceleration;
 pub mod force;
@@ -11,19 +12,32 @@ pub mod inertia;
 pub mod velocity;
 
 #[derive(Bundle)]
-pub struct SimulationBundle {
-    pub spatial: SpatialBundle,
+pub struct SimulationBundle<
+    LV: CoordinateSystem + Component,
+    AV: CoordinateSystem + Component,
+    LA: CoordinateSystem + Component,
+> {
+    pub transform: Transform,
     pub sim: Simulated,
-    pub vel: Velocity,
-    pub angvel: AngularVelocity,
-    pub inertia: Inertia,
-    pub acc: Accelerator,
+    pub vel: Velocity<LV>,
+    pub angvel: AngularVelocity<AV>,
+    pub inertia: Inertia<Local>,
+    pub acc: Acceleration<LA>,
 }
 
-impl SimulationBundle {
-    pub fn new(vel: Velocity, acc: Accelerator, angvel: AngularVelocity, inertia: Inertia) -> Self {
+impl<
+    LV: CoordinateSystem + Component,
+    AV: CoordinateSystem + Component,
+    LA: CoordinateSystem + Component,
+> SimulationBundle<LV, AV, LA> {
+    pub fn new(
+        vel: Velocity<LV>,
+        acc: Acceleration<LA>,
+        angvel: AngularVelocity<AV>,
+        inertia: Inertia<Local>,
+    ) -> Self {
         Self {
-            spatial: SpatialBundle::default(),
+            transform: Transform::default(),
             sim: Simulated,
             vel,
             angvel,
@@ -31,13 +45,8 @@ impl SimulationBundle {
             acc,
         }
     }
-    pub fn new_with_gravity(vel: Velocity, inertia: Inertia) -> Self {
-        Self::new(
-            vel,
-            Accelerator::GRAVITY,
-            AngularVelocity::ZERO,
-            inertia,
-        )
+    pub fn new_with_gravity(vel: Velocity<LV>, inertia: Inertia<Local>) -> Self {
+        Self::new(vel, Acceleration::GRAVITY, AngularVelocity::ZERO, inertia)
     }
 }
 

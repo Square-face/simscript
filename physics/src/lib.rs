@@ -5,12 +5,14 @@ use bevy::math::{Quat, Vec3};
 use bevy::time::Time;
 use bevy::transform::components::Transform;
 
-use components::acceleration::Accelerator;
+use components::acceleration::Acceleration;
 use components::force::Moment;
 use components::inertia::Inertia;
+use cordinate_systems::Global;
 
 pub mod components;
 mod vector_arrows;
+pub mod cordinate_systems;
 
 pub struct SimulatiorPlugin;
 
@@ -20,7 +22,7 @@ impl Plugin for SimulatiorPlugin {
         app.add_systems(Update, update_simulated);
         app.add_systems(
             PostUpdate,
-            (vector_arrows::velocity, vector_arrows::acceleration),
+            (vector_arrows::velocity::<Global>, vector_arrows::acceleration::<Global>),
         );
     }
 }
@@ -32,26 +34,25 @@ pub fn update_simulated(
     mut accelerators: Query<
         (
             &mut Transform,
-            &mut components::velocity::Velocity,
-            &mut components::velocity::AngularVelocity,
-            &Inertia,
-            Option<&Accelerator>,
+            &mut components::velocity::Velocity<Global>,
+            &mut components::velocity::AngularVelocity<Global>,
+            &Inertia<Global>,
+            Option<&Acceleration<Global>>,
         ),
         With<components::Simulated>,
     >,
 ) {
-    let delta = time.delta_seconds();
+    let delta = time.delta_secs();
     let half_delta = delta / 2.0;
 
-    for (mut trans, mut vel, mut angvel, inertia, acc) in accelerators.iter_mut() {
-        let acc = acc.unwrap_or(&Accelerator::ZERO);
-
-        let (torque, _force) = Moment::new(Vec3::Z, Vec3::new(0.0, 10.0, 0.0)).get_parts();
-        let angacc = inertia.get_angular_acceleration(torque);
+    for (mut trans, mut vel, mut angvel, inertia, _acc) in accelerators.iter_mut() {
+        let (torque, force) = Moment::new(Vec3::Y, Vec3::new(0.0, 0.0, 0.0)).get_parts();
+        let acc = inertia.get_linear_acceleration(&force);
+        let angacc = inertia.get_angular_acceleration(&torque);
 
         // Accelerate and move
-        vel.accelerate(acc, half_delta);
-        angvel.0 += angacc * half_delta;
+        *vel += &acc * half_delta;
+        *angvel += &angacc * half_delta;
 
         trans.translation += vel.0 * delta;
 
@@ -62,7 +63,7 @@ pub fn update_simulated(
             trans.rotation = (trans.rotation + delta_rot.normalize() * trans.rotation).normalize();
         }
 
-        angvel.0 += angacc * half_delta;
-        vel.accelerate(acc, half_delta);
+        *vel += &acc * half_delta;
+        *angvel += &angacc * half_delta;
     }
 }
