@@ -31,6 +31,8 @@ impl<S: CoordinateSystem> Acceleration<S> {
     /// [Acceleration] that mimics gravity (-9.82 m/s^2 in y velocity)
     pub const GRAVITY: Self = Self::new(Vec3::new(0.0, -9.82, 0.0));
 
+    #[inline]
+    #[must_use]
     pub const fn new(acc: Vec3) -> Acceleration<S> {
         Acceleration(acc, PhantomData)
     }
@@ -40,6 +42,8 @@ impl<S: CoordinateSystem> AngularAcceleration<S> {
     /// [Acceleration] that doesn't accelerate in any direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
+    #[inline]
+    #[must_use]
     pub const fn new(acc: Vec3) -> AngularAcceleration<S> {
         AngularAcceleration(acc, PhantomData)
     }
@@ -50,10 +54,12 @@ impl<S: CoordinateSystem> CoordinateConvert for Acceleration<S> {
 
     type Local = Acceleration<Local>;
 
+    #[inline]
     fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
         Acceleration::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
+    #[inline]
     fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
         Acceleration::<Local>::new(S::vec3_to_local(self.0, rot))
     }
@@ -64,10 +70,12 @@ impl<S: CoordinateSystem> CoordinateConvert for AngularAcceleration<S> {
 
     type Local = AngularAcceleration<Local>;
 
+    #[inline]
     fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
         AngularAcceleration::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
+    #[inline]
     fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
         AngularAcceleration::<Local>::new(S::vec3_to_global(self.0, rot))
     }

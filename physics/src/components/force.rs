@@ -118,10 +118,12 @@ impl<S: CoordinateSystem> CoordinateConvert for Force<S> {
     type Global = Force<Global>;
     type Local = Force<Local>;
 
+    #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
         Force(S::vec3_to_global(self.0, rot), PhantomData)
     }
 
+    #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
         Force(S::vec3_to_local(self.0, rot), PhantomData)
     }
@@ -131,10 +133,12 @@ impl<S: CoordinateSystem> CoordinateConvert for Torque<S> {
     type Global = Torque<Global>;
     type Local = Torque<Local>;
 
+    #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
         Torque(S::vec3_to_global(self.0, rot), PhantomData)
     }
 
+    #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
         Torque(S::vec3_to_local(self.0, rot), PhantomData)
     }
@@ -144,6 +148,7 @@ impl<S: CoordinateSystem> CoordinateConvert for Moment<S> {
     type Global = Moment<Global>;
     type Local = Moment<Local>;
 
+    #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
         Moment::new(
             S::vec3_to_global(self.offset, rot),
@@ -151,6 +156,7 @@ impl<S: CoordinateSystem> CoordinateConvert for Moment<S> {
         )
     }
 
+    #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
         Moment::new(
             S::vec3_to_local(self.offset, rot),

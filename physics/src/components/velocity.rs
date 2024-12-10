@@ -25,6 +25,8 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// [Velocity] of zero in every direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
+    #[inline]
+    #[must_use]
     pub const fn new(vel: Vec3) -> Velocity<S> {
         Velocity(vel, PhantomData)
     }
@@ -45,6 +47,8 @@ impl Velocity<Global> {
     ///     Quat::from_rotation_y(-PI/4.0)
     /// );
     /// ```
+    #[inline]
+    #[must_use]
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
@@ -54,6 +58,8 @@ impl<S: CoordinateSystem> AngularVelocity<S> {
     /// [AngularVelocity] of zero in every direction
     pub const ZERO: Self = Self::new(Vec3::ZERO);
 
+    #[inline]
+    #[must_use]
     pub const fn new(vel: Vec3) -> AngularVelocity<S> {
         AngularVelocity(vel, PhantomData)
     }
@@ -61,6 +67,7 @@ impl<S: CoordinateSystem> AngularVelocity<S> {
 
 impl Velocity<Global> {
     /// Computes the angle from the horizontal plane to the velocity vector
+    #[must_use]
     fn pitch(&self) -> f32 {
         let vec = self.0;
         let fdist = (vec.x.powi(2) + vec.z.powi(2)).sqrt();
@@ -68,6 +75,7 @@ impl Velocity<Global> {
     }
 
     /// Computes the horizontal angle from the x axis to the velocity vector
+    #[must_use]
     fn yaw(&self) -> f32 {
         let vec = self.0;
         -vec.z.atan2(vec.x)
@@ -79,10 +87,12 @@ impl<S: CoordinateSystem> CoordinateConvert for Velocity<S> {
 
     type Local = Velocity<Local>;
 
+    #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
         Velocity::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
+    #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
         Velocity::<Local>::new(S::vec3_to_local(self.0, rot))
     }
@@ -93,10 +103,12 @@ impl<S: CoordinateSystem> CoordinateConvert for AngularVelocity<S> {
 
     type Local = AngularVelocity<Local>;
 
+    #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
         AngularVelocity::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
+    #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
         AngularVelocity::<Local>::new(S::vec3_to_local(self.0, rot))
     }

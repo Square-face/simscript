@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
 
-use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+use crate::cordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 use super::acceleration::{Acceleration, AngularAcceleration};
 use super::force::{Force, Torque};
@@ -21,16 +21,26 @@ pub struct Inertia<CordinateSystem: CoordinateSystem> {
 
 impl<S: CoordinateSystem> Inertia<S> {
     /// Calculate the local acceleration from applying a local force on the object
+    #[inline]
+    #[must_use]
     pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration<S> {
         Acceleration::new(force.0 / self.mass)
     }
 
     /// Calculate the resulting angular acceleration when applying a torque
+    #[inline]
+    #[must_use]
     pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration<S> {
         AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
     }
+}
+impl<S: CoordinateSystem>CoordinateConvert for Inertia<S> {
+    type Global = Inertia<Global>;
 
-    pub fn to_global(self, rot: Quat) -> Inertia<Global> {
+    type Local = Inertia<Local>;
+
+    #[inline]
+    fn to_global(self, rot: Quat) -> Inertia<Global> {
         Inertia{
             mass: self.mass,
             tensor: S::mat3_to_global(self.tensor, rot),
@@ -38,7 +48,8 @@ impl<S: CoordinateSystem> Inertia<S> {
         }
     }
 
-    pub fn to_local(self, rot: Quat) -> Inertia<Local> {
+    #[inline]
+    fn to_local(self, rot: Quat) -> Inertia<Local> {
         Inertia{
             mass: self.mass,
             tensor: S::mat3_to_local(self.tensor, rot),
@@ -50,6 +61,8 @@ impl<S: CoordinateSystem> Inertia<S> {
 /// Contrsuctors
 impl Inertia<Local> {
     /// Returns a cylinder with the height going in the x direction
+    #[inline]
+    #[must_use]
     pub fn cylinder_x(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
@@ -70,6 +83,8 @@ impl Inertia<Local> {
     }
 
     /// Returns a cylinder with the height going in the y direction
+    #[inline]
+    #[must_use]
     pub fn cylinder_y(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
@@ -90,6 +105,8 @@ impl Inertia<Local> {
     }
 
     /// Returns a cylinder with the height going in the z direction
+    #[inline]
+    #[must_use]
     pub fn cylinder_z(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
