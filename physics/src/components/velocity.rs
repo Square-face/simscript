@@ -7,7 +7,7 @@ use bevy::{
     math::{Quat, Vec3},
 };
 
-use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+use crate::cordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Stores the current translational Velocity
 ///
@@ -71,6 +71,34 @@ impl Velocity<Global> {
     fn yaw(&self) -> f32 {
         let vec = self.0;
         -vec.z.atan2(vec.x)
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for Velocity<S> {
+    type Global = Velocity<Global>;
+
+    type Local = Velocity<Local>;
+
+    fn to_global(self, rot: Quat) -> Self::Global {
+        Velocity::<Global>::new(S::vec3_to_global(self.0, rot))
+    }
+
+    fn to_local(self, rot: Quat) -> Self::Local {
+        Velocity::<Local>::new(S::vec3_to_local(self.0, rot))
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for AngularVelocity<S> {
+    type Global = AngularVelocity<Global>;
+
+    type Local = AngularVelocity<Local>;
+
+    fn to_global(self, rot: Quat) -> Self::Global {
+        AngularVelocity::<Global>::new(S::vec3_to_global(self.0, rot))
+    }
+
+    fn to_local(self, rot: Quat) -> Self::Local {
+        AngularVelocity::<Local>::new(S::vec3_to_local(self.0, rot))
     }
 }
 
