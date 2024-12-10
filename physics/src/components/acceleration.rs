@@ -6,10 +6,10 @@
 //!
 //! ## Examples
 //! ```rust
-//! use physics::components::acceleration::Acceleration;
-//! use physics::cordinate_systems::{Global, Local};
-//! use bevy::math::{Quat, Vec3};
-//! use std::f32::consts::PI;
+//! # use physics::components::acceleration::Acceleration;
+//! # use physics::coordinate_systems::{Global, Local};
+//! # use bevy::math::{Quat, Vec3};
+//! # use std::f32::consts::PI;
 //!
 //! // Define an acceleration in global space
 //! let gravity = Acceleration::<Global>::GRAVITY;
@@ -41,10 +41,10 @@ use crate::{
 /// 
 /// # Examples
 /// ```rust
-/// use physics::components::acceleration::Acceleration;
-/// use physics::cordinate_systems::{Global, Local};
-/// use bevy::math::{Quat, Vec3};
-/// use std::f32::consts::PI;
+/// # use physics::components::acceleration::Acceleration;
+/// # use physics::coordinate_systems::{Global, Local};
+/// # use bevy::math::{Quat, Vec3};
+/// # use std::f32::consts::PI;
 ///
 /// // Define an acceleration in global space
 /// let gravity = Acceleration::<Global>::GRAVITY;
@@ -65,9 +65,9 @@ pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 ///
 /// # Examples
 /// ```rust
-/// use physics::components::acceleration::AngularAcceleration;
-/// use physics::cordinate_systems::Local;
-/// use bevy::math::{Quat, Vec3};
+/// # use physics::components::acceleration::AngularAcceleration;
+/// # use physics::coordinate_systems::Local;
+/// # use bevy::math::{Quat, Vec3};
 ///
 /// let angular_acceleration = AngularAcceleration::<Local>::new(Vec3::new(0.1, 0.2, 0.3));
 /// assert_eq!(angular_acceleration.0, Vec3::new(0.1, 0.2, 0.3));

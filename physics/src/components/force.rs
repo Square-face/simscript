@@ -14,7 +14,7 @@ pub struct Moment<CordinateSystem: CoordinateSystem> {
     /// The force being applied
     force: Vec3,
 
-    cordinate_system: PhantomData<CordinateSystem>,
+    coordinate_system: PhantomData<CordinateSystem>,
 }
 
 /// Represents a force applied at the center of mass
@@ -35,7 +35,7 @@ impl<S: CoordinateSystem> Moment<S> {
         Self {
             offset,
             force,
-            cordinate_system: PhantomData,
+            coordinate_system: PhantomData,
         }
     }
 
@@ -43,7 +43,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::cordinate_systems::Global;
+    /// # use physics::coordinate_systems::Global;
     /// # use physics::components::force::{Moment, Force};
     /// let m = Moment::<Global>::new(Vec3::ZERO, Vec3::X);
     ///
@@ -59,7 +59,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::cordinate_systems::Global;
+    /// # use physics::coordinate_systems::Global;
     /// # use physics::components::force::{Moment, Torque};
     /// let m = Moment::<Global>::new(Vec3::X, Vec3::Y);
     ///
@@ -83,7 +83,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// ```rust
     /// # use bevy::math::Vec3;
-    /// # use physics::cordinate_systems::Global;
+    /// # use physics::coordinate_systems::Global;
     /// # use physics::components::force::Moment;
     /// let m = Moment::<Global>::new(Vec3::Z, Vec3::ONE);
     ///
