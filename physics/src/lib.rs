@@ -18,8 +18,7 @@ pub struct SimulatiorPlugin;
 
 impl Plugin for SimulatiorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(Update, update_simulated);
-        app.add_systems(Update, update_simulated);
+        app.add_systems(Update, step_simulation);
         app.add_systems(
             PostUpdate,
             (vector_arrows::velocity::<Global>, vector_arrows::acceleration::<Global>),
@@ -29,7 +28,7 @@ impl Plugin for SimulatiorPlugin {
 
 /// Updates objects with acceleration
 #[allow(clippy::type_complexity)]
-pub fn update_simulated(
+pub fn step_simulation(
     time: Res<Time>,
     mut accelerators: Query<
         (
