@@ -4,7 +4,7 @@ use std::{marker::PhantomData, ops};
 
 use bevy::{ecs::component::Component, math::Vec3};
 
-use crate::cordinate_systems::{CoordinateSystem, Global, Local};
+use crate::cordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 use super::velocity::{AngularVelocity, Velocity};
 
@@ -42,6 +42,34 @@ impl<S: CoordinateSystem> AngularAcceleration<S> {
 
     pub const fn new(acc: Vec3) -> AngularAcceleration<S> {
         AngularAcceleration(acc, PhantomData)
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for Acceleration<S> {
+    type Global = Acceleration<Global>;
+
+    type Local = Acceleration<Local>;
+
+    fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
+        Acceleration::<Global>::new(S::vec3_to_global(self.0, rot))
+    }
+
+    fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
+        Acceleration::<Local>::new(S::vec3_to_local(self.0, rot))
+    }
+}
+
+impl<S: CoordinateSystem> CoordinateConvert for AngularAcceleration<S> {
+    type Global = AngularAcceleration<Global>;
+
+    type Local = AngularAcceleration<Local>;
+
+    fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
+        AngularAcceleration::<Global>::new(S::vec3_to_global(self.0, rot))
+    }
+
+    fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
+        AngularAcceleration::<Local>::new(S::vec3_to_global(self.0, rot))
     }
 }
 
