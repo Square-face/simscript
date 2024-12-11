@@ -1,55 +1,102 @@
-use std::marker::PhantomData;
-
 use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
+use std::marker::PhantomData;
 
+use crate::components::acceleration::{Acceleration, AngularAcceleration};
 use crate::coordinate_systems::{CoordinateSystem, Global, Local};
+use crate::components::force::{Force, Torque};
 
-use super::acceleration::{Acceleration, AngularAcceleration};
-use super::force::{Force, Torque};
-
-/// An objects mass and inertia tesnsor.
+/// Represents an object's mass and inertia tensor.
 ///
-/// Used when calculating forces and moments being applied to get a correct rotational and
-/// translational acceleration
+/// The `Inertia` struct is used to calculate both translational and rotational acceleration 
+/// based on the forces and moments applied to the object. It is parameterized by a `CoordinateSystem` 
+/// (either [`Global`] or [`Local`]), allowing inertia to be represented in different coordinate systems.
+///
+/// The inertia tensor is a 3x3 matrix representing the distribution of mass in the object 
+/// relative to its center of mass, while the mass is a scalar value representing the object's mass.
 #[derive(Component, Debug)]
 pub struct Inertia<CordinateSystem: CoordinateSystem> {
+    /// Mass of the object in kilograms.
     pub mass: f32,
+
+    /// Inertia tensor, represented as a 3x3 matrix.
     pub tensor: Mat3,
+
+    /// Phantom data used to associate the inertia with a specific coordinate system (Global or Local).
     state: PhantomData<CordinateSystem>,
 }
 
 impl<S: CoordinateSystem> Inertia<S> {
-    /// Calculate the local acceleration from applying a local force on the object
+    /// Calculates the linear acceleration of the object given a force.
+    ///
+    /// This method computes the linear acceleration using Newton's second law:
+    /// `a = F / m`, where `F` is the force applied and `m` is the mass of the object.
+    ///
+    /// # Arguments
+    /// * `force` - A reference to the [`Force<S>`] applied to the object.
+    ///
+    /// # Returns
+    /// An [`Acceleration<S>`] representing the object's linear acceleration.
     pub fn get_linear_acceleration(&self, force: &Force<S>) -> Acceleration<S> {
         Acceleration::new(force.0 / self.mass)
     }
 
-    /// Calculate the resulting angular acceleration when applying a torque
+    /// Calculates the angular acceleration of the object given a torque.
+    ///
+    /// This method calculates the angular acceleration using the formula:
+    /// `ɑ = I⁻¹ * Τ`, where `I` is the inertia tensor and `Τ` is the torque.
+    ///
+    /// # Arguments
+    /// * `torque` - A reference to the [`Torque<S>`] applied to the object.
+    ///
+    /// # Returns
+    /// An [`AngularAcceleration<S>`] representing the object's angular acceleration.
     pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration<S> {
         AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
     }
 
+    /// Converts the inertia to the global coordinate system using a rotation quaternion.
+    ///
+    /// # Arguments
+    /// * `rot` - A `Quat` representing the rotation from the local coordinate system to the global coordinate system.
+    ///
+    /// # Returns
+    /// A new [`Inertia<Global>`] object with the same mass but a transformed inertia tensor.
     pub fn to_global(self, rot: Quat) -> Inertia<Global> {
-        Inertia{
+        Inertia {
             mass: self.mass,
             tensor: S::mat3_to_global(self.tensor, rot),
-            state: PhantomData
+            state: PhantomData,
         }
     }
 
+    /// Converts the inertia to the local coordinate system using a rotation quaternion.
+    ///
+    /// # Arguments
+    /// * `rot` - A `Quat` representing the rotation from the global coordinate system to the local coordinate system.
+    ///
+    /// # Returns
+    /// A new [`Inertia<Local>`] object with the same mass but a transformed inertia tensor.
     pub fn to_local(self, rot: Quat) -> Inertia<Local> {
-        Inertia{
+        Inertia {
             mass: self.mass,
             tensor: S::mat3_to_local(self.tensor, rot),
-            state: PhantomData
+            state: PhantomData,
         }
     }
 }
 
-/// Contrsuctors
+/// Constructor methods for [`Inertia`] when the coordinate system is [`Local`].
 impl Inertia<Local> {
-    /// Returns a cylinder with the height going in the x direction
+    /// Creates an inertia tensor for a cylinder with its height along the x-axis.
+    ///
+    /// # Arguments
+    /// * `height` - The height of the cylinder.
+    /// * `radius` - The radius of the cylinder's cross-section.
+    /// * `mass` - The mass of the cylinder.
+    ///
+    /// # Returns
+    /// An [`Inertia<Local>`] object representing the cylinder.
     pub fn cylinder_x(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
@@ -65,11 +112,19 @@ impl Inertia<Local> {
                 [0.0, side, 0.0],
                 [0.0, 0.0, side],
             ]),
-            state: PhantomData
+            state: PhantomData,
         }
     }
 
-    /// Returns a cylinder with the height going in the y direction
+    /// Creates an inertia tensor for a cylinder with its height along the y-axis.
+    ///
+    /// # Arguments
+    /// * `height` - The height of the cylinder.
+    /// * `radius` - The radius of the cylinder's cross-section.
+    /// * `mass` - The mass of the cylinder.
+    ///
+    /// # Returns
+    /// An [`Inertia<Local>`] object representing the cylinder.
     pub fn cylinder_y(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
@@ -85,11 +140,19 @@ impl Inertia<Local> {
                 [0.0, front, 0.0],
                 [0.0, 0.0, side],
             ]),
-            state: PhantomData
+            state: PhantomData,
         }
     }
 
-    /// Returns a cylinder with the height going in the z direction
+    /// Creates an inertia tensor for a cylinder with its height along the z-axis.
+    ///
+    /// # Arguments
+    /// * `height` - The height of the cylinder.
+    /// * `radius` - The radius of the cylinder's cross-section.
+    /// * `mass` - The mass of the cylinder.
+    ///
+    /// # Returns
+    /// An [`Inertia<Local>`] object representing the cylinder.
     pub fn cylinder_z(height: f32, radius: f32, mass: f32) -> Self {
         let h2 = height.powi(2);
         let r2 = radius.powi(2);
@@ -105,7 +168,7 @@ impl Inertia<Local> {
                 [0.0, side, 0.0],
                 [0.0, 0.0, front],
             ]),
-            state: PhantomData
+            state: PhantomData,
         }
     }
 }

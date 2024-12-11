@@ -74,7 +74,7 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// Creates a new [`Velocity`] instance with the given [`Vec3`].
     ///
     /// # Arguments
-    /// - `vel`: A `Vec3` representing the translational velocity.
+    /// - `vel`: A [`Vec3`] representing the translational velocity.
     ///
     /// # Returns
     /// A `Velocity` instance containing the given velocity vector.
@@ -90,7 +90,7 @@ impl<S: CoordinateSystem> AngularVelocity<S> {
     /// Creates a new `AngularVelocity` instance with the given [`Vec3`].
     ///
     /// # Arguments
-    /// - `vel`: A `Vec3` representing the angular velocity.
+    /// - `vel`: A [`Vec3`] representing the angular velocity.
     ///
     /// # Returns
     /// An `AngularVelocity` instance containing the given angular velocity vector.
@@ -106,7 +106,19 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// and computes a quaternion representing its orientation based on yaw and pitch angles.
     ///
     /// # Returns
-    /// A `Quat` representing the directional orientation of the velocity.
+    /// A [`Quat`] representing the directional orientation of the velocity.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use physics::coordinate_systems::Global;
+    /// # use physics::components::velocity::Velocity;
+    /// # use bevy::math::{Vec3, Quat};
+    ///
+    /// let velocity = Velocity::<Global>::new(Vec3::new(1.0, 1.0, 0.0));
+    /// let direction = velocity.to_direction();
+    /// assert_eq!(direction, Quat::from_euler(bevy::math::EulerRot::YXZ, velocity.yaw(), 0.0, velocity.pitch()));
+    /// ```
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
