@@ -8,7 +8,7 @@
 //! ```rust
 //! # use physics::components::acceleration::Acceleration;
 //! # use physics::coordinate_systems::{Global, Local};
-//! # use bevy::math::{Quat, Vec3};
+//! # use glam::{Quat, Vec3};
 //! # use std::f32::consts::PI;
 //!
 //! // Define an acceleration in global space
@@ -22,10 +22,7 @@
 //! ```
 //!
 extern crate overload;
-use bevy::{
-    ecs::component::Component,
-    math::{Quat, Vec3},
-};
+use glam::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
@@ -35,15 +32,15 @@ use crate::{
 };
 
 /// Represents linear acceleration in a specific coordinate system.
-/// 
+///
 /// The generic parameter `S` indicates the coordinate system, such as [`Global`] or [`Local`].
 /// Acceleration values are stored as a [`Vec3`] with units of `m/s²`.
-/// 
+///
 /// # Examples
 /// ```rust
 /// # use physics::components::acceleration::Acceleration;
 /// # use physics::coordinate_systems::{Global, Local};
-/// # use bevy::math::{Quat, Vec3};
+/// # use glam::{Quat, Vec3};
 /// # use std::f32::consts::PI;
 ///
 /// // Define an acceleration in global space
@@ -55,11 +52,11 @@ use crate::{
 /// let local_gravity = gravity.to_local(rotation);
 /// println!("Local gravity: {:?}", local_gravity.0);
 /// ```
-#[derive(Component, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Represents angular acceleration in a specific coordinate system.
-/// 
+///
 /// The generic parameter `S` indicates the coordinate system, such as [`Global`] or [`Local`].
 /// Angular acceleration values are stored as a [`Vec3`] with units of `rad/s^2`.
 ///
@@ -67,16 +64,16 @@ pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 /// ```rust
 /// # use physics::components::acceleration::AngularAcceleration;
 /// # use physics::coordinate_systems::Local;
-/// # use bevy::math::{Quat, Vec3};
+/// # use glam::{Quat, Vec3};
 ///
 /// let angular_acceleration = AngularAcceleration::<Local>::new(Vec3::new(0.1, 0.2, 0.3));
 /// assert_eq!(angular_acceleration.0, Vec3::new(0.1, 0.2, 0.3));
-/// 
+///
 /// let rotation = Quat::IDENTITY; // Example rotation.
 /// let global_angular_acc = angular_acceleration.to_global(rotation);
 /// println!("Global Angular Acceleration: {:?}", global_angular_acc.0);
 /// ```
-#[derive(Component, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct AngularAcceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 impl<S: CoordinateSystem> Acceleration<S> {
@@ -125,12 +122,12 @@ impl<S: CoordinateSystem> CoordinateConvert for Acceleration<S> {
     type Local = Acceleration<Local>;
 
     #[inline]
-    fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
+    fn to_global(self, rot: Quat) -> Self::Global {
         Acceleration::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
     #[inline]
-    fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
+    fn to_local(self, rot: Quat) -> Self::Local {
         Acceleration::<Local>::new(S::vec3_to_local(self.0, rot))
     }
 }
@@ -141,12 +138,12 @@ impl<S: CoordinateSystem> CoordinateConvert for AngularAcceleration<S> {
     type Local = AngularAcceleration<Local>;
 
     #[inline]
-    fn to_global(self, rot: bevy::prelude::Quat) -> Self::Global {
+    fn to_global(self, rot: Quat) -> Self::Global {
         AngularAcceleration::<Global>::new(S::vec3_to_global(self.0, rot))
     }
 
     #[inline]
-    fn to_local(self, rot: bevy::prelude::Quat) -> Self::Local {
+    fn to_local(self, rot: Quat) -> Self::Local {
         AngularAcceleration::<Local>::new(S::vec3_to_global(self.0, rot))
     }
 }

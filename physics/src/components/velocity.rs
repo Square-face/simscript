@@ -1,6 +1,5 @@
 //! # Velocity and AngularVelocity Components
 //!
-//! This module provides components to represent and manipulate the translational and angular velocities of entities in a Bevy ECS-based application. 
 //! The velocities are parameterized by a coordinate system, allowing flexibility between global and local contexts.
 //!
 //! ## Components
@@ -10,22 +9,17 @@
 //!
 //! ## Usage
 //!
-//! These components can be added to Bevy entities to track and manipulate their velocities.
-//! The coordinate system is specified using the generic type `S`, which could be [`Global`] or [`Local`].
+//! The coordinate system is specified using the generic type `S`, which can be [`Global`] or [`Local`].
 //!
 //! ## Examples
 //!
 //! ```rust
-//! # use bevy::prelude::*;
+//! # use glam::*;
 //! # use physics::coordinate_systems::{Global, Local};
 //! # use physics::components::velocity::{Velocity, AngularVelocity};
 //!
-//! fn setup(mut commands: Commands) {
-//!     commands.spawn((
-//!         Velocity::<Global>::new(Vec3::new(1.0, 0.0, 0.0)), // 1 m/sec in the x-direction
-//!         AngularVelocity::<Local>::new(Vec3::new(0.0, 0.1, 0.0)), // 0.1 rad/sec rotation about the y-axis
-//!     ));
-//! }
+//! let vel = Velocity::<Global>::new(Vec3::new(1.0, 0.0, 0.0)); // 1 m/sec in the x-direction
+//! let angvel = AngularVelocity::<Local>::new(Vec3::new(0.0, 0.1, 0.0)); // 0.1 rad/sec rotation about the y-axis
 //! ```
 //!
 //! ### Using Zero Velocity
@@ -37,34 +31,30 @@
 //! let zero_angular_velocity = AngularVelocity::<Local>::ZERO;
 //! ```
 extern crate overload;
+use glam::{EulerRot, Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
-
-use bevy::{
-    ecs::component::Component,
-    math::{Quat, Vec3},
-};
 
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Stores the current translational velocity of an entity.
 ///
-/// The velocity is represented as a [`Vec3`] in a given coordinate system. 
+/// The velocity is represented as a [`Vec3`] in a given coordinate system.
 /// The coordinate system type `S` is defined using the [`CoordinateSystem`] trait, which could be [`Global`] or [`Local`].
-/// 
+///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[derive(Component, Debug)]
+#[derive(Debug)]
 pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Stores the current angular velocity of an entity.
 ///
 /// The angular velocity is represented as a [`Vec3`] in a given coordinate system.
 /// The coordinate system type `S` is defined using the [`CoordinateSystem`] trait.
-/// 
+///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[derive(Component, Debug)]
+#[derive(Debug)]
 pub struct AngularVelocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 impl<S: CoordinateSystem> Velocity<S> {
@@ -117,7 +107,7 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// ```rust
     /// # use physics::coordinate_systems::Global;
     /// # use physics::components::velocity::Velocity;
-    /// # use bevy::math::{Vec3, Quat};
+    /// # use glam::{Vec3, Quat};
     ///
     /// let velocity = Velocity::<Global>::new(Vec3::new(1.0, 0.0, 0.0));
     /// let direction = velocity.to_direction();
@@ -125,12 +115,12 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// ```
     #[must_use]
     pub fn to_direction(&self) -> Quat {
-        Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
+        Quat::from_euler(EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
     }
 
     /// Calculates the pitch (vertical angle) of the velocity vector.
     ///
-    /// The pitch is calculated based on the ratio of the vertical velocity component (`y`) 
+    /// The pitch is calculated based on the ratio of the vertical velocity component (`y`)
     /// to the horizontal distance (`sqrt(x² + z²)`).
     ///
     /// # Returns
@@ -143,7 +133,7 @@ impl<S: CoordinateSystem> Velocity<S> {
 
     /// Calculates the yaw (horizontal angle) of the velocity vector.
     ///
-    /// The yaw is calculated using the `atan2` function, which determines the angle between 
+    /// The yaw is calculated using the `atan2` function, which determines the angle between
     /// the vector's projection on the `x-z` plane and the positive x-axis.
     ///
     /// # Returns
@@ -275,10 +265,10 @@ overload!((a: &mut AngularVelocity<Global>) /= (b: f32) {a.0 /= b});
 mod linear_velocity {
     use std::f32::consts::PI;
 
-    use bevy::math::{Quat, Vec3};
     use float_cmp::assert_approx_eq;
+    use glam::{Quat, Vec3};
 
-    use crate::{components::Velocity, coordinate_systems::Global};
+    use crate::{components::velocity::Velocity, coordinate_systems::Global};
 
     #[test]
     fn to_direction() {

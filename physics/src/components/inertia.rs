@@ -13,8 +13,7 @@
 //!   resulting from applied forces and torques.
 //! - **Coordinate System Flexibility**: Supports conversion between local and global coordinate systems.
 
-use bevy::math::Quat;
-use bevy::{ecs::component::Component, math::Mat3};
+use glam::{Mat3, Quat};
 use std::marker::PhantomData;
 
 use crate::components::acceleration::{Acceleration, AngularAcceleration};
@@ -29,7 +28,7 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// The inertia tensor is a 3x3 matrix representing the distribution of mass in the object
 /// relative to its center of mass, while the mass is a scalar value representing the object's mass.
-#[derive(Component, Debug)]
+#[derive(Debug)]
 pub struct Inertia<CordinateSystem: CoordinateSystem> {
     /// Mass of the object in kilograms.
     pub mass: f32,
@@ -74,7 +73,7 @@ impl<S: CoordinateSystem> Inertia<S> {
         AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
     }
 }
-impl<S: CoordinateSystem>CoordinateConvert for Inertia<S> {
+impl<S: CoordinateSystem> CoordinateConvert for Inertia<S> {
     type Global = Inertia<Global>;
 
     type Local = Inertia<Local>;
@@ -88,7 +87,7 @@ impl<S: CoordinateSystem>CoordinateConvert for Inertia<S> {
     /// A new [`Inertia<Global>`] object with the same mass but a transformed inertia tensor.
     #[inline]
     fn to_global(self, rot: Quat) -> Inertia<Global> {
-        Inertia{
+        Inertia {
             mass: self.mass,
             tensor: S::mat3_to_global(self.tensor, rot),
             state: PhantomData,
@@ -211,7 +210,7 @@ mod constructors {
     mod specific {
 
         use super::super::Inertia;
-        use bevy::math::Mat3;
+        use glam::Mat3;
 
         #[test]
         fn thin() {
@@ -247,7 +246,7 @@ mod constructors {
     #[cfg(test)]
     mod unit {
         use super::super::Inertia;
-        use bevy::math::Mat3;
+        use glam::Mat3;
 
         #[test]
         fn x_cylinder() {

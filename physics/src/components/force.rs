@@ -1,6 +1,5 @@
 //! # Force, Torque, and Moment Components
 //!
-//! This module defines components for representing forces and torques in a Bevy ECS-based application.
 //! It includes:
 //! - `Moment`: Represents forces applied off-center, causing both translational and rotational effects.
 //! - `Force`: Represents forces applied at the center of mass, causing pure translation.
@@ -14,14 +13,13 @@
 //! Each component is parameterized by a generic type `S` representing the coordinate system, which can be either `Global` or `Local`.
 //!
 //! ## Usage
-//! These components can be added to Bevy entities to simulate realistic physical effects.
 //!
 //! ## Examples
 //!
 //! ### Spawning an Entity with a Force and Torque
 //!
 //! ```rust
-//! use bevy::math::Vec3;
+//! use glam::Vec3;
 //! use physics::coordinate_systems::Global;
 //! use physics::components::force::Moment;
 //!
@@ -31,7 +29,7 @@
 //! assert_eq!(torque.0, Vec3::new(0.0, 0.0, 50.0));
 //! ```
 extern crate overload;
-use bevy::math::{Quat, Vec3};
+use glam::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
@@ -48,7 +46,7 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// ### Creating a Moment
 /// ```rust
-/// use bevy::math::Vec3;
+/// use glam::Vec3;
 /// use physics::coordinate_systems::Global;
 /// use physics::components::force::Moment;
 ///
@@ -71,7 +69,7 @@ pub struct Moment<CordinateSystem: CoordinateSystem> {
 ///
 /// # Examples
 /// ```rust
-/// use bevy::math::Vec3;
+/// use glam::Vec3;
 /// use physics::coordinate_systems::Global;
 /// use physics::components::force::Force;
 ///
@@ -86,7 +84,7 @@ pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<Cordin
 ///
 /// # Examples
 /// ```rust
-/// use bevy::math::Vec3;
+/// use glam::Vec3;
 /// use physics::coordinate_systems::Global;
 /// use physics::components::force::Torque;
 ///
@@ -116,7 +114,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// # Examples
     /// ```rust
-    /// use bevy::math::Vec3;
+    /// use glam::Vec3;
     /// use physics::coordinate_systems::Global;
     /// use physics::components::force::{Moment, Force};
     ///
@@ -136,7 +134,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// # Examples
     /// ```rust
-    /// use bevy::math::Vec3;
+    /// use glam::Vec3;
     /// use physics::coordinate_systems::Global;
     /// use physics::components::force::{Moment, Torque};
     ///
@@ -164,7 +162,7 @@ impl<S: CoordinateSystem> Moment<S> {
     ///
     /// # Examples
     /// ```rust
-    /// use bevy::math::Vec3;
+    /// use glam::Vec3;
     /// use physics::coordinate_systems::Global;
     /// use physics::components::force::Moment;
     ///
@@ -353,7 +351,7 @@ mod parts {
     use crate::coordinate_systems::Global;
 
     use super::Moment;
-    use bevy::math::Vec3;
+    use glam::Vec3;
 
     #[test]
     fn torque() {

@@ -4059,8 +4059,8 @@ dependencies = [
 name = "physics"
 version = "0.1.0"
 dependencies = [
- "bevy 0.15.0",
  "float-cmp",
+ "glam 0.29.2",
  "log",
  "overload",
 ]
