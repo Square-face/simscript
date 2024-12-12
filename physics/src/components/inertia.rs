@@ -1,18 +1,33 @@
+//! # Inertia Module
+//!
+//! This module defines the `Inertia` struct and its associated methods for representing
+//! and calculating an object's mass and inertia tensor in the context of a physics simulation.
+//!
+//! The `Inertia` struct is parameterized by a `CoordinateSystem` (either `Global` or `Local`),
+//! allowing it to operate in different spatial contexts. It supports operations such as calculating
+//! linear and angular accelerations, as well as converting inertia tensors between coordinate systems.
+//!
+//! ## Key Features
+//! - **Mass and Tensor Representation**: Represents the mass as a scalar and the inertia tensor as a 3x3 matrix.
+//! - **Force and Torque Calculations**: Provides methods to compute linear and angular accelerations
+//!   resulting from applied forces and torques.
+//! - **Coordinate System Flexibility**: Supports conversion between local and global coordinate systems.
+
 use bevy::math::Quat;
 use bevy::{ecs::component::Component, math::Mat3};
 use std::marker::PhantomData;
 
 use crate::components::acceleration::{Acceleration, AngularAcceleration};
-use crate::coordinate_systems::{CoordinateSystem, Global, Local};
 use crate::components::force::{Force, Torque};
+use crate::coordinate_systems::{CoordinateSystem, Global, Local};
 
 /// Represents an object's mass and inertia tensor.
 ///
-/// The `Inertia` struct is used to calculate both translational and rotational acceleration 
-/// based on the forces and moments applied to the object. It is parameterized by a `CoordinateSystem` 
+/// The `Inertia` struct is used to calculate both translational and rotational acceleration
+/// based on the forces and moments applied to the object. It is parameterized by a `CoordinateSystem`
 /// (either [`Global`] or [`Local`]), allowing inertia to be represented in different coordinate systems.
 ///
-/// The inertia tensor is a 3x3 matrix representing the distribution of mass in the object 
+/// The inertia tensor is a 3x3 matrix representing the distribution of mass in the object
 /// relative to its center of mass, while the mass is a scalar value representing the object's mass.
 #[derive(Component, Debug)]
 pub struct Inertia<CordinateSystem: CoordinateSystem> {
@@ -44,7 +59,7 @@ impl<S: CoordinateSystem> Inertia<S> {
     /// Calculates the angular acceleration of the object given a torque.
     ///
     /// This method calculates the angular acceleration using the formula:
-    /// `ɑ = I⁻¹ * Τ`, where `I` is the inertia tensor and `Τ` is the torque.
+    /// `ɑ = I⁻¹ * T`, where `I` is the inertia tensor and `T` is the torque.
     ///
     /// # Arguments
     /// * `torque` - A reference to the [`Torque<S>`] applied to the object.
