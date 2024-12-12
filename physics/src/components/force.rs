@@ -1,3 +1,35 @@
+//! # Force, Torque, and Moment Components
+//!
+//! This module defines components for representing forces and torques in a Bevy ECS-based application.
+//! It includes:
+//! - `Moment`: Represents forces applied off-center, causing both translational and rotational effects.
+//! - `Force`: Represents forces applied at the center of mass, causing pure translation.
+//! - `Torque`: Represents rotational forces.
+//!
+//! ## Units
+//! - Forces (`Force` and `Moment`) are represented as vectors in newtons (N).
+//! - Torques are represented in newton-meters (Nm).
+//!
+//! ## Coordinate Systems
+//! Each component is parameterized by a generic type `S` representing the coordinate system, which can be either `Global` or `Local`.
+//!
+//! ## Usage
+//! These components can be added to Bevy entities to simulate realistic physical effects.
+//!
+//! ## Examples
+//!
+//! ### Spawning an Entity with a Force and Torque
+//!
+//! ```rust
+//! use bevy::math::Vec3;
+//! use physics::coordinate_systems::Global;
+//! use physics::components::force::Moment;
+//!
+//! let t = Moment::<Global>::new(Vec3::new(10.0, 0.0, 0.0), Vec3::new(0.0, 5.0, 0.0));
+//! let (torque, force) = t.get_parts();
+//! assert_eq!(force.0, Vec3::new(0.0, 5.0, 0.0));
+//! assert_eq!(torque.0, Vec3::new(0.0, 0.0, 50.0));
+//! ```
 extern crate overload;
 use bevy::math::{Quat, Vec3};
 use overload::overload;
@@ -5,7 +37,23 @@ use std::{marker::PhantomData, ops};
 
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
-/// Represents a force that is not applied at the center of mass
+/// Represents a force that is not applied at the center of mass, causing both translation and rotation.
+///
+/// **Units:** Force in newtons (N), offset in meters (m).
+///
+/// # Generics
+/// - `CoordinateSystem`: Specifies the coordinate system (e.g., `Global` or `Local`).
+///
+/// # Examples
+///
+/// ### Creating a Moment
+/// ```rust
+/// use bevy::math::Vec3;
+/// use physics::coordinate_systems::Global;
+/// use physics::components::force::Moment;
+///
+/// let moment = Moment::<Global>::new(Vec3::new(1.0, 0.0, 0.0), Vec3::new(0.0, 10.0, 0.0));
+/// ```
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Moment<CordinateSystem: CoordinateSystem> {
     /// Offset the applied force from the origin
@@ -17,11 +65,33 @@ pub struct Moment<CordinateSystem: CoordinateSystem> {
     coordinate_system: PhantomData<CordinateSystem>,
 }
 
-/// Represents a force applied at the center of mass
+/// Represents a force applied at the center of mass.
+///
+/// **Units:** Newtons (N).
+///
+/// # Examples
+/// ```rust
+/// use bevy::math::Vec3;
+/// use physics::coordinate_systems::Global;
+/// use physics::components::force::Force;
+///
+/// let force = Force::<Global>::new(Vec3::new(5.0, 0.0, 0.0));
+/// ```
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
-/// Represents a torque being applied on a object
+/// Represents a torque applied to an object.
+///
+/// **Units:** Newton-meters (Nm).
+///
+/// # Examples
+/// ```rust
+/// use bevy::math::Vec3;
+/// use physics::coordinate_systems::Global;
+/// use physics::components::force::Torque;
+///
+/// let torque = Torque::<Global>::new(Vec3::new(0.0, 3.0, 0.0));
+/// ```
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Torque<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
@@ -39,58 +109,70 @@ impl<S: CoordinateSystem> Moment<S> {
         }
     }
 
-    /// Gets the part of the moment that affects translation
+    /// Extracts the translational component of the `Moment` as a `Force`.
     ///
+    /// # Returns
+    /// A `Force` instance representing the translational component.
+    ///
+    /// # Examples
     /// ```rust
-    /// # use bevy::math::Vec3;
-    /// # use physics::coordinate_systems::Global;
-    /// # use physics::components::force::{Moment, Force};
-    /// let m = Moment::<Global>::new(Vec3::ZERO, Vec3::X);
+    /// use bevy::math::Vec3;
+    /// use physics::coordinate_systems::Global;
+    /// use physics::components::force::{Moment, Force};
     ///
-    /// assert_eq!(m.get_force(), Force::new(Vec3::X));
+    /// let moment = Moment::<Global>::new(Vec3::ZERO, Vec3::X);
+    /// assert_eq!(moment.get_force(), Force::new(Vec3::X));
     /// ```
     #[inline]
     #[must_use]
     pub fn get_force(&self) -> Force<S> {
-        Force(self.force, PhantomData)
+        Force::new(self.force)
     }
 
-    /// Gets the part of the moment affecting rotation
+    /// Extracts the rotational component of the `Moment` as a `Torque`.
     ///
+    /// # Returns
+    /// A `Torque` instance representing the rotational component.
+    ///
+    /// # Examples
     /// ```rust
-    /// # use bevy::math::Vec3;
-    /// # use physics::coordinate_systems::Global;
-    /// # use physics::components::force::{Moment, Torque};
-    /// let m = Moment::<Global>::new(Vec3::X, Vec3::Y);
+    /// use bevy::math::Vec3;
+    /// use physics::coordinate_systems::Global;
+    /// use physics::components::force::{Moment, Torque};
     ///
-    /// assert_eq!(m.get_torque(), Torque::<Global>::new(Vec3::Z));
+    /// let moment = Moment::<Global>::new(Vec3::X, Vec3::Y);
+    /// assert_eq!(moment.get_torque(), Torque::new(Vec3::Z));
     /// ```
     #[inline]
     #[must_use]
     pub fn get_torque(&self) -> Torque<S> {
         match self.offset.try_normalize() {
-            None => Torque(Vec3::ZERO, PhantomData),
+            None => Torque::new(Vec3::ZERO),
             Some(offset) => {
                 let radial = self.force.project_onto_normalized(offset);
                 let torque = self.offset.cross(self.force - radial);
 
-                Torque(torque, PhantomData)
+                Torque::new(torque)
             }
         }
     }
 
-    /// Gets both the torque and force as a tuple
+    /// Extracts both the torque and force components as a tuple.
     ///
+    /// # Returns
+    /// A tuple `(Torque, Force)`.
+    ///
+    /// # Examples
     /// ```rust
-    /// # use bevy::math::Vec3;
-    /// # use physics::coordinate_systems::Global;
-    /// # use physics::components::force::Moment;
-    /// let m = Moment::<Global>::new(Vec3::Z, Vec3::ONE);
+    /// use bevy::math::Vec3;
+    /// use physics::coordinate_systems::Global;
+    /// use physics::components::force::Moment;
     ///
-    /// let (t, f) = m.get_parts();
+    /// let moment = Moment::<Global>::new(Vec3::Z, Vec3::ONE);
+    /// let (torque, force) = moment.get_parts();
     ///
-    /// assert_eq!(t.0, Vec3::new(-1.0, 1.0, 0.0));
-    /// assert_eq!(f.0, Vec3::ONE);
+    /// assert_eq!(torque.0, Vec3::new(-1.0, 1.0, 0.0));
+    /// assert_eq!(force.0, Vec3::ONE);
     /// ```
     #[inline]
     #[must_use]

@@ -115,9 +115,9 @@ impl<S: CoordinateSystem> Velocity<S> {
     /// # use physics::components::velocity::Velocity;
     /// # use bevy::math::{Vec3, Quat};
     ///
-    /// let velocity = Velocity::<Global>::new(Vec3::new(1.0, 1.0, 0.0));
+    /// let velocity = Velocity::<Global>::new(Vec3::new(1.0, 0.0, 0.0));
     /// let direction = velocity.to_direction();
-    /// assert_eq!(direction, Quat::from_euler(bevy::math::EulerRot::YXZ, velocity.yaw(), 0.0, velocity.pitch()));
+    /// assert_eq!(direction, Quat::IDENTITY);
     /// ```
     pub fn to_direction(&self) -> Quat {
         Quat::from_euler(bevy::math::EulerRot::YXZ, self.yaw(), 0.0, self.pitch())
