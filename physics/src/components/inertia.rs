@@ -103,7 +103,7 @@ impl<S: CoordinateSystem> Inertia<S> {
 
 /// Constructor methods for [`Inertia`] when the coordinate system is [`Local`].
 impl Inertia<Local> {
-    /// Creates an inertia tensor for a cylinder with its height along the x-axis.
+    /// Creates an inertia tensor for a uniform cylinder with its height along the x-axis.
     ///
     /// # Arguments
     /// * `height` - The height of the cylinder.
@@ -131,7 +131,7 @@ impl Inertia<Local> {
         }
     }
 
-    /// Creates an inertia tensor for a cylinder with its height along the y-axis.
+    /// Creates an inertia tensor for a uniform cylinder with its height along the y-axis.
     ///
     /// # Arguments
     /// * `height` - The height of the cylinder.
@@ -159,7 +159,7 @@ impl Inertia<Local> {
         }
     }
 
-    /// Creates an inertia tensor for a cylinder with its height along the z-axis.
+    /// Creates an inertia tensor for a uniform cylinder with its height along the z-axis.
     ///
     /// # Arguments
     /// * `height` - The height of the cylinder.
