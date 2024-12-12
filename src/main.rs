@@ -22,7 +22,7 @@ use physics::{
         velocity::{AngularVelocity, Velocity},
         SimulationBundle,
     },
-    cordinate_systems::Global,
+    coordinate_systems::Global,
 };
 use ui::camera::{CameraPlugin, CameraTarget};
 

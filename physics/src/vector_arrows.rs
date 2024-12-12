@@ -2,7 +2,7 @@ use bevy::{
     color::Color, ecs::{query::With, system::Query}, gizmos::gizmos::Gizmos, math::Vec3, prelude::Component, transform::components::Transform
 };
 
-use crate::{components::{self, Simulated}, cordinate_systems::CoordinateSystem};
+use crate::{components::{self, Simulated}, coordinate_systems::CoordinateSystem};
 
 pub fn velocity<V: CoordinateSystem + Component>(
     query: Query<(&Transform, &components::velocity::Velocity<V>), With<Simulated>>,
