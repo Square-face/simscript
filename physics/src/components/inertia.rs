@@ -20,6 +20,9 @@ use crate::components::acceleration::{Acceleration, AngularAcceleration};
 use crate::components::force::{Force, Torque};
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
+#[cfg(feature="bevy_components")]
+use bevy::prelude::Component;
+
 /// Represents an object's mass and inertia tensor.
 ///
 /// The `Inertia` struct is used to calculate both translational and rotational acceleration
@@ -28,7 +31,8 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// The inertia tensor is a 3x3 matrix representing the distribution of mass in the object
 /// relative to its center of mass, while the mass is a scalar value representing the object's mass.
-#[derive(Debug)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Inertia<CordinateSystem: CoordinateSystem> {
     /// Mass of the object in kilograms.
     pub mass: f32,

@@ -26,6 +26,9 @@ use glam::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
+#[cfg(feature="bevy_components")]
+use bevy::prelude::Component;
+
 use crate::{
     components::velocity::{AngularVelocity, Velocity},
     coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local},
@@ -52,7 +55,8 @@ use crate::{
 /// let local_gravity = gravity.to_local(rotation);
 /// println!("Local gravity: {:?}", local_gravity.0);
 /// ```
-#[derive(Debug, PartialEq)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Represents angular acceleration in a specific coordinate system.
@@ -73,7 +77,8 @@ pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 /// let global_angular_acc = angular_acceleration.to_global(rotation);
 /// println!("Global Angular Acceleration: {:?}", global_angular_acc.0);
 /// ```
-#[derive(Debug, PartialEq)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct AngularAcceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 impl<S: CoordinateSystem> Acceleration<S> {

@@ -35,6 +35,9 @@ use glam::{EulerRot, Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
+#[cfg(feature="bevy_components")]
+use bevy::prelude::Component;
+
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Stores the current translational velocity of an entity.
@@ -44,7 +47,8 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[derive(Debug)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Stores the current angular velocity of an entity.
@@ -54,7 +58,8 @@ pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 ///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[derive(Debug)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct AngularVelocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 impl<S: CoordinateSystem> Velocity<S> {

@@ -33,6 +33,9 @@ use glam::{Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
+#[cfg(feature="bevy_components")]
+use bevy::prelude::Component;
+
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
 
 /// Represents a force that is not applied at the center of mass, causing both translation and rotation.
@@ -52,7 +55,8 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// let moment = Moment::<Global>::new(Vec3::new(1.0, 0.0, 0.0), Vec3::new(0.0, 10.0, 0.0));
 /// ```
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Moment<CordinateSystem: CoordinateSystem> {
     /// Offset the applied force from the origin
     offset: Vec3,
@@ -75,7 +79,8 @@ pub struct Moment<CordinateSystem: CoordinateSystem> {
 ///
 /// let force = Force::<Global>::new(Vec3::new(5.0, 0.0, 0.0));
 /// ```
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 /// Represents a torque applied to an object.
@@ -90,7 +95,8 @@ pub struct Force<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<Cordin
 ///
 /// let torque = Torque::<Global>::new(Vec3::new(0.0, 3.0, 0.0));
 /// ```
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Torque<CordinateSystem: CoordinateSystem>(pub Vec3, PhantomData<CordinateSystem>);
 
 impl<S: CoordinateSystem> Moment<S> {

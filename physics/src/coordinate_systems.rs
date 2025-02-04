@@ -1,8 +1,15 @@
+use std::marker::Send;
+
 use glam::{Mat3, Quat, Vec3};
 
-#[derive(PartialEq, Debug)]
+#[cfg(feature = "bevy_components")]
+use bevy::prelude::Component;
+
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Global;
-#[derive(PartialEq, Debug)]
+#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
 pub struct Local;
 
 pub trait CoordinateConvert {
@@ -15,7 +22,7 @@ pub trait CoordinateConvert {
     fn to_local(self, rot: Quat) -> Self::Local;
 }
 
-pub trait CoordinateSystem {
+pub trait CoordinateSystem: Copy + Send + Sync + 'static {
     #[must_use]
     fn vec3_to_global(vec: Vec3, rot: Quat) -> Vec3;
     #[must_use]
