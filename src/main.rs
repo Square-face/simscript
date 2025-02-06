@@ -25,7 +25,10 @@ use physics::{
     coordinate_systems::Global,
 };
 use simulation::simulation_step;
-use ui::camera::{CameraPlugin, CameraTarget};
+use ui::{
+    camera::{CameraPlugin, CameraTarget},
+    grid::GridPlugin,
+};
 
 mod entity;
 mod simulation;
@@ -35,7 +38,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
-                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=debug".into(),
+                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
                     level: bevy::log::Level::DEBUG,
                     ..Default::default()
                 })
@@ -52,6 +55,7 @@ fn main() {
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
+        .add_plugins(GridPlugin)
         .add_systems(Startup, (spawn_tests,))
         .add_plugins(simulation_step)
         .run();
@@ -61,15 +65,18 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
 
     commands
-        .spawn(SimulationBundle {
-            position: Transform::default(),
-            visibility: Visibility::default(),
-            velocity: Velocity::<Global>::new(Vec3::ONE * 10.),
-            angvel: AngularVelocity::ZERO,
-            acceleration: Acceleration::new(Vec3::NEG_Y * 9.82),
-            angaccel: AngularAcceleration::ZERO,
-            inertia: Inertia::cylinder_x(30., 5., 40.),
-        })
+        .spawn((
+            SimulationBundle {
+                position: Transform::default(),
+                visibility: Visibility::default(),
+                velocity: Velocity::<Global>::new(Vec3::ONE * 10.),
+                angvel: AngularVelocity::ZERO,
+                acceleration: Acceleration::new(Vec3::NEG_Y * 9.82),
+                angaccel: AngularAcceleration::ZERO,
+                inertia: Inertia::cylinder_x(30., 5., 40.),
+            },
+            CameraTarget,
+        ))
         .with_children(|parent| {
             parent.spawn(SceneRoot(arrow.clone()));
         });
