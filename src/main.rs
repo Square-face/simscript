@@ -34,24 +34,26 @@ mod entity;
 mod simulation;
 
 fn main() {
+    let logging = LogPlugin {
+        filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
+        level: bevy::log::Level::DEBUG,
+        ..Default::default()
+    };
+
+    let window = WindowPlugin {
+        primary_window: Some(Window {
+            title: "SimScript".to_string(),
+            name: Some("sq8".to_string()),
+            present_mode: PresentMode::AutoVsync,
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let default = DefaultPlugins.set(logging).set(window);
+
     App::new()
-        .add_plugins(
-            DefaultPlugins
-                .set(LogPlugin {
-                    filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
-                    level: bevy::log::Level::DEBUG,
-                    ..Default::default()
-                })
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "SimScript".to_string(),
-                        name: Some("sq8".to_string()),
-                        present_mode: PresentMode::AutoVsync,
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                }),
-        )
+        .add_plugins(default)
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
