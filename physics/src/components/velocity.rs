@@ -35,7 +35,7 @@ use glam::{EulerRot, Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
-#[cfg(feature="bevy_components")]
+#[cfg(feature = "bevy_components")]
 use bevy::prelude::Component;
 
 use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Local};
@@ -47,8 +47,14 @@ use crate::coordinate_systems::{CoordinateConvert, CoordinateSystem, Global, Loc
 ///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
-#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
+#[cfg_attr(
+    not(feature = "bevy_components"),
+    derive(Debug, PartialEq, Clone, Copy)
+)]
+#[cfg_attr(
+    feature = "bevy_components",
+    derive(Component, Debug, PartialEq, Clone, Copy)
+)]
 pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 
 /// Stores the current angular velocity of an entity.
@@ -58,9 +64,15 @@ pub struct Velocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 ///
 /// # Generics
 /// - `S`: The coordinate system type, implementing the [`CoordinateSystem`] trait.
-#[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
-#[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
-pub struct AngularVelocity<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
+#[cfg_attr(
+    not(feature = "bevy_components"),
+    derive(Debug, PartialEq, Clone, Copy)
+)]
+#[cfg_attr(
+    feature = "bevy_components",
+    derive(Component, Debug, PartialEq, Clone, Copy)
+)]
+pub struct AngularVelocity<S: CoordinateSystem>(pub Quat, PhantomData<S>);
 
 impl<S: CoordinateSystem> Velocity<S> {
     /// Represents a velocity of zero in all directions.
@@ -82,7 +94,7 @@ impl<S: CoordinateSystem> Velocity<S> {
 
 impl<S: CoordinateSystem> AngularVelocity<S> {
     /// Represents an angular velocity of zero in all directions.
-    pub const ZERO: Self = Self::new(Vec3::ZERO);
+    pub const ZERO: Self = Self::new(Quat::IDENTITY);
 
     #[inline]
     #[must_use]
@@ -93,7 +105,7 @@ impl<S: CoordinateSystem> AngularVelocity<S> {
     ///
     /// # Returns
     /// An `AngularVelocity` instance containing the given angular velocity vector.
-    pub const fn new(vel: Vec3) -> AngularVelocity<S> {
+    pub const fn new(vel: Quat) -> AngularVelocity<S> {
         AngularVelocity(vel, PhantomData)
     }
 }
@@ -173,12 +185,12 @@ impl<S: CoordinateSystem> CoordinateConvert for AngularVelocity<S> {
 
     #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
-        AngularVelocity::<Global>::new(S::vec3_to_global(self.0, rot))
+        AngularVelocity::<Global>::new(S::quat_to_global(self.0, rot))
     }
 
     #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
-        AngularVelocity::<Local>::new(S::vec3_to_local(self.0, rot))
+        AngularVelocity::<Local>::new(S::quat_to_local(self.0, rot))
     }
 }
 
@@ -226,10 +238,8 @@ overload!((a: &mut Velocity<Global>) /= (b: f32) {a.0 /= b});
 
 // ==== Local Coordinate System ====
 // impl x for AngularVelocity<Local>
-overload!((a: ?AngularVelocity<Local>) + (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 + b.0) });
-overload!((a: ?AngularVelocity<Local>) - (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 - b.0) });
-overload!((a: ?AngularVelocity<Local>) * (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b.0) });
-overload!((a: ?AngularVelocity<Local>) / (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 / b.0) });
+overload!((a: ?AngularVelocity<Local>) + (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b.0) });
+overload!((a: ?AngularVelocity<Local>) - (b: ?AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b.0.inverse()) });
 
 overload!((a: ?AngularVelocity<Local>) * (b: f32) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b) });
 overload!((a: ?AngularVelocity<Local>) / (b: f32) -> AngularVelocity<Local> { AngularVelocity::new(a.0 / b) });
@@ -237,13 +247,11 @@ overload!((a: ?AngularVelocity<Local>) / (b: f32) -> AngularVelocity<Local> { An
 overload!(- (a: &mut AngularVelocity<Local>) -> AngularVelocity<Local> { AngularVelocity::new(- a.0) });
 
 // impl xAssign for AngularVelocity<Local>
-overload!((a: &mut AngularVelocity<Local>) += (b: ?AngularVelocity<Local>) { a.0 += b.0 });
-overload!((a: &mut AngularVelocity<Local>) -= (b: ?AngularVelocity<Local>) { a.0 -= b.0 });
-overload!((a: &mut AngularVelocity<Local>) *= (b: ?AngularVelocity<Local>) { a.0 *= b.0 });
-overload!((a: &mut AngularVelocity<Local>) /= (b: ?AngularVelocity<Local>) { a.0 /= b.0 });
+overload!((a: &mut AngularVelocity<Local>) += (b: ?AngularVelocity<Local>) { a.0 *= b.0 });
+overload!((a: &mut AngularVelocity<Local>) -= (b: ?AngularVelocity<Local>) { a.0 *= b.0.inverse() });
 
-overload!((a: &mut AngularVelocity<Local>) *= (b: f32) {a.0 *= b});
-overload!((a: &mut AngularVelocity<Local>) /= (b: f32) {a.0 /= b});
+overload!((a: &mut AngularVelocity<Local>) *= (b: f32) {a.0 = a.0 * b});
+overload!((a: &mut AngularVelocity<Local>) /= (b: f32) {a.0 = a.0 / b});
 
 // ==== Global Coordinate System ====
 // impl x for AngularVelocity<Global>
