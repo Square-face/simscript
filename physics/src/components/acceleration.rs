@@ -79,7 +79,7 @@ pub struct Acceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
 /// ```
 #[cfg_attr(not(feature="bevy_components"), derive(Debug, PartialEq, Clone, Copy))]
 #[cfg_attr(feature="bevy_components", derive(Component, Debug, PartialEq, Clone, Copy))]
-pub struct AngularAcceleration<S: CoordinateSystem>(pub Vec3, PhantomData<S>);
+pub struct AngularAcceleration<S: CoordinateSystem>(pub Quat, PhantomData<S>);
 
 impl<S: CoordinateSystem> Acceleration<S> {
     /// [Acceleration] that doesn't accelerate in any direction
@@ -104,20 +104,20 @@ impl<S: CoordinateSystem> Acceleration<S> {
 }
 
 impl<S: CoordinateSystem> AngularAcceleration<S> {
-    pub const ZERO: Self = Self::new(Vec3::ZERO);
+    pub const ZERO: Self = Self::new(Quat::IDENTITY);
 
     #[inline]
     #[must_use]
-    pub const fn new(acc: Vec3) -> AngularAcceleration<S> {
+    pub const fn new(acc: Quat) -> AngularAcceleration<S> {
         AngularAcceleration(acc, PhantomData)
     }
 
     pub fn to_local(&self, rot: Quat) -> AngularAcceleration<Local> {
-        AngularAcceleration::new(S::vec3_to_local(self.0, rot))
+        AngularAcceleration::new(S::quat_to_local(self.0, rot))
     }
 
     pub fn to_global(&self, rot: Quat) -> AngularAcceleration<Global> {
-        AngularAcceleration::new(S::vec3_to_global(self.0, rot))
+        AngularAcceleration::new(S::quat_to_global(self.0, rot))
     }
 }
 
@@ -144,12 +144,12 @@ impl<S: CoordinateSystem> CoordinateConvert for AngularAcceleration<S> {
 
     #[inline]
     fn to_global(self, rot: Quat) -> Self::Global {
-        AngularAcceleration::<Global>::new(S::vec3_to_global(self.0, rot))
+        AngularAcceleration::<Global>::new(S::quat_to_global(self.0, rot))
     }
 
     #[inline]
     fn to_local(self, rot: Quat) -> Self::Local {
-        AngularAcceleration::<Local>::new(S::vec3_to_global(self.0, rot))
+        AngularAcceleration::<Local>::new(S::quat_to_global(self.0, rot))
     }
 }
 
@@ -208,42 +208,34 @@ overload!((a: &mut Acceleration<Global>) /= (b: f32) {a.0 /= b});
 
 // ==== Local Coordinate System ====
 // impl x for AngularAcceleration<Local>
-overload!((a: ?AngularAcceleration<Local>) + (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 + b.0) });
-overload!((a: ?AngularAcceleration<Local>) - (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 - b.0) });
-overload!((a: ?AngularAcceleration<Local>) * (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 * b.0) });
-overload!((a: ?AngularAcceleration<Local>) / (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 / b.0) });
+overload!((a: ?AngularAcceleration<Local>) + (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 * b.0) });
+overload!((a: ?AngularAcceleration<Local>) - (b: ?AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 * b.0.inverse()) });
 
-overload!((a: ?AngularAcceleration<Local>) * (b: f32) -> AngularVelocity<Local> { AngularVelocity::new(a.0 * b) });
+overload!((a: ?AngularAcceleration<Local>) * (b: f32) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 * b) });
 overload!((a: ?AngularAcceleration<Local>) / (b: f32) -> AngularAcceleration<Local> { AngularAcceleration::new(a.0 / b) });
 
 overload!(- (a: &mut AngularAcceleration<Local>) -> AngularAcceleration<Local> { AngularAcceleration::new(- a.0) });
 
 // impl xAssign for AngularAcceleration<Local>
-overload!((a: &mut AngularAcceleration<Local>) += (b: ?AngularAcceleration<Local>) { a.0 += b.0 });
-overload!((a: &mut AngularAcceleration<Local>) -= (b: ?AngularAcceleration<Local>) { a.0 -= b.0 });
-overload!((a: &mut AngularAcceleration<Local>) *= (b: ?AngularAcceleration<Local>) { a.0 *= b.0 });
-overload!((a: &mut AngularAcceleration<Local>) /= (b: ?AngularAcceleration<Local>) { a.0 /= b.0 });
+overload!((a: &mut AngularAcceleration<Local>) += (b: ?AngularAcceleration<Local>) { a.0 *= b.0 });
+overload!((a: &mut AngularAcceleration<Local>) -= (b: ?AngularAcceleration<Local>) { a.0 *= b.0.inverse() });
 
-overload!((a: &mut AngularAcceleration<Local>) *= (b: f32) {a.0 *= b});
-overload!((a: &mut AngularAcceleration<Local>) /= (b: f32) {a.0 /= b});
+overload!((a: &mut AngularAcceleration<Local>) *= (b: f32) {a.0 = a.0 * b});
+overload!((a: &mut AngularAcceleration<Local>) /= (b: f32) {a.0 = a.0 / b});
 
 // ==== Global Coordinate System ====
 // impl x for AngularAcceleration<Global>
-overload!((a: ?AngularAcceleration<Global>) + (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 + b.0) });
-overload!((a: ?AngularAcceleration<Global>) - (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 - b.0) });
-overload!((a: ?AngularAcceleration<Global>) * (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 * b.0) });
-overload!((a: ?AngularAcceleration<Global>) / (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 / b.0) });
+overload!((a: ?AngularAcceleration<Global>) + (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 * b.0) });
+overload!((a: ?AngularAcceleration<Global>) - (b: ?AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 * b.0.inverse()) });
 
-overload!((a: ?AngularAcceleration<Global>) * (b: f32) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b) });
+overload!((a: ?AngularAcceleration<Global>) * (b: f32) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 * b) });
 overload!((a: ?AngularAcceleration<Global>) / (b: f32) -> AngularAcceleration<Global> { AngularAcceleration::new(a.0 / b) });
 
 overload!(- (a: &mut AngularAcceleration<Global>) -> AngularAcceleration<Global> { AngularAcceleration::new(- a.0) });
 
 // impl xAssign for AngularAcceleration<Global>
-overload!((a: &mut AngularAcceleration<Global>) += (b: ?AngularAcceleration<Global>) { a.0 += b.0 });
-overload!((a: &mut AngularAcceleration<Global>) -= (b: ?AngularAcceleration<Global>) { a.0 -= b.0 });
-overload!((a: &mut AngularAcceleration<Global>) *= (b: ?AngularAcceleration<Global>) { a.0 *= b.0 });
-overload!((a: &mut AngularAcceleration<Global>) /= (b: ?AngularAcceleration<Global>) { a.0 /= b.0 });
+overload!((a: &mut AngularAcceleration<Global>) += (b: ?AngularAcceleration<Global>) { a.0 *= b.0 });
+overload!((a: &mut AngularAcceleration<Global>) -= (b: ?AngularAcceleration<Global>) { a.0 *= b.0.inverse() });
 
-overload!((a: &mut AngularAcceleration<Global>) *= (b: f32) {a.0 *= b});
-overload!((a: &mut AngularAcceleration<Global>) /= (b: f32) {a.0 /= b});
+overload!((a: &mut AngularAcceleration<Global>) *= (b: f32) {a.0 = a.0 * b});
+overload!((a: &mut AngularAcceleration<Global>) /= (b: f32) {a.0 = a.0 / b});

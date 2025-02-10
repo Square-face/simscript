@@ -255,10 +255,8 @@ overload!((a: &mut AngularVelocity<Local>) /= (b: f32) {a.0 = a.0 / b});
 
 // ==== Global Coordinate System ====
 // impl x for AngularVelocity<Global>
-overload!((a: ?AngularVelocity<Global>) + (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 + b.0) });
-overload!((a: ?AngularVelocity<Global>) - (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 - b.0) });
-overload!((a: ?AngularVelocity<Global>) * (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b.0) });
-overload!((a: ?AngularVelocity<Global>) / (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 / b.0) });
+overload!((a: ?AngularVelocity<Global>) + (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b.0) });
+overload!((a: ?AngularVelocity<Global>) - (b: ?AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b.0.inverse()) });
 
 overload!((a: ?AngularVelocity<Global>) * (b: f32) -> AngularVelocity<Global> { AngularVelocity::new(a.0 * b) });
 overload!((a: ?AngularVelocity<Global>) / (b: f32) -> AngularVelocity<Global> { AngularVelocity::new(a.0 / b) });
@@ -266,13 +264,11 @@ overload!((a: ?AngularVelocity<Global>) / (b: f32) -> AngularVelocity<Global> { 
 overload!(- (a: &mut AngularVelocity<Global>) -> AngularVelocity<Global> { AngularVelocity::new(- a.0) });
 
 // impl xAssign for AngularVelocity<Global>
-overload!((a: &mut AngularVelocity<Global>) += (b: ?AngularVelocity<Global>) { a.0 += b.0 });
-overload!((a: &mut AngularVelocity<Global>) -= (b: ?AngularVelocity<Global>) { a.0 -= b.0 });
-overload!((a: &mut AngularVelocity<Global>) *= (b: ?AngularVelocity<Global>) { a.0 *= b.0 });
-overload!((a: &mut AngularVelocity<Global>) /= (b: ?AngularVelocity<Global>) { a.0 /= b.0 });
+overload!((a: &mut AngularVelocity<Global>) += (b: ?AngularVelocity<Global>) { a.0 *= b.0 });
+overload!((a: &mut AngularVelocity<Global>) -= (b: ?AngularVelocity<Global>) { a.0 *= b.0.inverse() });
 
-overload!((a: &mut AngularVelocity<Global>) *= (b: f32) {a.0 *= b});
-overload!((a: &mut AngularVelocity<Global>) /= (b: f32) {a.0 /= b});
+overload!((a: &mut AngularVelocity<Global>) *= (b: f32) {a.0 = a.0 * b});
+overload!((a: &mut AngularVelocity<Global>) /= (b: f32) {a.0 = a.0 / b});
 
 #[cfg(test)]
 mod linear_velocity {
