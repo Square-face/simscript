@@ -22,7 +22,7 @@
 //! ```
 //!
 extern crate overload;
-use glam::{Quat, Vec3};
+use glam::{EulerRot, Quat, Vec3};
 use overload::overload;
 use std::{marker::PhantomData, ops};
 
@@ -118,6 +118,11 @@ impl<S: CoordinateSystem> AngularAcceleration<S> {
 
     pub fn to_global(&self, rot: Quat) -> AngularAcceleration<Global> {
         AngularAcceleration::new(S::quat_to_global(self.0, rot))
+    }
+
+    pub fn from_vec3(acc: Vec3) -> AngularAcceleration<S> {
+        let acc = Quat::from_euler(EulerRot::YXZ, acc.x, acc.y, acc.z);
+        AngularAcceleration::new(acc)
     }
 }
 

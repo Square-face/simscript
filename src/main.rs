@@ -73,14 +73,14 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
                 visibility: Visibility::default(),
                 velocity: Velocity::<Global>::new(Vec3::ONE * 10.),
                 angvel: AngularVelocity::ZERO,
-                acceleration: Acceleration::new(Vec3::NEG_Y * 9.82),
+                acceleration: Acceleration::new(Vec3::NEG_Y * 9.82 * 0.),
                 angaccel: AngularAcceleration::ZERO,
                 inertia: Inertia::cylinder_x(30., 5., 40.),
             },
             CameraTarget,
         ))
         .with_children(|parent| {
-            parent.spawn(SceneRoot(arrow.clone()));
+            parent.spawn((SceneRoot(arrow.clone()), Transform::from_xyz(0., 0.14, 0.)));
         });
 
     commands.insert_resource(AmbientLight {

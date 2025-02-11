@@ -74,7 +74,7 @@ impl<S: CoordinateSystem> Inertia<S> {
     #[inline]
     #[must_use]
     pub fn get_angular_acceleration(&self, torque: &Torque<S>) -> AngularAcceleration<S> {
-        AngularAcceleration::new(self.tensor.inverse().mul_vec3(torque.0))
+        AngularAcceleration::from_vec3(self.tensor.inverse().mul_vec3(torque.0))
     }
 }
 impl<S: CoordinateSystem> CoordinateConvert for Inertia<S> {

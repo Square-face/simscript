@@ -1,6 +1,7 @@
 use bevy::{
     app::{App, FixedUpdate},
-    prelude::IntoSystemConfigs, time::{Fixed, Time, Virtual},
+    prelude::IntoSystemConfigs,
+    time::{Fixed, Time, Virtual},
 };
 
 const TIMESCALE: f32 = 1.;
@@ -8,7 +9,9 @@ const TIMESCALE: f32 = 1.;
 pub fn simulation_step(app: &mut App) {
     #[cfg(debug_assertions)]
     app.init_resource::<timer::PhysicsStart>();
-    app.world_mut().resource_mut::<Time<Virtual>>().set_relative_speed(1.0);
+    app.world_mut()
+        .resource_mut::<Time<Virtual>>()
+        .set_relative_speed(1.0);
     app.insert_resource(Time::<Fixed>::from_hz(1000.0));
     app.add_systems(
         FixedUpdate,
@@ -47,15 +50,7 @@ mod translation {
     pub fn angular(time: Res<Time>, mut query: Query<(&AngularVelocity<Global>, &mut Transform)>) {
         for (angvel, mut trans) in &mut query {
             let delta = time.delta_secs() * TIMESCALE;
-
-            let delta_rot = Quat::from_vec4(
-                (angvel.0 * delta / 2.0).extend(trans.rotation.w * delta / 2.0),
-            );
-
-            if delta_rot.w != 0.0 {
-                trans.rotation =
-                    (trans.rotation + delta_rot.normalize() * trans.rotation).normalize();
-            }
+            trans.rotation *= Quat::IDENTITY.slerp(angvel.0, delta);
         }
     }
 }
@@ -63,6 +58,7 @@ mod translation {
 mod velocity {
     use super::TIMESCALE;
     use bevy::{
+        math::Quat,
         prelude::{Query, Res},
         time::Time,
     };
@@ -88,9 +84,9 @@ mod velocity {
         time: Res<Time>,
         mut query: Query<(&AngularAcceleration<Global>, &mut AngularVelocity<Global>)>,
     ) {
+        let delta = 0.5 * TIMESCALE * time.delta_secs();
         for (acc, mut vel) in &mut query {
-            let delta = acc * 0.5 * TIMESCALE * time.delta_secs();
-            *vel += delta;
+            vel.0 *= Quat::IDENTITY.slerp(acc.0, delta);
         }
     }
 }
