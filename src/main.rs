@@ -24,7 +24,7 @@ use simscript_physics::{
 };
 use ui::{
     camera::{CameraPlugin, CameraTarget},
-    grid::GridPlugin,
+    grid::GridPlugin, time::TimeControllPlugin,
 };
 
 mod entity;
@@ -55,6 +55,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(SimulationPlugin)
+        .add_plugins(TimeControllPlugin)
         .add_systems(Startup, (spawn_tests,))
         .run();
 }

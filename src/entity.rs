@@ -28,9 +28,7 @@ impl Plugin for SimulationPlugin {
 
 fn step(time: Res<Time>, mut query: Query<(&mut Transform, &mut SimState)>) {
     for (mut trans, mut state) in query.iter_mut() {
-        state.0.step_movement(time.elapsed());
-
-        dbg!(state.0, &trans);
+        state.0.step_movement(time.delta());
 
         trans.translation = state.0.transform.translation.0.as_vec3();
         trans.rotation = state.0.transform.rotation.0.as_quat();
