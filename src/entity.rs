@@ -28,5 +28,6 @@ fn step(time: Res<Time>, mut query: Query<&mut SimulationBundle>) {
         bundle.state.step_movement(time.elapsed());
 
         bundle.transform.translation = bundle.state.transform.translation.0.as_vec3();
+        bundle.transform.rotation = bundle.state.transform.rotation.0.as_quat();
     }
 }
