@@ -6,9 +6,8 @@ use bevy::{
     ecs::system::{Commands, Res},
     hierarchy::BuildChildren,
     log::LogPlugin,
-    math::Vec3,
     pbr::AmbientLight,
-    prelude::{ChildBuild, PluginGroup, Transform, Visibility},
+    prelude::{ChildBuild, PluginGroup, Transform},
     render::camera::ClearColor,
     scene::SceneRoot,
     window::{PresentMode, Window, WindowPlugin},
@@ -16,22 +15,16 @@ use bevy::{
 };
 
 use entity::SimulationBundle;
-use physics::{
-    components::{
-        acceleration::{Acceleration, AngularAcceleration},
-        inertia::Inertia,
-        velocity::{AngularVelocity, Velocity},
-    },
-    coordinate_systems::Global,
+use simscript_physics::{
+    inertia_mass::{Inertia, InnertiaMass, Mass},
+    State,
 };
-use simulation::simulation_step;
 use ui::{
     camera::{CameraPlugin, CameraTarget},
     grid::GridPlugin,
 };
 
 mod entity;
-mod simulation;
 
 fn main() {
     let logging = LogPlugin {
@@ -59,26 +52,18 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(GridPlugin)
         .add_systems(Startup, (spawn_tests,))
-        .add_plugins(simulation_step)
         .run();
 }
 
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
+    let state = State::new_zeroed(InnertiaMass::new(
+        Mass::new(80.),
+        Inertia::cylinder_x(5., 0.8, 80.),
+    ));
 
     commands
-        .spawn((
-            SimulationBundle {
-                position: Transform::default(),
-                visibility: Visibility::default(),
-                velocity: Velocity::<Global>::new(Vec3::ONE * 10.),
-                angvel: AngularVelocity::ZERO,
-                acceleration: Acceleration::new(Vec3::NEG_Y * 9.82 * 0.),
-                angaccel: AngularAcceleration::ZERO,
-                inertia: Inertia::cylinder_x(30., 5., 40.),
-            },
-            CameraTarget,
-        ))
+        .spawn((SimulationBundle::new(state), CameraTarget))
         .with_children(|parent| {
             parent.spawn((SceneRoot(arrow.clone()), Transform::from_xyz(0., 0.14, 0.)));
         });

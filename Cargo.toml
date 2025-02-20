@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = [ "ui", "physics" ]
+members = [ "ui" ]
 
 
 # Enable a small amount of optimization in the dev profile.
@@ -27,6 +27,6 @@ lto = "thin"
 bevy = { version = "0.15.0", features = ["dynamic_linking"] }
 bevy_infinite_grid = "0.13.1"
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] } # Remove trace logging at compile time
-physics = { path = "./physics/", features=["bevy_components"] }
+simscript-physics = { git = "https://github.com/Square-face/simscript-physics", commit="35abd83" }
 ui = { path = "./ui/" }
 chrono = "0.4.39"
