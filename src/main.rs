@@ -6,6 +6,7 @@ use bevy::{
     ecs::system::{Commands, Res},
     hierarchy::BuildChildren,
     log::LogPlugin,
+    math::DVec3,
     pbr::AmbientLight,
     prelude::{ChildBuild, PluginGroup, Transform},
     render::camera::ClearColor,
@@ -14,9 +15,11 @@ use bevy::{
     DefaultPlugins,
 };
 
-use entity::SimulationBundle;
+use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
     inertia_mass::{Inertia, InnertiaMass, Mass},
+    momentum::{AngMom, LinMom},
+    transform::{Rotation, Translation},
     State,
 };
 use ui::{
@@ -51,16 +54,18 @@ fn main() {
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(GridPlugin)
+        .add_plugins(SimulationPlugin)
         .add_systems(Startup, (spawn_tests,))
         .run();
 }
 
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
-    let state = State::new_zeroed(InnertiaMass::new(
-        Mass::new(80.),
-        Inertia::cylinder_x(5., 0.8, 80.),
-    ));
+    let state = State::new(
+        InnertiaMass::new(Mass::new(80.), Inertia::cylinder_x(5., 0.8, 80.)),
+        simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
+        simscript_physics::momentum::Momentum::new(LinMom::new(DVec3::Z * 10.), AngMom::ZERO),
+    );
 
     commands
         .spawn((SimulationBundle::new(state), CameraTarget))

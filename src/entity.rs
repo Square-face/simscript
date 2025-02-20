@@ -1,21 +1,24 @@
 use bevy::{
-    app::{FixedUpdate, Plugin}, prelude::{Component, Query, Res, Transform, Visibility}, time::Time
+    app::{FixedUpdate, Plugin}, prelude::{Bundle, Component, Query, Res, Transform, Visibility}, time::Time
 };
 use simscript_physics::State;
 
 #[derive(Component)]
+pub struct SimState(pub State);
+
+#[derive(Bundle)]
 #[allow(dead_code)]
-pub struct SimulationBundle { pub transform: Transform, pub visibility: Visibility, pub state: State }
+pub struct SimulationBundle { pub transform: Transform, pub visibility: Visibility, pub state: SimState }
 
 impl SimulationBundle {
     pub fn new(state: State) -> Self {
         let transform = Transform::default();
         let visibility = Visibility::default();
-        Self { transform, visibility, state }
+        Self { transform, visibility, state: SimState(state) }
     }
 }
 
-pub struct SimulationPlugin();
+pub struct SimulationPlugin;
 
 impl Plugin for SimulationPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
@@ -23,11 +26,13 @@ impl Plugin for SimulationPlugin {
     }
 }
 
-fn step(time: Res<Time>, mut query: Query<&mut SimulationBundle>) {
-    for mut bundle in query.iter_mut() {
-        bundle.state.step_movement(time.elapsed());
+fn step(time: Res<Time>, mut query: Query<(&mut Transform, &mut SimState)>) {
+    for (mut trans, mut state) in query.iter_mut() {
+        state.0.step_movement(time.elapsed());
 
-        bundle.transform.translation = bundle.state.transform.translation.0.as_vec3();
-        bundle.transform.rotation = bundle.state.transform.rotation.0.as_quat();
+        dbg!(state.0, &trans);
+
+        trans.translation = state.0.transform.translation.0.as_vec3();
+        trans.rotation = state.0.transform.rotation.0.as_quat();
     }
 }
