@@ -1,3 +1,5 @@
+use std::f64::consts::{PI, TAU};
+
 use bevy::{
     app::{App, Startup},
     asset::AssetServer,
@@ -6,7 +8,7 @@ use bevy::{
     ecs::system::{Commands, Res},
     hierarchy::BuildChildren,
     log::LogPlugin,
-    math::DVec3,
+    math::{DQuat, DVec3, Vec3},
     pbr::AmbientLight,
     prelude::{ChildBuild, PluginGroup, Transform},
     render::camera::ClearColor,
@@ -17,14 +19,12 @@ use bevy::{
 
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
-    inertia_mass::{Inertia, InnertiaMass, Mass},
-    momentum::{AngMom, LinMom},
-    transform::{Rotation, Translation},
-    State,
+    inertia_mass::{Inertia, InnertiaMass, Mass}, momentum::{AngMom, LinMom}, panels::Panel, transform::{Rotation, Translation}, State
 };
 use ui::{
     camera::{CameraPlugin, CameraTarget},
-    grid::GridPlugin, time::TimeControllPlugin,
+    grid::GridPlugin,
+    time::TimeControllPlugin,
 };
 
 mod entity;
@@ -51,7 +51,7 @@ fn main() {
     App::new()
         .add_plugins(default)
         .add_plugins(LogDiagnosticsPlugin::default())
-        .add_plugins(FrameTimeDiagnosticsPlugin)
+        //.add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(SimulationPlugin)
@@ -65,13 +65,28 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let state = State::new(
         InnertiaMass::new(Mass::new(80.), Inertia::cylinder_x(5., 0.8, 80.)),
         simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
-        simscript_physics::momentum::Momentum::new(LinMom::new(DVec3::Z * 10.), AngMom::ZERO),
+        simscript_physics::momentum::Momentum::new(LinMom::new(DVec3::Z * 1000.), AngMom::ZERO),
     );
 
+    let normals: Vec<DVec3> = (0..3).map(|i| DQuat::from_rotation_x(TAU/3. * i as f64).mul_vec3(DVec3::Y)).collect();
+    dbg!(&normals);
+
+    let back = DVec3::NEG_X * 7.3;
+    fn rot_90(vec: DVec3) -> DVec3 {
+        DQuat::from_rotation_x(PI/2.).mul_vec3(vec)
+    }
+
+
+    let panels = vec![
+        Panel::new(back + normals[0]*0.2, rot_90(normals[0]), 0.5),
+        Panel::new(back + normals[1]*0.2, rot_90(normals[1]), 0.5),
+        Panel::new(back + normals[2]*0.2, rot_90(normals[2]), 0.5),
+    ];
+
     commands
-        .spawn((SimulationBundle::new(state), CameraTarget))
+        .spawn((SimulationBundle::new(state, panels), CameraTarget))
         .with_children(|parent| {
-            parent.spawn((SceneRoot(arrow.clone()), Transform::from_xyz(0., 0.14, 0.)));
+            parent.spawn((SceneRoot(arrow.clone()), Transform::from_xyz(0., 0.14, 0.).with_scale(Vec3::ONE.with_x(-1.))));
         });
 
     commands.insert_resource(AmbientLight {
