@@ -63,9 +63,9 @@ fn main() {
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
     let state = State::new(
-        InnertiaMass::new(Mass::new(80.), Inertia::cylinder_x(5., 0.8, 80.)),
+        InnertiaMass::new(Mass::new(80.), Inertia::cylinder_x(14., 0.2, 80.)),
         simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
-        simscript_physics::momentum::Momentum::new(LinMom::new(DVec3::Z * 1000.), AngMom::ZERO),
+        simscript_physics::momentum::Momentum::new(LinMom::new(DVec3::NEG_X * 1000.), AngMom::new(DVec3::Y * 10.)),
     );
 
     let normals: Vec<DVec3> = (0..3).map(|i| DQuat::from_rotation_x(TAU/3. * i as f64).mul_vec3(DVec3::Y)).collect();

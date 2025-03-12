@@ -48,29 +48,12 @@ fn arrows(mut gizmos: Gizmos, query: Query<(&SimState, &Panels)>) {
         let state = &state.0;
         for panel in &panels.0 {
             let pos = state.transform.translation.0;
-            let rot = state.transform.rotation.0;
-            let off = rot.mul_vec3(panel.offset);
-            let norm = rot.mul_vec3(panel.normal);
-
-            let vel = state.momentum / state.mass;
-            let tip_vel = panel.tip_velocity(&rot, &vel);
-            let rel_vel = rot.inverse().mul_vec3(tip_vel.0);
             let mom = panel.to_moment(state);
 
             gizmos.arrow(
-                (pos + off).as_vec3(),
-                (pos + off + norm).as_vec3(),
-                Color::srgb(0.0, 0.0, 1.0),
-            );
-            gizmos.arrow(
-                (pos + mom.offset).as_vec3(),
-                (pos + mom.offset + mom.force).as_vec3(),
+                (pos + mom.0).as_vec3(),
+                (pos + mom.0 + mom.1).as_vec3(),
                 Color::srgb(1.0, 0., 0.),
-            );
-            gizmos.arrow(
-                (pos + off).as_vec3(),
-                (pos + off + rel_vel).as_vec3(),
-                Color::srgb(0.0, 1., 0.),
             );
         }
     }
@@ -83,7 +66,7 @@ fn moments(time: Res<Time>, mut query: Query<(&mut SimState, &Panels)>) {
         let momentum: Momentum = panels
             .0
             .iter()
-            .map(|panel| dbg!(dbg!(panel.to_moment(state)) * time.delta()))
+            .map(|panel| panel.to_moment(state) * time.delta())
             .reduce(|acc, e| acc + e)
             .unwrap_or(Momentum::ZERO);
 

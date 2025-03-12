@@ -2,13 +2,14 @@ use bevy::{
     app::{Plugin, Startup, Update},
     input::common_conditions::input_just_pressed,
     prelude::{IntoSystemConfigs, KeyCode, ResMut},
-    time::{Time, Virtual},
+    time::{Fixed, Time, Virtual},
 };
 
 pub struct TimeControllPlugin;
 
 impl Plugin for TimeControllPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
+        app.insert_resource(Time::<Fixed>::from_hz(20000.));
         app.add_systems(Startup, (start_paused,));
         app.add_systems(
             Update,
@@ -26,6 +27,6 @@ fn toggle_pause(mut time: ResMut<Time<Virtual>>) {
 }
 
 fn start_paused(mut time: ResMut<Time<Virtual>>) {
-    time.set_relative_speed_f64(0.1);
+    time.set_relative_speed_f64(1.);
     time.pause();
 }
