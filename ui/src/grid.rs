@@ -1,9 +1,9 @@
 use bevy::{
-    app::{App, Startup, Update}, color::Color, gizmos, math::Vec3, prelude::{Commands, Gizmos}
+    app::{App, Startup, Update}, color::Color, math::Vec3, prelude::{Commands, Gizmos}
 };
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridSettings};
 
-pub fn GridPlugin(app: &mut App) {
+pub fn grid_plugin(app: &mut App) {
     app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
     app.add_systems(Startup, (create_grid,));
     app.add_systems(Update, cardinal);
