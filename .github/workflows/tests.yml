@@ -29,19 +29,20 @@ jobs:
 
 
 
-  tests:
-    name: Run tests
-    needs: build-debug
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Load caches
-      uses: ./.github/cargo-setup
-
-    - name: Execute tests
-      run: cargo nextest run --workspace --all
+  # Disabled since all the physics calculations are done by a separate crate now, so no tests are required for the base program
+  # tests:
+  #   name: Run tests
+  #   needs: build-debug
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #
+  #   - name: Load caches
+  #     uses: ./.github/cargo-setup
+  #
+  #   - name: Execute tests
+  #     run: cargo nextest run --workspace --all
 
 
 
