@@ -1,5 +1,8 @@
 use bevy::{
-    app::{FixedFirst, Plugin, Startup, Update}, input::common_conditions::input_just_pressed, prelude::{IntoSystemConfigs, KeyCode, ResMut, Resource}, time::{Fixed, Time, Virtual}
+    app::{FixedFirst, Plugin, Startup, Update},
+    input::common_conditions::input_just_pressed,
+    prelude::{IntoSystemConfigs, KeyCode, ResMut, Resource},
+    time::{Fixed, Time, Virtual},
 };
 
 pub struct TimeControllPlugin;
@@ -41,7 +44,7 @@ fn start_paused(mut time: ResMut<Time<Virtual>>) {
 }
 
 fn step_once_start(mut time: ResMut<Time<Virtual>>, mut flag: ResMut<StepFlag>) {
-    time.set_relative_speed_f64(60./HZ);
+    time.set_relative_speed_f64(60. / HZ);
     time.unpause();
     flag.0 = true;
 }

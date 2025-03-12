@@ -1,5 +1,8 @@
 use bevy::{
-    app::{App, Startup, Update}, color::Color, math::Vec3, prelude::{Commands, Gizmos}
+    app::{App, Startup, Update},
+    color::Color,
+    math::Vec3,
+    prelude::{Commands, Gizmos},
 };
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridSettings};
 
@@ -16,8 +19,8 @@ fn cardinal(mut gizmos: Gizmos) {
 }
 
 fn create_grid(mut commands: Commands) {
-    commands.spawn(InfiniteGridBundle{
-        settings: InfiniteGridSettings{
+    commands.spawn(InfiniteGridBundle {
+        settings: InfiniteGridSettings {
             fadeout_distance: 10000.,
             scale: 0.1,
             ..Default::default()
