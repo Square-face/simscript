@@ -76,7 +76,6 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let normals: Vec<DVec3> = (0..3)
         .map(|i| DQuat::from_rotation_x(TAU / 3. * i as f64).mul_vec3(DVec3::Y))
         .collect();
-    dbg!(&normals);
 
     let back = DVec3::NEG_X * 7.3;
     fn rot_90(vec: DVec3) -> DVec3 {
