@@ -1,7 +1,7 @@
 use bevy::{
     app::{App, Startup, Update}, color::Color, gizmos, math::Vec3, prelude::{Commands, Gizmos}
 };
-use bevy_infinite_grid::InfiniteGridBundle;
+use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGridSettings};
 
 pub fn GridPlugin(app: &mut App) {
     app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
@@ -16,5 +16,12 @@ fn cardinal(mut gizmos: Gizmos) {
 }
 
 fn create_grid(mut commands: Commands) {
-    commands.spawn(InfiniteGridBundle::default());
+    commands.spawn(InfiniteGridBundle{
+        settings: InfiniteGridSettings{
+            fadeout_distance: 10000.,
+            scale: 0.1,
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }
