@@ -16,7 +16,7 @@ use bevy::{
 };
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
-    inertia_mass::{Inertia, InnertiaMass, Mass},
+    inertia_mass::{Inertia, InertiaMass, Mass},
     momentum::{AngMom, LinMom},
     panels::Panel,
     transform::{Rotation, Translation},
@@ -65,11 +65,11 @@ fn main() {
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
     let state = State::new(
-        InnertiaMass::new(Mass::new(80.), Inertia::cylinder_x(14., 0.2, 80.)),
+        InertiaMass::new(Mass::new(80.), Inertia::cylinder_x(14., 0.2, 80.)),
         simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
         simscript_physics::momentum::Momentum::new(
-            LinMom::new(DVec3::NEG_X * 20000.),
-            AngMom::new(DVec3::ONE * 1.),
+            LinMom::new(DVec3::NEG_Z * 20000.),
+            AngMom::new(DVec3::ONE * 1000.),
         ),
     );
 
