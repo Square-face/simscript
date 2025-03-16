@@ -4557,6 +4557,7 @@ dependencies = [
  "bevy_infinite_grid 0.13.1",
  "chrono",
  "log",
+ "rayon",
  "simscript-physics",
  "ui",
 ]

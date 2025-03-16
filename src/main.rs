@@ -68,8 +68,8 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         InertiaMass::new(Mass::new(80.), Inertia::cylinder_x(14., 0.2, 80.)),
         simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
         simscript_physics::momentum::Momentum::new(
-            LinMom::new(DVec3::NEG_Z * 20000.),
-            AngMom::new(DVec3::ONE * 1000.),
+            LinMom::new(DVec3::NEG_Z * 2000.),
+            AngMom::new(DVec3::Z * 1000.),
         ),
     );
 

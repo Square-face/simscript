@@ -20,16 +20,22 @@ opt-level = 3
 # Enable more optimization in the release profile at the cost of compile time.
 [profile.release]
 codegen-units = 1
-lto = "thin"
+opt-level = 3
+# panic = "abort"
+lto = "fat"
 
 
 [dependencies]
-bevy = { version = "0.15.0", features = ["dynamic_linking"] }
+bevy = { version = "0.15.0" }
 bevy_infinite_grid = "0.13.1"
 simscript-physics = { git = "https://github.com/Square-face/simscript-physics", branch = "main" }
 # simscript-physics = { path = "../simscript-physics" }
 ui = { path = "./ui/" }
 chrono = "0.4.39"
+rayon = "1.10.0"
+
+[dev-dependencies]
+bevy = { version = "0.15.0", features = ["dynamic_linking"] }
 
 [dependencies.log]
 version = "*"

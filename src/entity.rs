@@ -4,6 +4,7 @@ use bevy::{
     prelude::{Bundle, Component, Gizmos, IntoSystemConfigs, Query, Res, Transform, Visibility},
     time::Time,
 };
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use simscript_physics::{momentum::Momentum, panels::Panel, State};
 
 #[derive(Component)]
@@ -38,7 +39,7 @@ pub struct SimulationPlugin;
 
 impl Plugin for SimulationPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(FixedUpdate, (moments, step).chain());
+        app.add_systems(FixedUpdate, (moments, step, moments).chain());
         app.add_systems(Update, arrows);
     }
 }
@@ -60,25 +61,25 @@ fn arrows(mut gizmos: Gizmos, query: Query<(&SimState, &Panels)>) {
 }
 
 fn moments(time: Res<Time>, mut query: Query<(&mut SimState, &Panels)>) {
+    let delta = time.delta() / 2;
     for (mut state, panels) in query.iter_mut() {
         let state = &mut state.0;
 
         let momentum: Momentum = panels
             .0
             .iter()
-            .map(|panel| panel.to_moment(state) * time.delta())
-            .reduce(|acc, e| acc + e)
-            .unwrap_or(Momentum::ZERO);
+            .map(|panel| panel.to_moment(state) * delta)
+            .fold(Momentum::ZERO, |acc, e| acc + e);
 
         state.momentum += momentum;
     }
 }
 
 fn step(time: Res<Time>, mut query: Query<(&mut Transform, &mut SimState)>) {
-    for (mut trans, mut state) in query.iter_mut() {
+    query.par_iter_mut().for_each(|(mut trans, mut state)| {
         state.0.step_movement(time.delta());
 
         trans.translation = state.0.transform.translation.0.as_vec3();
         trans.rotation = state.0.transform.rotation.0.as_quat();
-    }
+    });
 }

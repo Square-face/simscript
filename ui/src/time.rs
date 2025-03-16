@@ -1,6 +1,6 @@
 use bevy::{
     app::{FixedFirst, Plugin, Startup, Update},
-    input::common_conditions::input_just_pressed,
+    input::common_conditions::{input_just_pressed, input_pressed},
     prelude::{IntoSystemConfigs, KeyCode, ResMut, Resource},
     time::{Fixed, Time, Virtual},
 };
@@ -10,7 +10,7 @@ pub struct TimeControllPlugin;
 #[derive(Resource, Default)]
 struct StepFlag(bool);
 
-const HZ: f64 = 10000.;
+const HZ: f64 = 30000.;
 const TIMESCALE: f64 = 1.;
 
 impl Plugin for TimeControllPlugin {
@@ -24,7 +24,7 @@ impl Plugin for TimeControllPlugin {
         );
         app.add_systems(
             Update,
-            (step_once_start,).run_if(input_just_pressed(KeyCode::ArrowRight)),
+            (step_once_start,).run_if(input_pressed(KeyCode::ArrowRight)),
         );
         app.add_systems(FixedFirst, step_once_end);
     }
