@@ -45,10 +45,21 @@ impl Plugin for SimulationPlugin {
 }
 
 fn arrows(mut gizmos: Gizmos, query: Query<(&SimState, &Panels)>) {
+
     for (state, panels) in query.iter() {
         let state = &state.0;
+
+        let pos = state.transform.translation.0;
+        let rot = state.transform.rotation.0;
+        let vel = state.momentum / state.mass.rotated(rot);
+
+        gizmos.arrow(
+            (pos).as_vec3(),
+            (pos + vel.linear.0).as_vec3(),
+            Color::srgb(0., 1., 0.),
+        );
+
         for panel in &panels.0 {
-            let pos = state.transform.translation.0;
             let mom = panel.to_moment(state);
 
             gizmos.arrow(

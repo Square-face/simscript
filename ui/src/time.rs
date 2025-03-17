@@ -1,3 +1,5 @@
+use core::f64;
+
 use bevy::{
     app::{FixedFirst, Plugin, Startup, Update},
     input::common_conditions::{input_just_pressed, input_pressed},
@@ -10,8 +12,8 @@ pub struct TimeControllPlugin;
 #[derive(Resource, Default)]
 struct StepFlag(bool);
 
-const HZ: f64 = 30000.;
-const TIMESCALE: f64 = 1.;
+const HZ: f64 = 60.;
+const TIMESCALE: f64 = 0.1;
 
 impl Plugin for TimeControllPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {

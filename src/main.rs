@@ -65,11 +65,11 @@ fn main() {
 fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
     let arrow = ass.load("arrow.glb#Scene0");
     let state = State::new(
-        InertiaMass::new(Mass::new(80.), Inertia::cylinder_x(14., 0.2, 80.)),
+        InertiaMass::new(Mass::new(0.1), Inertia::cylinder_x(1., 3. / 100., 0.1)),
         simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
         simscript_physics::momentum::Momentum::new(
-            LinMom::new(DVec3::NEG_Z * 2000.),
-            AngMom::new(DVec3::Z * 1000.),
+            LinMom::new(DVec3::Z * 0.1 * 1.),
+            AngMom::new(DVec3::Z * 0.05),
         ),
     );
 
@@ -77,15 +77,15 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         .map(|i| DQuat::from_rotation_x(TAU / 3. * i as f64).mul_vec3(DVec3::Y))
         .collect();
 
-    let back = DVec3::NEG_X * 7.3;
+    let back = DVec3::NEG_X * 0.5;
     fn rot_90(vec: DVec3) -> DVec3 {
         DQuat::from_rotation_x(PI / 2.).mul_vec3(vec)
     }
 
     let panels = vec![
-        Panel::new(back + normals[0] * 0.2, rot_90(normals[0]), 0.5),
-        Panel::new(back + normals[1] * 0.2, rot_90(normals[1]), 0.5),
-        Panel::new(back + normals[2] * 0.2, rot_90(normals[2]), 0.5),
+        Panel::new(back + normals[0] * 2. / 100., rot_90(normals[0]), 0.5),
+        Panel::new(back + normals[1] * 2. / 100., rot_90(normals[1]), 0.5),
+        Panel::new(back + normals[2] * 2. / 100., rot_90(normals[2]), 0.5),
     ];
 
     commands
@@ -93,7 +93,7 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
         .with_children(|parent| {
             parent.spawn((
                 SceneRoot(arrow.clone()),
-                Transform::from_xyz(0., 0.14, 0.).with_scale(Vec3::ONE.with_x(-1.)),
+                Transform::from_xyz(0., 0.14/14., 0.).with_scale(Vec3::new(-1., 1., 1.)/14.),
             ));
         });
 
