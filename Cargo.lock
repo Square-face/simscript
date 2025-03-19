@@ -234,7 +234,7 @@ dependencies = [
 [[package]]
 name = "approx_derive"
 version = "0.1.0"
-source = "git+https://github.com/Square-face/simscript-physics?branch=main#21a9ca94c8cfbcf67f3c77f7fa9297529f45db13"
+source = "git+https://github.com/Square-face/simscript-physics?branch=serde#855deaf15e1827de3d8a97fc6c67bbeecd750c30"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4558,6 +4558,7 @@ dependencies = [
  "chrono",
  "log",
  "rayon",
+ "serde",
  "simscript-physics",
  "ui",
 ]
@@ -4565,12 +4566,13 @@ dependencies = [
 [[package]]
 name = "simscript-physics"
 version = "0.1.0"
-source = "git+https://github.com/Square-face/simscript-physics?branch=main#21a9ca94c8cfbcf67f3c77f7fa9297529f45db13"
+source = "git+https://github.com/Square-face/simscript-physics?branch=serde#855deaf15e1827de3d8a97fc6c67bbeecd750c30"
 dependencies = [
  "approx",
  "approx_derive",
  "glam 0.29.2",
  "overload",
+ "serde",
 ]
 
 [[package]]
