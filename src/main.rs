@@ -17,10 +17,8 @@ use bevy::{
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
     inertia_mass::{Inertia, InertiaMass, Mass},
-    momentum::{AngMom, LinMom},
+    momentum::{AngMom, LinMom, Momentum},
     panels::Panel,
-    transform::{Rotation, Translation},
-    State,
 };
 use std::f64::consts::{PI, TAU};
 use ui::{
@@ -62,38 +60,45 @@ fn main() {
         .run();
 }
 
-fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
-    let arrow = ass.load("arrow.glb#Scene0");
-    let state = State::new(
-        InertiaMass::new(Mass::new(0.1), Inertia::cylinder_x(1., 3. / 100., 0.1)),
-        simscript_physics::transform::Transform::new(Translation::ZERO, Rotation::ZERO),
-        simscript_physics::momentum::Momentum::new(
-            LinMom::new(DVec3::Z * 0.1 * 1.),
-            AngMom::new(DVec3::Z * 0.05),
-        ),
-    );
-
+fn panels() -> Vec<Panel> {
     let normals: Vec<DVec3> = (0..3)
         .map(|i| DQuat::from_rotation_x(TAU / 3. * i as f64).mul_vec3(DVec3::Y))
         .collect();
 
-    let back = DVec3::NEG_X * 0.5;
+    let back = DVec3::NEG_X * 0.71 / 2.;
     fn rot_90(vec: DVec3) -> DVec3 {
         DQuat::from_rotation_x(PI / 2.).mul_vec3(vec)
     }
 
-    let panels = vec![
-        Panel::new(back + normals[0] * 2. / 100., rot_90(normals[0]), 0.5),
-        Panel::new(back + normals[1] * 2. / 100., rot_90(normals[1]), 0.5),
-        Panel::new(back + normals[2] * 2. / 100., rot_90(normals[2]), 0.5),
-    ];
+    vec![
+        Panel::new(back + normals[0] * 0.6 / 100., rot_90(normals[0]), 0.001),
+        Panel::new(back + normals[1] * 0.6 / 100., rot_90(normals[1]), 0.001),
+        Panel::new(back + normals[2] * 0.6 / 100., rot_90(normals[2]), 0.001),
+    ]
+}
+
+fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
+    let arrow = ass.load("arrow.glb#Scene0");
+
+    let mass = InertiaMass::new(
+        Mass::new(0.023),
+        Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
+    );
+    let mom = Momentum::new(LinMom::Z * 0.023 * 050., AngMom::X * 0.0001);
+
+    let state = simscript_physics::StateBuilder::new()
+        .mass(mass)
+        .momentum(mom)
+        .panels(panels())
+        .build();
 
     commands
-        .spawn((SimulationBundle::new(state, panels), CameraTarget))
+        .spawn((SimulationBundle::new(state), CameraTarget))
         .with_children(|parent| {
             parent.spawn((
                 SceneRoot(arrow.clone()),
-                Transform::from_xyz(0., 0.14/14., 0.).with_scale(Vec3::new(-1., 1., 1.)/14.),
+                Transform::from_xyz(0., 0.14 / 14., 0.)
+                    .with_scale(Vec3::new(-1., 1., 1.) * (0.71 / 14.)),
             ));
         });
 

@@ -234,7 +234,7 @@ dependencies = [
 [[package]]
 name = "approx_derive"
 version = "0.1.0"
-source = "git+https://github.com/Square-face/simscript-physics?branch=main#00beeb9bbf8be23d34a554f641d892afe5628c76"
+source = "git+https://github.com/Square-face/simscript-physics?branch=main#21a9ca94c8cfbcf67f3c77f7fa9297529f45db13"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4565,7 +4565,7 @@ dependencies = [
 [[package]]
 name = "simscript-physics"
 version = "0.1.0"
-source = "git+https://github.com/Square-face/simscript-physics?branch=main#00beeb9bbf8be23d34a554f641d892afe5628c76"
+source = "git+https://github.com/Square-face/simscript-physics?branch=main#21a9ca94c8cfbcf67f3c77f7fa9297529f45db13"
 dependencies = [
  "approx",
  "approx_derive",
