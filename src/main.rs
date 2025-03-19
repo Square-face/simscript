@@ -28,8 +28,11 @@ use ui::{
 };
 
 mod entity;
+mod cli;
 
 fn main() {
+    let _args = cli::Args::get();
+
     let logging = LogPlugin {
         filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
         level: bevy::log::Level::DEBUG,
