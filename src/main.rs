@@ -14,6 +14,7 @@ use bevy::{
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
+use config::Config;
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
     inertia_mass::{Inertia, InertiaMass, Mass},
@@ -29,9 +30,11 @@ use ui::{
 
 mod entity;
 mod cli;
+mod config;
 
 fn main() {
-    let _args = cli::Args::get();
+    let args = cli::Args::get();
+    let config = Config::serialize(args.config);
 
     let logging = LogPlugin {
         filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
@@ -60,6 +63,7 @@ fn main() {
         .add_plugins(SimulationPlugin)
         .add_plugins(TimeControllPlugin)
         .add_systems(Startup, (spawn_tests,))
+        .insert_resource(config)
         .run();
 }
 
@@ -80,23 +84,15 @@ fn panels() -> Vec<Panel> {
     ]
 }
 
-fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
-    let arrow = ass.load("arrow.glb#Scene0");
+fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
+    for state in &config.entities {
+        let arrow = ass.load("arrow.glb#Scene0");
 
-    let mass = InertiaMass::new(
-        Mass::new(0.023),
-        Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
-    );
-    let mom = Momentum::new(LinMom::Z * 0.023 * 050., AngMom::X * 0.0001);
-
-    let state = simscript_physics::StateBuilder::new()
-        .mass(mass)
-        .momentum(mom)
-        .panels(panels())
-        .build();
-
-    commands
-        .spawn((SimulationBundle::new(state), CameraTarget))
+        if state.camera_target {
+            commands.spawn((SimulationBundle::new(state.state.clone()), CameraTarget))
+        } else {
+            commands.spawn(SimulationBundle::new(state.state.clone()))
+        }
         .with_children(|parent| {
             parent.spawn((
                 SceneRoot(arrow.clone()),
@@ -104,6 +100,20 @@ fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>) {
                     .with_scale(Vec3::new(-1., 1., 1.) * (0.71 / 14.)),
             ));
         });
+    }
+
+
+    //let mass = InertiaMass::new(
+    //    Mass::new(0.023),
+    //    Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
+    //);
+    //let mom = Momentum::new(LinMom::Z * 0.023 * 050., AngMom::X * 0.0001);
+    //
+    //let state = simscript_physics::StateBuilder::new()
+    //    .mass(mass)
+    //    .momentum(mom)
+    //    .panels(panels())
+    //    .build();
 
     commands.insert_resource(AmbientLight {
         color: WHITE.into(),
