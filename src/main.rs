@@ -1,40 +1,32 @@
+use std::{path::Path, str::FromStr};
+
 use bevy::{
     app::{App, Startup},
-    asset::AssetServer,
+    asset::{AssetPath, AssetServer},
     color::palettes::css::{BLACK, WHITE},
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    ecs::system::{Commands, Res},
-    hierarchy::BuildChildren,
+    ecs::system::Commands,
     log::LogPlugin,
-    math::{DQuat, DVec3, Vec3},
     pbr::AmbientLight,
-    prelude::{ChildBuild, PluginGroup, Transform},
+    prelude::{PluginGroup, Res},
     render::camera::ClearColor,
     scene::SceneRoot,
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
-use config::Config;
-use entity::{SimulationBundle, SimulationPlugin};
-use simscript_physics::{
-    inertia_mass::{Inertia, InertiaMass, Mass},
-    momentum::{AngMom, LinMom, Momentum},
-    panels::Panel,
-};
-use std::f64::consts::{PI, TAU};
+use cli::Config;
+use entity::SimulationPlugin;
 use ui::{
     camera::{CameraPlugin, CameraTarget},
     grid::grid_plugin,
     time::TimeControllPlugin,
 };
 
-mod entity;
 mod cli;
-mod config;
+mod entity;
 
 fn main() {
-    let args = cli::Args::get();
-    let config = Config::serialize(args.config);
+    let config = cli::Args::get_config();
 
     let logging = LogPlugin {
         filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
@@ -62,59 +54,33 @@ fn main() {
         .add_plugins(grid_plugin)
         .add_plugins(SimulationPlugin)
         .add_plugins(TimeControllPlugin)
-        .add_systems(Startup, (spawn_tests,))
+        .add_systems(Startup, (setup_environment, spaw_config))
         .insert_resource(config)
         .run();
 }
 
-fn panels() -> Vec<Panel> {
-    let normals: Vec<DVec3> = (0..3)
-        .map(|i| DQuat::from_rotation_x(TAU / 3. * i as f64).mul_vec3(DVec3::Y))
-        .collect();
+fn spaw_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
+    for entity in config.enteties.iter() {
+        let label = String::from_str(&entity.sprite.label).unwrap();
+        let path = String::from_str(entity.sprite.path.to_str().unwrap()).unwrap();
 
-    let back = DVec3::NEG_X * 0.71 / 2.;
-    fn rot_90(vec: DVec3) -> DVec3 {
-        DQuat::from_rotation_x(PI / 2.).mul_vec3(vec)
+        let label: &'static str = Box::leak(label.into_boxed_str());
+        let path: &'static str = Box::leak(path.into_boxed_str());
+
+        let path = Path::new(path);
+        let asset_path = AssetPath::from_path(path).with_label(label);
+
+        let cube = ass.load(asset_path);
+
+        if entity.primary {
+            commands.spawn((SceneRoot(cube), CameraTarget));
+        } else {
+            commands.spawn(SceneRoot(cube));
+        }
     }
-
-    vec![
-        Panel::new(back + normals[0] * 0.6 / 100., rot_90(normals[0]), 0.001),
-        Panel::new(back + normals[1] * 0.6 / 100., rot_90(normals[1]), 0.001),
-        Panel::new(back + normals[2] * 0.6 / 100., rot_90(normals[2]), 0.001),
-    ]
 }
 
-fn spawn_tests(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
-    for state in &config.entities {
-        let arrow = ass.load("arrow.glb#Scene0");
-
-        if state.camera_target {
-            commands.spawn((SimulationBundle::new(state.state.clone()), CameraTarget))
-        } else {
-            commands.spawn(SimulationBundle::new(state.state.clone()))
-        }
-        .with_children(|parent| {
-            parent.spawn((
-                SceneRoot(arrow.clone()),
-                Transform::from_xyz(0., 0.14 / 14., 0.)
-                    .with_scale(Vec3::new(-1., 1., 1.) * (0.71 / 14.)),
-            ));
-        });
-    }
-
-
-    //let mass = InertiaMass::new(
-    //    Mass::new(0.023),
-    //    Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
-    //);
-    //let mom = Momentum::new(LinMom::Z * 0.023 * 050., AngMom::X * 0.0001);
-    //
-    //let state = simscript_physics::StateBuilder::new()
-    //    .mass(mass)
-    //    .momentum(mom)
-    //    .panels(panels())
-    //    .build();
-
+fn setup_environment(mut commands: Commands) {
     commands.insert_resource(AmbientLight {
         color: WHITE.into(),
         brightness: 100.0,

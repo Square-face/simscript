@@ -1,9 +1,20 @@
 [settings]
+frequency = 600
+timescale = 1
 
-[[entities]]
+[[enteties]]
+primary = true
 
-camera_target = true
+[enteties.sprite]
+path = "./cube.glb"
+label = "Scene0"
 
-[[entities.state]]
-mass = 1
-inertia = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+[[enteties]]
+
+[enteties.sprite]
+path = "../assets/arrow.glb"
+label = "Scene0"
+
+
+# Mass::new(0.023),
+# Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
