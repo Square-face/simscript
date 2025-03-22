@@ -81,7 +81,6 @@ fn orbit(
     mouse_motion: Res<AccumulatedMouseMotion>,
     mut cam: Single<(&mut OrbitState, &OrbitSettings), With<PrimaryCamera>>,
 ) {
-
     if cam.1.move_camera_key.pressed(&kbd, &mos) {
         let rot = cam.1;
         cam.0.orbit(rot, mouse_motion.delta);
