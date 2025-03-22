@@ -5,16 +5,21 @@ timescale = 1
 [[enteties]]
 primary = true
 
-[enteties.sprite]
-path = "./cube.glb"
-label = "Scene0"
-
-[[enteties]]
 
 [enteties.sprite]
 path = "../assets/arrow.glb"
 label = "Scene0"
+transform = { linear = [0, 0.143, 0], angular = [0, 180, 0] }
 
+[enteties.inertia.CylinderX]
+radius = 0.5
+height = 10
+mass = 80
 
-# Mass::new(0.023),
-# Inertia::cylinder_x(0.71, 0.3 / 100., 0.023),
+[enteties.momentum]
+linear = [0, 0, 1000]
+angular = [0, 0, 0]
+
+[enteties.transform]
+linear = [0, 0, 0]
+angular = [0, 0, 0]

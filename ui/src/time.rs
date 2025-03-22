@@ -12,7 +12,7 @@ pub struct TimeControllPlugin;
 #[derive(Resource, Default)]
 struct StepFlag(bool);
 
-const HZ: f64 = 6000.;
+const HZ: f64 = 2000.;
 const TIMESCALE: f64 = 1.;
 
 impl Plugin for TimeControllPlugin {

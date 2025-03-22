@@ -8,14 +8,15 @@ use bevy::{
     ecs::system::Commands,
     log::LogPlugin,
     pbr::AmbientLight,
-    prelude::{PluginGroup, Res},
+    prelude::{BuildChildren, PluginGroup, Res, Transform},
     render::camera::ClearColor,
     scene::SceneRoot,
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
 use cli::Config;
-use entity::SimulationPlugin;
+use entity::{SimulationBundle, SimulationPlugin};
+use simscript_physics::StateBuilder;
 use ui::{
     camera::{CameraPlugin, CameraTarget},
     grid::grid_plugin,
@@ -27,6 +28,7 @@ mod entity;
 
 fn main() {
     let config = cli::Args::get_config();
+    dbg!(&config);
 
     let logging = LogPlugin {
         filter: "info,wgpu_core=warn,wgpu_hal=warn,simscript=info".into(),
@@ -54,12 +56,12 @@ fn main() {
         .add_plugins(grid_plugin)
         .add_plugins(SimulationPlugin)
         .add_plugins(TimeControllPlugin)
-        .add_systems(Startup, (setup_environment, spaw_config))
+        .add_systems(Startup, (setup_environment, spawn_config))
         .insert_resource(config)
         .run();
 }
 
-fn spaw_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
+fn spawn_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
     for entity in config.enteties.iter() {
         let label = String::from_str(&entity.sprite.label).unwrap();
         let path = String::from_str(entity.sprite.path.to_str().unwrap()).unwrap();
@@ -70,13 +72,25 @@ fn spaw_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config
         let path = Path::new(path);
         let asset_path = AssetPath::from_path(path).with_label(label);
 
-        let cube = ass.load(asset_path);
+        let model = ass.load(asset_path);
+        let state = StateBuilder::new()
+            .mass(entity.inertia.to_inertiamass())
+            .momentum(entity.momentum)
+            .transform(entity.transform.to_transform())
+            .build();
+
+        let state_transform = entity.sprite.transform.to_transform();
 
         if entity.primary {
-            commands.spawn((SceneRoot(cube), CameraTarget));
+            commands.spawn((SimulationBundle::new(state), CameraTarget))
         } else {
-            commands.spawn(SceneRoot(cube));
+            commands.spawn(SimulationBundle::new(state))
         }
+        .with_child((
+            Transform::from_translation(state_transform.translation.0.as_vec3())
+                .with_rotation(state_transform.rotation.0.as_quat()),
+            SceneRoot(model),
+        ));
     }
 }
 

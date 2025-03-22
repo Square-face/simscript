@@ -1,7 +1,15 @@
-use bevy::prelude::Resource;
+use bevy::{
+    math::{DQuat, DVec3},
+    prelude::Resource,
+};
 use clap::Parser;
 use relative_path::RelativePathBuf;
 use serde::{Deserialize, Serialize};
+use simscript_physics::{
+    inertia_mass::{Inertia, InertiaMass, Mass},
+    momentum::Momentum,
+    transform::Transform,
+};
 use std::{
     env::current_dir,
     fs::File,
@@ -49,6 +57,68 @@ impl Config {
     }
 }
 
+impl InertiaShapes {
+    pub const fn get_mass(&self) -> Mass {
+        let mass = match self {
+            InertiaShapes::CylinderX {
+                radius: _,
+                height: _,
+                mass,
+            } => mass,
+            InertiaShapes::CylinderY {
+                radius: _,
+                height: _,
+                mass,
+            } => mass,
+            InertiaShapes::CylinderZ {
+                radius: _,
+                height: _,
+                mass,
+            } => mass,
+        };
+
+        Mass::new(*mass)
+    }
+    pub const fn get_inertia(&self) -> Inertia {
+        match self {
+            InertiaShapes::CylinderX {
+                radius,
+                height,
+                mass,
+            } => Inertia::cylinder_x(*height, *radius, *mass),
+            InertiaShapes::CylinderY {
+                radius,
+                height,
+                mass,
+            } => Inertia::cylinder_y(*height, *radius, *mass),
+            InertiaShapes::CylinderZ {
+                radius,
+                height,
+                mass,
+            } => Inertia::cylinder_z(*height, *radius, *mass),
+        }
+    }
+    pub fn to_inertiamass(&self) -> InertiaMass {
+        let inertia = self.get_inertia();
+        let mass = self.get_mass();
+
+        InertiaMass::new(mass, inertia)
+    }
+}
+
+impl TransformConfig {
+    pub fn to_transform(&self) -> Transform {
+        let rot = DQuat::from_euler(
+            bevy::math::EulerRot::YXZ,
+            self.angular.y.to_radians(),
+            self.angular.x.to_radians(),
+            self.angular.z.to_radians(),
+        );
+
+        Transform::from_inner(self.linear, rot)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
     pub frequency: f64,
@@ -61,13 +131,24 @@ pub struct Settings {
 pub struct Sprite {
     pub path: PathBuf,
     pub label: String,
+
+    #[serde(default)]
+    pub transform: TransformConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Entity {
     #[serde(default)]
     pub primary: bool,
+
     pub sprite: Sprite,
+    pub inertia: InertiaShapes,
+
+    #[serde(default)]
+    pub momentum: Momentum,
+
+    #[serde(default)]
+    pub transform: TransformConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Resource)]
@@ -76,4 +157,17 @@ pub struct Config {
 
     #[serde(default)]
     pub enteties: Vec<Entity>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum InertiaShapes {
+    CylinderX { radius: f64, height: f64, mass: f64 },
+    CylinderY { radius: f64, height: f64, mass: f64 },
+    CylinderZ { radius: f64, height: f64, mass: f64 },
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct TransformConfig {
+    linear: DVec3,
+    angular: DVec3,
 }
