@@ -17,9 +17,25 @@ height = 10
 mass = 80
 
 [enteties.momentum]
-linear = [0, 0, 1000]
+linear = [-10000, 0, 0]
 angular = [0, 0, 0]
 
 [enteties.transform]
 linear = [0, 0, 0]
-angular = [0, 0, 0]
+angular = [0, 0.1, 0]
+
+[[enteties.panels]]
+area = 0.2
+offset = [-7, 0.4, 0]
+normal = [0, 0, 1]
+
+[[enteties.panels]]
+area = 0.2
+offset = [-7, -0.2, 0.3464101615]
+normal = [0, -0.3464101615, -0.2]
+
+[[enteties.panels]]
+area = 0.2
+offset = [-7, -0.2, -0.3464101615]
+normal = [0, 0.3464101615, -0.2]
+

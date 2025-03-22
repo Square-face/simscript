@@ -109,7 +109,7 @@ impl InertiaShapes {
 impl TransformConfig {
     pub fn to_transform(&self) -> Transform {
         let rot = DQuat::from_euler(
-            bevy::math::EulerRot::YXZ,
+            bevy::math::EulerRot::YZX,
             self.angular.y.to_radians(),
             self.angular.x.to_radians(),
             self.angular.z.to_radians(),
@@ -149,6 +149,9 @@ pub struct Entity {
 
     #[serde(default)]
     pub transform: TransformConfig,
+
+    #[serde(default)]
+    pub panels: Vec<PanelConfig>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Resource)]
@@ -170,4 +173,11 @@ pub enum InertiaShapes {
 pub struct TransformConfig {
     linear: DVec3,
     angular: DVec3,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct PanelConfig {
+    pub offset: DVec3,
+    pub normal: DVec3,
+    pub area: f64,
 }

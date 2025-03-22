@@ -19,8 +19,10 @@ pub struct SimulationBundle {
 
 impl SimulationBundle {
     pub fn new(state: State) -> Self {
-        let transform = Transform::default();
+        let mut transform = Transform::default();
         let visibility = Visibility::default();
+        transform.translation = state.transform.translation.0.as_vec3();
+        transform.rotation = state.transform.rotation.0.as_quat();
         Self {
             transform,
             visibility,
@@ -61,6 +63,12 @@ fn arrows(mut gizmos: Gizmos, query: Query<&SimState>) {
                 (off).as_vec3(),
                 (off + mom.force.0).as_vec3(),
                 Color::srgb(1.0, 0., 0.),
+            );
+
+            gizmos.line(
+                (off).as_vec3(),
+                (off + rotated.normal).as_vec3(),
+                Color::srgb(0.0, 1.0, 0.),
             );
         }
     }
