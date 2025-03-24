@@ -64,12 +64,6 @@ fn arrows(mut gizmos: Gizmos, query: Query<&SimState>) {
                 (off + mom.force.0).as_vec3(),
                 Color::srgb(1.0, 0., 0.),
             );
-
-            gizmos.line(
-                (off).as_vec3(),
-                (off + rotated.normal).as_vec3(),
-                Color::srgb(0.0, 1.0, 0.),
-            );
         }
     }
 }

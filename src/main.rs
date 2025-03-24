@@ -18,7 +18,7 @@ use bevy::{
 use cli::{Config, Sprite};
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
-    momentum::{self, AngMom, LinMom},
+    momentum::{AngMom, LinMom},
     panels::Panel,
     velocity::{AngVel, LinVel},
     StateBuilder,

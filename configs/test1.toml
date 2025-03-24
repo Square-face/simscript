@@ -5,6 +5,10 @@ timescale = 0.1
 [[enteties]]
 primary = true
 
+[enteties.velocity]
+linear = [0, 0, 67]
+angular = [0, 0, 0]
+
 [enteties.sprite]
 path = "../assets/arrow.glb"
 label = "Scene0"
@@ -14,7 +18,7 @@ transform = { linear = [
     0,
 ], angular = [
     0,
-    0,
+    90,
     0,
 ], scale = [
     -0.07142857143,
@@ -22,18 +26,10 @@ transform = { linear = [
     0.07142857143,
 ] }
 
-[enteties.transform]
-linear = [0, 0, 0]
-angular = [0, 0, 0]
-
 [enteties.inertia.CylinderX]
 radius = 0.03571428571
 height = 0.7142857143
 mass = 0.023
-
-[enteties.velocity]
-linear = [0, 0, 67]
-angular = [0, 90, 0]
 
 [[enteties.panels]]
 area = 0.0007
