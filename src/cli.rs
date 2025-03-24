@@ -3,7 +3,7 @@ use bevy::{
     prelude::Resource,
 };
 use clap::Parser;
-use relative_path::RelativePathBuf;
+use relative_path::{RelativePath, RelativePathBuf};
 use serde::{Deserialize, Serialize};
 use simscript_physics::{
     inertia_mass::{Inertia, InertiaMass, Mass},
@@ -15,46 +15,55 @@ use std::{
     env::current_dir,
     fs::File,
     io::Read,
+    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
 };
 
 /// Simulate simple Newtonian physics
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
-pub struct Args {
+pub struct Cli {
     /// Path to config file for the initial simulation state
     #[arg(required = true)]
     pub config: RelativePathBuf,
 }
 
-impl Args {
-    pub fn get_config() -> Config {
-        let args = Args::parse();
-        let path = args
-            .config
-            .to_path(current_dir().expect("Failed to get current directory"));
-        Config::serialize(&path)
+impl Cli {
+    pub fn get_config(&self) -> Config {
+        Config::serialize(&self.config)
     }
 }
 
 impl Config {
-    pub fn serialize(path: &Path) -> Self {
-        let mut file = File::open(path).expect("Failed to open config file");
-        let mut buf = String::new();
+    pub fn serialize(path: &RelativePath) -> Self {
+        let current_dir = current_dir().expect("Failed to get current directory");
+        let config_path = &path.to_path(current_dir);
+        let config_dir = config_path
+            .parent()
+            .expect("Unable to get config parent directory");
+
+        let mut file = File::open(config_path).expect("Failed to open config file");
+        let size = file.metadata().map(|m| m.size()).unwrap_or(0) as usize;
+
+        let mut buf = String::with_capacity(size);
 
         file.read_to_string(&mut buf)
             .expect("Failed to read config file");
 
-        let base = path.parent().unwrap();
         let mut config: Config = toml::from_str(&buf).expect("Failed to deserialize");
 
-        for entity in config.enteties.iter_mut() {
-            entity.sprite.path = RelativePathBuf::from_path(entity.sprite.path.clone())
+        config.fix_paths(config_dir);
+        config
+    }
+
+    fn fix_paths(&mut self, base: &Path) {
+        for entity in self.enteties.iter_mut() {
+            let path_buf = &entity.sprite.path;
+
+            entity.sprite.path = RelativePathBuf::from_path(path_buf)
                 .expect("Invalid sprite path")
                 .to_path(base);
         }
-
-        config
     }
 }
 
@@ -166,20 +175,13 @@ pub struct Config {
     pub enteties: Vec<Entity>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum InertiaShapes {
-    CylinderX { radius: f64, height: f64, mass: f64 },
-    CylinderY { radius: f64, height: f64, mass: f64 },
-    CylinderZ { radius: f64, height: f64, mass: f64 },
-}
-
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct TransformConfig {
     pub linear: DVec3,
     pub angular: DVec3,
 
     #[serde(default)]
-    pub scale: DVec3
+    pub scale: DVec3,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -187,4 +189,11 @@ pub struct PanelConfig {
     pub offset: DVec3,
     pub normal: DVec3,
     pub area: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum InertiaShapes {
+    CylinderX { radius: f64, height: f64, mass: f64 },
+    CylinderY { radius: f64, height: f64, mass: f64 },
+    CylinderZ { radius: f64, height: f64, mass: f64 },
 }

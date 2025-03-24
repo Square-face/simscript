@@ -15,6 +15,7 @@ use bevy::{
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
+use clap::Parser;
 use cli::{Config, Sprite};
 use entity::{SimulationBundle, SimulationPlugin};
 use simscript_physics::{
@@ -33,7 +34,8 @@ mod cli;
 mod entity;
 
 fn main() {
-    let config = cli::Args::get_config();
+    let args = cli::Cli::parse();
+    let config = args.get_config();
     dbg!(&config);
 
     let logging = LogPlugin {

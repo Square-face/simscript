@@ -1,10 +1,8 @@
-use core::f64;
-
 use bevy::{
-    app::{FixedFirst, Plugin, Startup, Update},
+    app::{FixedFirst, Plugin, Update},
     input::common_conditions::{input_just_pressed, input_pressed},
-    prelude::{IntoSystemConfigs, KeyCode, Res, ResMut, Resource},
-    time::{Fixed, Time, Virtual},
+    prelude::{IntoSystemConfigs, KeyCode, ResMut, Resource},
+    time::{Time, Virtual},
 };
 
 pub struct TimeControllPlugin;
