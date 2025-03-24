@@ -14,7 +14,7 @@ use simscript_physics::{
 use std::{
     env::current_dir,
     fs::File,
-    io::Read,
+    io::{self, Read},
     os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
 };
@@ -40,7 +40,7 @@ pub struct Cli {
 
 impl Cli {
     pub fn get_config(&self) -> Config {
-        Config::serialize(&self.config)
+        Config::serialize(&self.config).expect("Failed to serialize config")
     }
 
     pub fn override_config(&self, config: &mut Config) {
@@ -54,25 +54,29 @@ impl Cli {
 }
 
 impl Config {
-    pub fn serialize(path: &RelativePath) -> Self {
-        let current_dir = current_dir().expect("Failed to get current directory");
-        let config_path = &path.to_path(current_dir);
-        let config_dir = config_path
-            .parent()
-            .expect("Unable to get config parent directory");
+    /// Serializes a configuration file.
+    ///
+    /// # Panics
+    ///
+    /// Panics if there is an error parsing the config.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if any io operations fail.
+    pub fn serialize(path: &RelativePath) -> io::Result<Self> {
+        let config_path = &path.to_path(current_dir()?);
 
-        let mut file = File::open(config_path).expect("Failed to open config file");
-        let size = file.metadata().map(|m| m.size()).unwrap_or(0) as usize;
+        let mut file = File::open(config_path)?;
+        let size = file.metadata()?.size() as usize;
 
         let mut buf = String::with_capacity(size);
+        file.read_to_string(&mut buf)?;
 
-        file.read_to_string(&mut buf)
-            .expect("Failed to read config file");
-
-        let mut config: Config = toml::from_str(&buf).expect("Failed to deserialize");
-
+        let mut config: Config = toml::from_str(&buf).expect("Failed to parse config");
+        let config_dir = config_path.parent().unwrap();
         config.fix_paths(config_dir);
-        config
+
+        Ok(config)
     }
 
     fn fix_paths(&mut self, base: &Path) {
