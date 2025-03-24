@@ -26,11 +26,30 @@ pub struct Cli {
     /// Path to config file for the initial simulation state
     #[arg(required = true)]
     pub config: RelativePathBuf,
+
+    /// Override the starting timescale used by the simulation
+    #[arg(long, short)]
+    pub timescale: Option<f64>,
+
+    /// Overrides the frequency the simulation will run at.
+    ///
+    /// Note that the frequency only affects "virtual" time.
+    #[arg(long, short)]
+    pub frequency: Option<f64>,
 }
 
 impl Cli {
     pub fn get_config(&self) -> Config {
         Config::serialize(&self.config)
+    }
+
+    pub fn override_config(&self, config: &mut Config) {
+        if let Some(timescale) = self.timescale {
+            config.settings.timescale = timescale;
+        }
+        if let Some(frequency) = self.frequency {
+            config.settings.frequency = frequency;
+        }
     }
 }
 

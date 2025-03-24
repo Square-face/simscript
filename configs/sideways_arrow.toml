@@ -1,6 +1,6 @@
 [settings]
 frequency = 15000
-timescale = 0.1
+timescale = 1
 
 [[enteties]]
 primary = true
@@ -10,7 +10,7 @@ linear = [0, 0, 67]
 angular = [0, 0, 0]
 
 [enteties.sprite]
-path = "../assets/arrow.glb"
+path = "assets/arrow.glb"
 label = "Scene0"
 transform = { linear = [
     0,
@@ -18,7 +18,7 @@ transform = { linear = [
     0,
 ], angular = [
     0,
-    90,
+    0,
     0,
 ], scale = [
     -0.07142857143,

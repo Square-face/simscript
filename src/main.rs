@@ -35,7 +35,8 @@ mod entity;
 
 fn main() {
     let args = cli::Cli::parse();
-    let config = args.get_config();
+    let mut config = args.get_config();
+    args.override_config(&mut config);
     dbg!(&config);
 
     let logging = LogPlugin {
