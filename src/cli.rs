@@ -7,8 +7,9 @@ use relative_path::RelativePathBuf;
 use serde::{Deserialize, Serialize};
 use simscript_physics::{
     inertia_mass::{Inertia, InertiaMass, Mass},
-    momentum::{LinMom, Momentum},
-    transform::Transform, velocity::{LinVel, Velocity},
+    momentum::Momentum,
+    transform::Transform,
+    velocity::Velocity,
 };
 use std::{
     env::current_dir,
@@ -48,7 +49,6 @@ impl Config {
         let mut config: Config = toml::from_str(&buf).expect("Failed to deserialize");
 
         for entity in config.enteties.iter_mut() {
-
             entity.sprite.path = RelativePathBuf::from_path(entity.sprite.path.clone())
                 .expect("Invalid sprite path")
                 .to_path(base);
@@ -175,8 +175,11 @@ pub enum InertiaShapes {
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct TransformConfig {
-    linear: DVec3,
-    angular: DVec3,
+    pub linear: DVec3,
+    pub angular: DVec3,
+
+    #[serde(default)]
+    pub scale: DVec3
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

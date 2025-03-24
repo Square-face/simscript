@@ -8,9 +8,10 @@ use bevy::{
     ecs::system::Commands,
     log::LogPlugin,
     pbr::AmbientLight,
-    prelude::{BuildChildren, PluginGroup, Res, Transform},
+    prelude::{BuildChildren, PluginGroup, Res, ResMut, Transform},
     render::camera::ClearColor,
     scene::{Scene, SceneRoot},
+    time::{Fixed, Time, Virtual},
     window::{PresentMode, Window, WindowPlugin},
     DefaultPlugins,
 };
@@ -61,7 +62,8 @@ fn main() {
         .add_plugins(grid_plugin)
         .add_plugins(SimulationPlugin)
         .add_plugins(TimeControllPlugin)
-        .add_systems(Startup, (setup_environment, spawn_config))
+        .add_systems(Startup, (setup_environment, spawn_config, start_paused))
+        .insert_resource(Time::<Fixed>::from_hz(config.settings.frequency))
         .insert_resource(config)
         .run();
 }
@@ -76,6 +78,11 @@ fn load_dynamic_asset(sprite: &Sprite, ass: &Res<AssetServer>) -> Handle<Scene> 
     let path = Path::new(path);
     let asset_path = AssetPath::from_path(path).with_label(label);
     ass.load(asset_path)
+}
+
+fn start_paused(mut time: ResMut<Time<Virtual>>, config: Res<Config>) {
+    time.set_relative_speed_f64(config.settings.timescale);
+    time.pause();
 }
 
 fn spawn_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
@@ -120,7 +127,8 @@ fn spawn_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Confi
         }
         .with_child((
             Transform::from_translation(state_transform.translation.0.as_vec3())
-                .with_rotation(state_transform.rotation.0.as_quat()),
+                .with_rotation(state_transform.rotation.0.as_quat())
+                .with_scale(entity.sprite.transform.scale.as_vec3()),
             SceneRoot(load_dynamic_asset(&entity.sprite, &ass)),
         ));
     }
