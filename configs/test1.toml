@@ -5,7 +5,6 @@ timescale = 1
 [[enteties]]
 primary = true
 
-
 [enteties.sprite]
 path = "../assets/arrow.glb"
 label = "Scene0"
@@ -16,13 +15,13 @@ radius = 0.5
 height = 10
 mass = 80
 
-[enteties.momentum]
-linear = [-10000, 0, 0]
-angular = [0, 0, 0]
+[enteties.velocity]
+linear = [0, 0, 100]
+angular = [10, 0, 0]
 
 [enteties.transform]
 linear = [0, 0, 0]
-angular = [0, 0.1, 0]
+angular = [0, 0, 0]
 
 [[enteties.panels]]
 area = 0.2

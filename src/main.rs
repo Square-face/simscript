@@ -16,7 +16,12 @@ use bevy::{
 };
 use cli::{Config, Sprite};
 use entity::{SimulationBundle, SimulationPlugin};
-use simscript_physics::{panels::Panel, StateBuilder};
+use simscript_physics::{
+    momentum::{self, AngMom, LinMom},
+    panels::Panel,
+    velocity::{AngVel, LinVel},
+    StateBuilder,
+};
 use ui::{
     camera::{CameraPlugin, CameraTarget},
     grid::grid_plugin,
@@ -81,10 +86,28 @@ fn spawn_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Confi
             .map(|panel| Panel::new(panel.offset, panel.normal.normalize(), panel.area))
             .collect();
 
+        let transform = entity.transform.to_transform();
+        let inertia = entity.inertia.to_inertiamass();
+        let mut momentum = entity.momentum;
+
+        if entity.velocity.linear != LinVel::ZERO {
+            momentum.linear = LinMom::from_vec3(entity.velocity.linear.0 * inertia.mass.0);
+        }
+
+        if entity.velocity.angular != AngVel::ZERO {
+            momentum.angular = AngMom::from_vec3(
+                inertia
+                    .inertia
+                    .rotated(transform.rotation.0)
+                    .0
+                    .mul_vec3(entity.velocity.angular.0),
+            );
+        }
+
         let state = StateBuilder::new()
             .mass(entity.inertia.to_inertiamass())
-            .momentum(entity.momentum)
-            .transform(entity.transform.to_transform())
+            .momentum(momentum)
+            .transform(transform)
             .panels(panels)
             .build();
 
