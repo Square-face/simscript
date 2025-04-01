@@ -80,7 +80,7 @@ impl Config {
     }
 
     fn fix_paths(&mut self, base: &Path) {
-        for entity in self.enteties.iter_mut() {
+        for entity in self.entities.iter_mut() {
             let path_buf = &entity.sprite.path;
 
             entity.sprite.path = RelativePathBuf::from_path(path_buf)
@@ -195,7 +195,7 @@ pub struct Config {
     pub settings: Settings,
 
     #[serde(default)]
-    pub enteties: Vec<Entity>,
+    pub entities: Vec<Entity>,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

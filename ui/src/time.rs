@@ -5,12 +5,12 @@ use bevy::{
     time::{Time, Virtual},
 };
 
-pub struct TimeControllPlugin;
+pub struct TimeControlPlugin;
 
 #[derive(Resource, Default)]
 struct StepFlag(bool);
 
-impl Plugin for TimeControllPlugin {
+impl Plugin for TimeControlPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(StepFlag(false));
         app.add_systems(

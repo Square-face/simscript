@@ -27,7 +27,7 @@ use simscript_physics::{
 use ui::{
     camera::{CameraPlugin, CameraTarget},
     grid::grid_plugin,
-    time::TimeControllPlugin,
+    time::TimeControlPlugin,
 };
 
 mod cli;
@@ -64,7 +64,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(grid_plugin)
         .add_plugins(SimulationPlugin)
-        .add_plugins(TimeControllPlugin)
+        .add_plugins(TimeControlPlugin)
         .add_systems(Startup, (setup_environment, spawn_config, start_paused))
         .insert_resource(Time::<Fixed>::from_hz(config.settings.frequency))
         .insert_resource(config)
@@ -89,7 +89,7 @@ fn start_paused(mut time: ResMut<Time<Virtual>>, config: Res<Config>) {
 }
 
 fn spawn_config(mut commands: Commands, ass: Res<AssetServer>, config: Res<Config>) {
-    for entity in config.enteties.iter() {
+    for entity in config.entities.iter() {
         let panels: Vec<Panel> = entity
             .panels
             .iter()

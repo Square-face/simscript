@@ -29,7 +29,7 @@ transform = { linear = [
 [enteties.inertia.CylinderX]
 radius = 0.03571428571
 height = 0.7142857143
-mass = 0.023
+mass = 1.023
 
 [[enteties.panels]]
 area = 0.0007
